@@ -23,8 +23,13 @@ class Node:
         self.rep_socket.bind(f"tcp://*:{self.port}")
         print(f"Node {self.id} listening on port {self.port}")
         time.sleep(1)  # Esperar un segundo para que el socket se inicialice
+
+        poller = zmq.Poller()  # Crear un poller
+        poller.register(self.rep_socket, zmq.POLLIN)  # Registrar el socket para que el poller lo escuche
+
         while True:
-            if self.rep_socket.poll(timeout=1000):  # Ver si hay mensajes
+            socks = dict(poller.poll(1000))  # Usar el poller para escuchar por mensajes
+            if self.rep_socket in socks and socks[self.rep_socket] == zmq.POLLIN:
                 message = self.rep_socket.recv_string()
                 print(f"Node {self.id} received: {message}")
                 self.devices[message] = time.time()
