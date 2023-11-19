@@ -35,18 +35,16 @@ class Node:
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
                 self.devices[peer] = day_time
-                self.router_socket.send_string(f"Hello from Node {self.id}")
-            elif message.startswith("Ping from Node"):
-                self.router_socket.send_string(f"Ping from Node {self.id}")
+            elif message.endswith("is pinging you!"):
+                self.dealer_socket.send_string(f"{self.id} is up and running!")
             else:
-                self.router_socket.send_string(f"Node {self.id} says hi!")
+                self.dealer_socket.send_string(f"Node {self.id} says hi!")
 
     def start_dealer_socket(self):
         for peer in self.peers:
             print(f"Node {self.id} (You) connecting to Node {peer}")
             self.dealer_socket.connect(f"tcp://{peer}")
             self.dealer_socket.send_string(f"Hello from Node {self.id}")
-            print(f"Node {self.id} (You) received reply: {self.dealer_socket.recv_string()}")
 
     def get_devices(self):
         return self.devices
