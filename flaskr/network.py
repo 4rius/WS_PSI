@@ -30,8 +30,16 @@ class Node:
             except UnicodeDecodeError:
                 continue
             print(f"Node {self.id} (You) received: {message}")
-            self.devices[message] = time.time()
-            self.router_socket.send_string(f"Node {self.id} says hi!")
+            day_time = time.strftime("%H:%M:%S", time.localtime())
+            # Ahora que sabemos que el peer existe, guardamos su IP y puerto
+            if message.startswith("Hello from Node"):
+                peer = message.split(" ")[3]
+                self.devices[peer] = day_time
+                self.router_socket.send_string(f"Hello from Node {self.id}")
+            elif message.startswith("Ping from Node"):
+                self.router_socket.send_string(f"Ping from Node {self.id}")
+            else:
+                self.router_socket.send_string(f"Node {self.id} says hi!")
 
     def start_dealer_socket(self):
         for peer in self.peers:
