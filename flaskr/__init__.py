@@ -29,8 +29,10 @@ def create_app(test_config=None):
         pass
 
     # Inicializar el nodo
+    # Peers hardcodeados para probar su funcionamiento
+    peers = ["192.168.1.129:5001", "192.168.1.3:5001", "192.168.1.4:5001"]
     local_ip = socket.gethostbyname(socket.gethostname())
-    node = Node(local_ip, 5001, [])
+    node = Node(local_ip, 5001, peers)
     node.start()
 
     @app.route('/')

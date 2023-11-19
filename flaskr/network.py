@@ -20,21 +20,25 @@ class Node:
 
     def start_router_socket(self):
         self.router_socket.bind(f"tcp://*:{self.port}")
-        print(f"Node {self.id} listening on port {self.port}")
+        print(f"Node {self.id} (You) listening on port {self.port}")
         time.sleep(1)
 
         while True:
-            message = self.router_socket.recv_string()
-            print(f"Node {self.id} received: {message}")
+            message = self.router_socket.recv()
+            try:
+                message = message.decode('utf-8')
+            except UnicodeDecodeError:
+                continue
+            print(f"Node {self.id} (You) received: {message}")
             self.devices[message] = time.time()
             self.router_socket.send_string(f"Node {self.id} says hi!")
 
     def start_dealer_socket(self):
         for peer in self.peers:
-            print(f"Node {self.id} connecting to Node {peer}")
+            print(f"Node {self.id} (You) connecting to Node {peer}")
             self.dealer_socket.connect(f"tcp://{peer}")
             self.dealer_socket.send_string(f"Hello from Node {self.id}")
-            print(f"Node {self.id} received reply: {self.dealer_socket.recv_string()}")
+            print(f"Node {self.id} (You) received reply: {self.dealer_socket.recv_string()}")
 
     def get_devices(self):
         return self.devices
