@@ -16,38 +16,6 @@ def start_network():
     # Vincular socket al puerto 5555 (en localhost)
     socket.bind("tcp://*:5555")
 
-    def check_device(context, device):
-        while True:
-            try:
-                # Socket para enviar la solicitud al dispositivo en específico
-                check_socket = context.socket(zmq.REQ)
-                check_socket.connect(f"tcp://{device}:5555")
-                check_socket.send(b"CHECK")
-
-                # Añadir un tiempo de espera al socket
-                check_socket.setsockopt(zmq.RCVTIMEO, 5000)
-
-                # Traza de log: Fecha - Hora - Dispositivo - Estado
-                date = datetime.now().strftime("%d/%m/%Y")
-                time = datetime.now().strftime("%H:%M:%S")
-                print(f"{date} - {time} - {device} - SEND CHECK")
-
-                if check_socket.recv() == b"OK":
-                    print(f"{device} - OK")
-                    connected_devices[device] = True
-                else:
-                    print(f"{device} - FAIL")
-                    connected_devices[device] = False
-                sleep(5)
-            except zmq.Again as e:
-                print(f"{device} - FAIL - {e} - Device may be disconnected")
-                connected_devices[device] = False
-                return
-            except Exception as e:
-                print(f"{device} - FAIL - {e}")
-                connected_devices[device] = False
-                return
-
     def handle_requests():
         poller = zmq.Poller()
         poller.register(socket, zmq.POLLIN)
@@ -60,9 +28,6 @@ def start_network():
                 print(f"Received request: {message}")
                 # Add the device to the list of connected devices
                 connected_devices[message] = True
-                # Start a new thread to check if the device is still connected
-                thread_ping = threading.Thread(target=check_device, args=(context, message,))
-                thread_ping.start()
 
     # Iniciar un hilo para manejar las solicitudes
     thread = threading.Thread(target=handle_requests)
@@ -78,4 +43,5 @@ def get_devices():
     for device, is_connected in connected_devices.items():
         if is_connected:
             devices.append(device)
+            # Desde la pequeña webapp quiero añadir el eleminar dispositivos, timestamp de cuando se conectaron y un botón para enviarles un ping
     return json.dumps({'devices': devices})
