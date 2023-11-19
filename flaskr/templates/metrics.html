@@ -2,9 +2,48 @@
 <html>
 <head>
     <title>Métricas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
     <h1>Métricas actuales</h1>
+    <!-- Uso de la CPU y la memoria del dispositivo arriba -->
+    <h2>Uso de la CPU y la memoria del dispositivo</h2>
+    <table>
+        <tr>
+            <th>Métrica</th>
+            <th>Valor</th>
+        </tr>
+        <tr>
+            <td>Uso de la CPU</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>Uso de la memoria</td>
+            <td>0</td>
+        </tr>
+    </table>
+        <h2>Medición de tiempo</h2>
+    <table>
+        <tr>
+            <th>Métrica</th>
+            <th>Valor</th>
+        </tr>
+        <tr>
+            <td>Tiempo generación de claves</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>Tiempo envío grande</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>Tiempo envío pequeño</td>
+            <td>0</td>
+        </tr>
+    </table>
+
+    <button onclick="location.href='/metrics'">Actualizar</button>
+    <button onclick="location.href='/'">Volver</button>
     <!-- TODO: Métricas -->
 </body>
 </html>

@@ -43,11 +43,11 @@ def create_app(test_config=None):
     def metrics():
         return render_template('metrics.html')
 
-    @app.route('/api/devices')
+    @app.route('/api/devices', methods=['GET'])
     def api_devices():
         return jsonify(node.get_devices())
 
-    @app.route('/api/ping/<device>')
+    @app.route('/api/ping/<device>', methods=['GET'])
     def api_ping(device):
         return jsonify({'status': node.ping_device(device)})
 

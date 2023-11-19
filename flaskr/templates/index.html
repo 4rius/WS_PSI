@@ -2,19 +2,37 @@
 <html>
 <head>
     <title>Inicio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <h1>Red actual</h1>
-    <!-- TODO: Mostrar la red actual, el puerto en el que se está escuchando y el puerto y dirección de los dispositivos conectados -->
+    <h1>Dispositivos conectados</h1>
+    <div id="devices"></div>
+    <script>
+    $(document).ready(function(){
+        $.getJSON('/api/devices', function(data){
+            $.each(data, function(key, value){
+                $('#devices').append('<p>' + key + ': ' + value + ' <button onclick="ping(\'' + key + '\')">Ping</button></p>');
+            });
+        });
+    });
+
+    function ping(device) {
+        $.get('/api/ping/' + device, function(data){
+            alert(data);
+        });
+    }
+    </script>
+
     <form action="/metrics">
         <label for="implementation">Elige una implementación:</label>
         <select id="implementation" name="implementation">
-            <option value="imp1">Implementación 1</option>
-            <option value="imp2">Implementación 2</option>
-            <option value="imp3">Implementación 3</option>
+            <option value="imp1">Paillier</option>
+            <option value="imp2">TBD</option>
+            <option value="imp3">TBD</option>
         </select>
         <input type="submit" value="Confirmar">
     </form>
+
     <button onclick="location.href='/metrics'">Ver métricas</button>
 </body>
 </html>
