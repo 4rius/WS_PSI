@@ -49,7 +49,6 @@ def create_app(test_config=None):
 
     @app.route('/api/ping/<device>')
     def api_ping(device):
-        node.ping_device(device)
         return jsonify({'status': node.ping_device(device)})
 
     return app

@@ -54,8 +54,13 @@ class Node:
     def ping_device(self, device):
         if device in self.devices:
             print(f"Pinging device: {device}")
-            self.dealer_socket.send_string(f"Ping from Node {self.id}")
-            return self.dealer_socket.recv_string()
+            self.dealer_socket.send_string(f"{self.id} is pinging you!")
+            reply = self.router_socket.recv()
+            try:
+                reply = reply.decode('utf-8')
+            except UnicodeDecodeError:
+                return "Could not decode reply"
+            return reply
         else:
             return "Device not found"
 
