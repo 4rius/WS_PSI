@@ -1,7 +1,6 @@
 import zmq
 import threading
 import time
-import socket
 
 
 class Node:
@@ -31,7 +30,6 @@ class Node:
                 continue
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
-            # Ahora que sabemos que el peer existe, guardamos su IP y puerto
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
                 self.devices[peer] = day_time
@@ -63,6 +61,8 @@ class Node:
             return "Device not found"
 
     def join(self):
-        self.router_socket.close()
-        self.dealer_socket.close()
-        self.context.term()
+        try:
+            self.router_socket.close()
+            self.dealer_socket.close()
+        finally:
+            self.context.term()
