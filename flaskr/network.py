@@ -2,7 +2,6 @@ import zmq
 import threading
 import time
 
-
 class Node:
     def __init__(self, id, port, peers):
         self.id = id
@@ -10,12 +9,12 @@ class Node:
         self.peers = peers
         self.context = zmq.Context()
         self.router_socket = self.context.socket(zmq.ROUTER)
-        self.dealer_socket = self.context.socket(zmq.DEALER)
         self.devices = {}
 
     def start(self):
         threading.Thread(target=self.start_router_socket).start()
-        threading.Thread(target=self.start_dealer_socket).start()
+        for peer in self.peers:
+            threading.Thread(target=self.start_dealer_socket, args=(peer,)).start()
 
     def start_router_socket(self):
         self.router_socket.bind(f"tcp://*:{self.port}")
@@ -34,15 +33,16 @@ class Node:
                 peer = message.split(" ")[3]
                 self.devices[peer] = day_time
             elif message.endswith("is pinging you!"):
-                self.dealer_socket.send_string(f"{self.id} is up and running!")
+                self.send_message_to_peer(f"{self.id} is up and running!", peer)
             else:
-                self.dealer_socket.send_string(f"Node {self.id} says hi!")
+                self.send_message_to_peer(f"Node {self.id} says hi!", peer)
 
-    def start_dealer_socket(self):
-        for peer in self.peers:
-            print(f"Node {self.id} (You) connecting to Node {peer}")
-            self.dealer_socket.connect(f"tcp://{peer}")
-            self.dealer_socket.send_string(f"Hello from Node {self.id}")
+    def start_dealer_socket(self, peer):
+        dealer_socket = self.context.socket(zmq.DEALER)
+        print(f"Node {self.id} (You) connecting to Node {peer}")
+        dealer_socket.connect(f"tcp://{peer}")
+        dealer_socket.send_string(f"Hello from Node {self.id}")
+        dealer_socket.close()
 
     def get_devices(self):
         return self.devices
@@ -50,7 +50,7 @@ class Node:
     def ping_device(self, device):
         if device in self.devices:
             print(f"Pinging device: {device}")
-            self.dealer_socket.send_string(f"{self.id} is pinging you!")
+            self.send_message_to_peer(f"{self.id} is pinging you!", device)
             reply = self.router_socket.recv()
             try:
                 reply = reply.decode('utf-8')
@@ -60,9 +60,14 @@ class Node:
         else:
             return "Device not found"
 
+    def send_message_to_peer(self, message, peer):
+        dealer_socket = self.context.socket(zmq.DEALER)
+        dealer_socket.connect(f"tcp://{peer}")
+        dealer_socket.send_string(message)
+        dealer_socket.close()
+
     def join(self):
         try:
             self.router_socket.close()
-            self.dealer_socket.close()
         finally:
             self.context.term()
