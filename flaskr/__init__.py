@@ -1,8 +1,10 @@
 import os
+import socket
 
 from flask import Flask, render_template, jsonify
 from . import db
 from . import network
+from .network import Node
 
 
 def create_app(test_config=None):
@@ -26,6 +28,11 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    # Inicializar el nodo
+    local_ip = socket.gethostbyname(socket.gethostname())
+    node = Node(local_ip, 5001, [])
+    node.start()
+
     @app.route('/')
     def index():
         return render_template('index.html')
@@ -34,15 +41,13 @@ def create_app(test_config=None):
     def metrics():
         return render_template('metrics.html')
 
-    @app.route('/api/data')
-    def api_data():
-        return jsonify(network.get_data())
-
     @app.route('/api/devices')
     def api_devices():
-        return jsonify(network.get_devices())
+        return jsonify(node.get_devices())
 
-    # Iniciar la red descentralizada
-    network.start_network()
+    @app.route('/api/ping/<device>')
+    def api_ping(device):
+        node.ping_device(device)
+        return jsonify({'status': 'success'})
 
     return app

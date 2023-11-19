@@ -1,47 +1,67 @@
-from datetime import datetime
-from time import sleep
 import zmq
-import json
 import threading
+import time
+import socket
 
-data = {}
-connected_devices = {}
 
+class Node:
+    def __init__(self, id, port, peers):
+        self.id = id
+        self.port = port
+        self.peers = peers
+        self.context = zmq.Context()
+        self.rep_socket = self.context.socket(zmq.REP)
+        self.req_socket = self.context.socket(zmq.REQ)
+        self.devices = {}
 
-def start_network():
-    # Crear contexto ZMQ
-    context = zmq.Context()
-    # Crear socket de tipo REP (Response)
-    socket = context.socket(zmq.REP)
-    # Vincular socket al puerto 5555 (en localhost)
-    socket.bind("tcp://*:5555")
+    def start(self):
+        # Que se ejecuten en hilos separados porque son loops infinitos y podrían bloquear el programa
+        threading.Thread(target=self.start_rep_socket).start()
+        threading.Thread(target=self.start_req_socket).start()
 
-    def handle_requests():
-        poller = zmq.Poller()
-        poller.register(socket, zmq.POLLIN)
+    def start_rep_socket(self):
+        self.rep_socket.bind(f"tcp://*:{self.port}")
+        print(f"Node {self.id} listening on port {self.port}")
+        time.sleep(1)  # Esperar un segundo para que el socket se inicialice
         while True:
-            socks = dict(poller.poll())
-            if socket in socks and socks[socket] == zmq.POLLIN:
-                message = socket.recv()
-                # Remove the b'' from the message
-                message = message.decode("utf-8")
-                print(f"Received request: {message}")
-                # Add the device to the list of connected devices
-                connected_devices[message] = True
+            if self.rep_socket.poll(timeout=1000):  # Ver si hay mensajes
+                message = self.rep_socket.recv_string()
+                print(f"Node {self.id} received: {message}")
+                self.devices[message] = time.time()
+                self.rep_socket.send_string(f"Node {self.id} says hi!")
 
-    # Iniciar un hilo para manejar las solicitudes
-    thread = threading.Thread(target=handle_requests)
-    thread.start()
+    def start_req_socket(self):
+        for peer in self.peers:
+            print(f"Node {self.id} connecting to Node {peer}")
+            self.req_socket.connect(f"tcp://localhost:{peer}")
+            self.req_socket.send_string(f"Hello from Node {self.id}")
+            print(f"Node {self.id} received reply: {self.req_socket.recv_string()}")
+
+    def get_devices(self):
+        return self.devices
+
+    def ping_device(self, device):
+        if device in self.devices:
+            print(f"Pinging device: {device}")
+            self.req_socket.send_string(f"Ping from Node {self.id}")
+            print(f"Node {self.id} received reply: {self.req_socket.recv_string()}")
+        else:
+            print(f"Device {device} not found.")
+
+    def join(self):
+        self.rep_socket.close()
+        self.req_socket.close()
+        self.context.term()
 
 
-def get_data():
-    return json.dumps({'data': 'data'})
+# Obtener la dirección IP local
+local_ip = socket.gethostbyname(socket.gethostname())
 
+# Crear nodos con default values para poder llamarlo sin argumentos
+node = Node(local_ip, 5001, [])
 
-def get_devices():
-    devices = []
-    for device, is_connected in connected_devices.items():
-        if is_connected:
-            devices.append(device)
-            # Desde la pequeña webapp quiero añadir el eleminar dispositivos, timestamp de cuando se conectaron y un botón para enviarles un ping
-    return json.dumps({'devices': devices})
+# Iniciar nodos
+node.start()
+
+# Esperar a que los nodos terminen
+node.join()
