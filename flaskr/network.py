@@ -2,7 +2,6 @@ import zmq
 import threading
 import time
 
-
 class Node:
     def __init__(self, id, port, peers):
         self.id = id
@@ -32,7 +31,9 @@ class Node:
             day_time = time.strftime("%H:%M:%S", time.localtime())
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
-                self.devices[peer] = day_time
+                if peer not in self.devices:
+                    self.devices[peer] = day_time
+                    self.dealer_socket.send_string(f"Hello from Node {self.id}")
             elif message.endswith("is pinging you!"):
                 self.dealer_socket.send_string(f"{self.id} is up and running!")
             else:
