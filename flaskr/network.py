@@ -49,9 +49,9 @@ class Node:
         if device in self.devices:
             print(f"Pinging device: {device}")
             self.req_socket.send_string(f"Ping from Node {self.id}")
-            print(f"Node {self.id} received reply: {self.req_socket.recv_string()}")
+            return self.req_socket.recv_string()
         else:
-            print(f"Device {device} not found.")
+            return "Device not found"
 
     def join(self):
         self.rep_socket.close()
@@ -62,7 +62,7 @@ class Node:
 # Obtener la dirección IP local
 local_ip = socket.gethostbyname(socket.gethostname())
 
-# Crear nodos con default values para poder llamarlo sin argumentos
+# Crear nodos
 node = Node(local_ip, 5001, [])
 
 # Iniciar nodos
