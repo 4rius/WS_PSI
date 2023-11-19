@@ -10,37 +10,31 @@ class Node:
         self.port = port
         self.peers = peers
         self.context = zmq.Context()
-        self.rep_socket = self.context.socket(zmq.REP)
-        self.req_socket = self.context.socket(zmq.REQ)
+        self.router_socket = self.context.socket(zmq.ROUTER)
+        self.dealer_socket = self.context.socket(zmq.DEALER)
         self.devices = {}
 
     def start(self):
-        # Que se ejecuten en hilos separados porque son loops infinitos y podrían bloquear el programa
-        threading.Thread(target=self.start_rep_socket).start()
-        threading.Thread(target=self.start_req_socket).start()
+        threading.Thread(target=self.start_router_socket).start()
+        threading.Thread(target=self.start_dealer_socket).start()
 
-    def start_rep_socket(self):
-        self.rep_socket.bind(f"tcp://*:{self.port}")
+    def start_router_socket(self):
+        self.router_socket.bind(f"tcp://*:{self.port}")
         print(f"Node {self.id} listening on port {self.port}")
-        time.sleep(1)  # Esperar un segundo para que el socket se inicialice
-
-        poller = zmq.Poller()  # Crear un poller
-        poller.register(self.rep_socket, zmq.POLLIN)  # Registrar el socket para que el poller lo escuche
+        time.sleep(1)
 
         while True:
-            socks = dict(poller.poll(1000))  # Usar el poller para escuchar por mensajes
-            if self.rep_socket in socks and socks[self.rep_socket] == zmq.POLLIN:
-                message = self.rep_socket.recv_string()
-                print(f"Node {self.id} received: {message}")
-                self.devices[message] = time.time()
-                self.rep_socket.send_string(f"Node {self.id} says hi!")
+            message = self.router_socket.recv_string()
+            print(f"Node {self.id} received: {message}")
+            self.devices[message] = time.time()
+            self.router_socket.send_string(f"Node {self.id} says hi!")
 
-    def start_req_socket(self):
+    def start_dealer_socket(self):
         for peer in self.peers:
             print(f"Node {self.id} connecting to Node {peer}")
-            self.req_socket.connect(f"tcp://localhost:{peer}")
-            self.req_socket.send_string(f"Hello from Node {self.id}")
-            print(f"Node {self.id} received reply: {self.req_socket.recv_string()}")
+            self.dealer_socket.connect(f"tcp://{peer}")
+            self.dealer_socket.send_string(f"Hello from Node {self.id}")
+            print(f"Node {self.id} received reply: {self.dealer_socket.recv_string()}")
 
     def get_devices(self):
         return self.devices
@@ -48,25 +42,12 @@ class Node:
     def ping_device(self, device):
         if device in self.devices:
             print(f"Pinging device: {device}")
-            self.req_socket.send_string(f"Ping from Node {self.id}")
-            return self.req_socket.recv_string()
+            self.dealer_socket.send_string(f"Ping from Node {self.id}")
+            return self.dealer_socket.recv_string()
         else:
             return "Device not found"
 
     def join(self):
-        self.rep_socket.close()
-        self.req_socket.close()
+        self.router_socket.close()
+        self.dealer_socket.close()
         self.context.term()
-
-
-# Obtener la dirección IP local
-local_ip = socket.gethostbyname(socket.gethostname())
-
-# Crear nodos
-node = Node(local_ip, 5001, [])
-
-# Iniciar nodos
-node.start()
-
-# Esperar a que los nodos terminen
-node.join()
