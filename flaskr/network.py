@@ -83,7 +83,7 @@ class Node:
             while attempts < 3:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
                 try:
-                    reply = self.devices[device]["socket"].recv_string()
+                    reply = self.devices[device]["socket"].recv_string(flags=zmq.NOBLOCK)
                     try:
                         reply = reply.decode('utf-8')
                     except UnicodeDecodeError:
