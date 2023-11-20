@@ -5,13 +5,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
-    <h1>Dispositivos conectados</h1>
+    <h1>Dispositivos conectados - Puerto de la red: </h1>
     <div id="devices"></div>
     <script>
     $(document).ready(function(){
     $.getJSON('/api/devices', function(data){
         $.each(data, function(key, value){
-            $('#devices').append('<p>' + key + ': ' + value + ' <button onclick="ping(\'' + key + '\')">Ping</button></p>');
+            $('#devices').append('<p>' + key + ': Last seen: ' + value + ' <button onclick="ping(\'' + key + '\')">Ping</button></p>');
         });
         });
     });

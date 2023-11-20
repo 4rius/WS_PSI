@@ -3,8 +3,6 @@ import threading
 import time
 import socket
 import platform
-import fcntl
-import struct
 
 
 class Node:
@@ -49,6 +47,10 @@ class Node:
             day_time = time.strftime("%H:%M:%S", time.localtime())
             # Respuestas a los mensajes recibidos
             if message.startswith("Hello from Node"):
+                # Si el dispositivo no está en la lista, agregarlo
+                if sender not in self.devices:
+                    self.devices[sender] = {"socket": self.context.socket(zmq.DEALER), "last_seen": day_time}
+                    self.devices[sender]["socket"].connect(f"tcp://{sender}")
                 # Actualizar la lista de dispositivos
                 peer = message.split(" ")[3]
                 self.devices[peer]["last_seen"] = day_time
@@ -81,6 +83,7 @@ class Node:
                     except UnicodeDecodeError:
                         continue
                     if reply == f"{device} is up and running!":
+                        self.devices[device]["last_seen"] = time.strftime("%H:%M:%S", time.localtime())
                         print(f"{device} - Ping OK")
                         return device + " - Ping OK"
                 except zmq.error.Again:
