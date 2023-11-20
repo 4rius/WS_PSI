@@ -79,7 +79,7 @@ class Node:
             while attempts < 3:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
                 try:
-                    reply = self.devices[device]["socket"].recv_string(flags=zmq.NOBLOCK)
+                    reply = self.devices[device]["socket"].recv_string(flags=zmq.DONTWAIT)
                     try:
                         reply = reply.decode('utf-8')
                     except UnicodeDecodeError:
@@ -88,6 +88,9 @@ class Node:
                         self.devices[device]["last_seen"] = time.strftime("%H:%M:%S", time.localtime())
                         print(f"{device} - Ping OK")
                         return device + " - Ping OK"
+                    else:
+                        print(f"{device} - Ping FAIL - {reply}")
+                        return device + " - Ping FAIL - " + reply
                 except zmq.error.Again:
                     print(f"{device} - Ping FAIL - Retrying...")
                     time.sleep(1.5)
