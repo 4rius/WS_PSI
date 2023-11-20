@@ -31,70 +31,89 @@ class Node:
             # se le enviará un mensaje de bienvenida y se actualizará su timestamp
             # Cada peer tiene un socket DEALER para enviar mensajes
 
-    def start_router_socket(self):
-        # Iniciar el socket ROUTER
-        self.router_socket.bind(f"tcp://*:{self.port}")
-        print(f"Node {self.id} (You) listening on port {self.port}")
+    def ping_device(self, device):
+        if device in self.devices:
+            print(f"Pinging device: {device}")
+            attempts = 0
+            max_attempts = 3
 
-        while True:
-            # Recibir mensajes con el identificador del dispositivo
-            sender, message = self.router_socket.recv_multipart()
-            try:
-                message = message.decode('utf-8')
-            except UnicodeDecodeError:
-                continue
-            print(f"Node {self.id} (You) received: {message}")
-            day_time = time.strftime("%H:%M:%S", time.localtime())
-            # Respuestas a los mensajes recibidos
-            if message.startswith("Hello from Node"):
-                peer = message.split(" ")[3]
-                # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
-                if peer not in self.devices:
-                    print(f"Added {peer} to my network")
-                    dealer_socket = self.context.socket(zmq.DEALER)
-                    dealer_socket.connect(f"tcp://{peer}:{self.port}")
-                    self.devices[peer] = {"socket": dealer_socket, "last_seen": day_time}
-                # Actualizar la lista de dispositivos
-                self.devices[peer]["last_seen"] = day_time
-                self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
-            elif message.endswith("is pinging you!"):
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
-                self.devices[peer]["socket"].send_string(f"{peer} is up and running!")
-            elif message.startswith("Added "):
-                peer = message.split(" ")[8]
-                self.devices[peer]["last_seen"] = day_time
-            else:
-                print(f"{self.id} (You) received: {message} but don't know what to do with it")
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
+            while attempts < max_attempts:
+                self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
+
+                # Esperar un tiempo antes de intentar recibir la respuesta
+                time.sleep(1.5)
+
+                try:
+                    reply = self.devices[device]["socket"].recv_string()
+                    try:
+                        reply = reply.decode('utf-8')
+                    except UnicodeDecodeError:
+                        continue
+
+                    print(f"{device} - Received: {reply}")
+
+                    if reply.endswith("is up and running!"):
+                        self.devices[device]["last_seen"] = time.strftime("%H:%M:%S", time.localtime())
+                        print(f"{device} - Ping OK")
+                        return device + " - Ping OK"
+                    else:
+                        print(f"{device} - Ping FAIL - Unexpected response: {reply}")
+                        return device + " - Ping FAIL - Unexpected response: " + reply
+
+                except zmq.error.Again:
+                    print(f"{device} - Ping FAIL - Retrying...")
+                    attempts += 1
+
+            print(f"Device {device} - Ping FAIL - Device likely disconnected")
+            self.devices[device]["last_seen"] = False
+            return device + " - Ping FAIL - Device likely disconnected"
+        else:
+            print("Device not found")
+            return "Device not found"
 
     def get_devices(self):
         return {device: info["last_seen"] for device, info in self.devices.items()}
+
+    import zmq
+
+    # ...
 
     def ping_device(self, device):
         if device in self.devices:
             print(f"Pinging device: {device}")
             attempts = 0
-            while attempts < 3:
+            max_attempts = 3
+            timeout = 1500  # Tiempo máximo de espera
+            poller = zmq.Poller()
+
+            poller.register(self.devices[device]["socket"], zmq.POLLIN)
+
+            while attempts < max_attempts:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
-                try:
-                    reply = self.devices[device]["socket"].recv_string(flags=zmq.DONTWAIT)
+
+                # Esperar hasta que haya algo para leer o hasta que se alcance el tiempo máximo de espera
+                events = dict(poller.poll(timeout))
+
+                if self.devices[device]["socket"] in events:
+                    reply = self.devices[device]["socket"].recv_string()
                     try:
                         reply = reply.decode('utf-8')
                     except UnicodeDecodeError:
                         continue
-                    if reply == f"{device} is up and running!":
+
+                    print(f"{device} - Received: {reply}")
+
+                    if reply:
                         self.devices[device]["last_seen"] = time.strftime("%H:%M:%S", time.localtime())
                         print(f"{device} - Ping OK")
                         return device + " - Ping OK"
                     else:
-                        print(f"{device} - Ping FAIL - {reply}")
-                        return device + " - Ping FAIL - " + reply
-                except zmq.error.Again:
-                    print(f"{device} - Ping FAIL - Retrying...")
-                    time.sleep(1.5)
+                        print(f"{device} - Ping FAIL - Empty response")
+                        return device + " - Ping FAIL - Empty response"
+
+                print(f"{device} - Ping FAIL - Retrying...")
                 attempts += 1
+
             print(f"Device {device} - Ping FAIL - Device likely disconnected")
             self.devices[device]["last_seen"] = False
             return device + " - Ping FAIL - Device likely disconnected"
