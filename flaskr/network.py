@@ -64,10 +64,6 @@ class Node:
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
-            elif message.endswith("is up and running!"):
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
-                print(f"{peer} - Ping OK")
             else:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
