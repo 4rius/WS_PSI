@@ -60,10 +60,14 @@ class Node:
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
-                self.devices[peer]["socket"].send_string(f"{self.id} is up and running!")
+                self.ping_device(peer)
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
+            elif message.endswith("is up and running!"):
+                peer = message.split(" ")[0]
+                self.devices[peer]["last_seen"] = day_time
+                print(f"{peer} - Ping OK")
             else:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
@@ -76,7 +80,7 @@ class Node:
         if device in self.devices:
             print(f"Pinging device: {device}")
             attempts = 0
-            while attempts < 3:  # Intenta el ping 3 veces
+            while attempts < 3:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
                 try:
                     reply = self.devices[device]["socket"].recv_string()
@@ -90,9 +94,9 @@ class Node:
                         return device + " - Ping OK"
                 except zmq.error.Again:
                     print(f"{device} - Ping FAIL - Retrying...")
-                    time.sleep(1.5)  # Esperar antes de intentar de nuevo
+                    time.sleep(1.5)
                 attempts += 1
-            print(f"Device {device} - Ping FAIL - Device may have been disconnected")
+            print(f"Device {device} - Ping FAIL - Device likely disconnected")
             self.devices[device]["last_seen"] = False
             return device + " - Ping FAIL - Device likely disconnected"
         else:
