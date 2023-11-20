@@ -1,15 +1,20 @@
 import zmq
 import threading
 import time
+import socket
+import platform
+import fcntl
+import struct
+
 
 class Node:
     def __init__(self, id, port, peers):
-        self.id = id                                            # IP local
-        self.port = port                                        # Puerto local
-        self.peers = peers                                      # Lista de peers
-        self.context = zmq.Context()                            # Contexto de ZMQ
-        self.router_socket = self.context.socket(zmq.ROUTER)    # Socket ROUTER
-        self.devices = {}                                       # Dispositivos conectados
+        self.id = id  # IP local
+        self.port = port  # Puerto local
+        self.peers = peers  # Lista de peers
+        self.context = zmq.Context()  # Contexto de ZMQ
+        self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
+        self.devices = {}  # Dispositivos conectados
 
     def start(self):
         threading.Thread(target=self.start_router_socket).start()
@@ -98,3 +103,21 @@ class Node:
             self.devices[device]["socket"].close()
         self.router_socket.close()
         self.context.term()
+
+
+def get_local_ip():
+    system = platform.system()
+
+    # macOS y Linux
+    if system == "Linux" or system == "Darwin":
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("1.1.1.1", 80))  # No tiene ni que ser un host real
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except OSError:
+            print("Error fetching IP, using loopback")
+            return socket.gethostbyname(socket.gethostname())
+    elif system == "Windows":
+        return socket.gethostbyname(socket.gethostname())
