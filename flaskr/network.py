@@ -26,7 +26,8 @@ class Node:
         time.sleep(1)
 
         while True:
-            message = self.router_socket.recv()
+            # Recibir el identificador del remitente y el mensaje
+            sender, message = self.router_socket.recv_multipart()
             try:
                 message = message.decode('utf-8')
             except UnicodeDecodeError:
@@ -38,22 +39,25 @@ class Node:
                 peer = message.split(" ")[3]
                 self.devices[peer] = "Last seen: " + day_time
                 # Enviar mensaje de bienvenida al peer
-                self.dealer_socket.send_string(f"Added {peer} to my network - From Node {self.id}")
+                self.router_socket.send_multipart(
+                    [sender, f"Added {peer} to my network - From Node {self.id}".encode('utf-8')])
             # Si el mensaje es de ping, respondemos que estamos conectados
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer] = "Last seen: " + day_time
                 # Send the reply to that specific peer
-                self.router_socket.send_multipart([peer.encode('utf-8'), f"{self.id} is up and running!".encode('utf-8')])
+                self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
             elif message.startswith("Added "):
                 peer = message.split(" ")[1]
                 self.devices[peer] = "Last seen: " + day_time
             # Si el mensaje no es de bienvenida ni de ping, es un mensaje de otro nodo, simplemente lo reenviamos
             else:
-                self.dealer_socket.send_string(f"{self.id} received: {message} but doesn't know what to do with it")
+                self.router_socket.send_multipart([sender, f"{self.id} received: {message} but doesn't know what to "
+                                                           f"do with it".encode('utf-8')])
 
     def start_dealer_socket(self):
-        # Intentar conectarse a todos los peers de la lista, el que no esté en nuestra lista de dispositivos se agrega y se le envía un mensaje de bienvenida
+        # Intentar conectarse a todos los peers de la lista, el que no esté en nuestra lista de dispositivos se
+        # agrega y se le envía un mensaje de bienvenida
         for peer in self.peers:
             print(f"Node {self.id} (You) connecting to Node {peer}")
             self.dealer_socket.connect(f"tcp://{peer}")
