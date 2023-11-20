@@ -9,18 +9,19 @@
     <div id="devices"></div>
     <script>
     $(document).ready(function(){
-        $.getJSON('/api/devices', function(data){
-            $.each(data, function(key, value){
-                $('#devices').append('<p>' + key + ': ' + value + ' <button onclick="ping(\'' + key + '\')">Ping</button></p>');
-            });
+    $.getJSON('/api/devices', function(data){
+        $.each(data, function(key, value){
+            $('#devices').append('<p>' + key + ': ' + value + ' <button onclick="ping(\'' + key + '\')">Ping</button></p>');
+        });
         });
     });
 
     function ping(device) {
         $.get('/api/ping/' + device, function(data){
-            alert(data);
+            alert(data.status);  // Accede a la propiedad 'status' del objeto JSON
         });
     }
+
     </script>
 
     <form action="/metrics">
