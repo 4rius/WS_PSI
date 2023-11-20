@@ -53,7 +53,7 @@ class Node:
                     sender = message.split(" ")[3]
                     print(f"Adding {sender} to my network")
                     self.devices[sender] = {"socket": self.context.socket(zmq.DEALER), "last_seen": day_time}
-                    self.devices[sender]["socket"].connect(f"tcp://{sender}")
+                    self.devices[sender]["socket"].connect(f"tcp://{sender}:{self.port}")
                 # Actualizar la lista de dispositivos
                 peer = message.split(" ")[3]
                 self.devices[peer]["last_seen"] = day_time
