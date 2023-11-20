@@ -47,16 +47,14 @@ class Node:
             day_time = time.strftime("%H:%M:%S", time.localtime())
             # Respuestas a los mensajes recibidos
             if message.startswith("Hello from Node"):
-                # Si el dispositivo no está en la lista, agregarlo
-                if sender not in self.devices:
-                    # Que no esté ahora no quiere decir que no exista, sino que se ha conectado más tarde,
-                    # debemos buscar el socket asociado que se creó en el hilo principal
-                    for peer in self.devices:
-                        if peer.startswith(sender.split(" ")[3]):
-                            self.devices[sender] = {"socket": self.devices[peer]["socket"], "last_seen": day_time}
-                            break
-                # Actualizar la lista de dispositivos
                 peer = message.split(" ")[3]
+                # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
+                if peer not in self.devices:
+                    print(f"Added {peer} to my network")
+                    dealer_socket = self.context.socket(zmq.DEALER)
+                    dealer_socket.connect(f"tcp://{peer}:{self.port}")
+                    self.devices[peer] = {"socket": dealer_socket, "last_seen": day_time}
+                # Actualizar la lista de dispositivos
                 self.devices[peer]["last_seen"] = day_time
                 self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
             elif message.endswith("is pinging you!"):
