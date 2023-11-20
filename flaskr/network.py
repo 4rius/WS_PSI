@@ -22,6 +22,7 @@ class Node:
             dealer_socket.connect(f"tcp://{peer}")
             if peer not in self.devices:
                 dealer_socket.send_string(f"Hello from Node {self.id}")
+            peer = peer.split(":")[0]
             self.devices[peer] = {"socket": dealer_socket, "last_seen": None}
             # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,
             # se le enviará un mensaje de bienvenida y se actualizará su timestamp
