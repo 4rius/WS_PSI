@@ -60,7 +60,7 @@ class Node:
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
-                self.ping_device(peer)
+                self.devices[peer]["socket"].send_string(f"{peer} is up and running!")
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
