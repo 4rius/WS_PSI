@@ -60,7 +60,7 @@ class Node:
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
-                self.router_socket.send_multipart([sender, f"{peer} is up and running!".encode('utf-8')])
+                self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
@@ -81,16 +81,8 @@ class Node:
             while attempts < max_attempts:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
 
-                # Esperar un tiempo antes de intentar recibir la respuesta
-                time.sleep(1.5)
-
                 try:
-                    reply = self.devices[device]["socket"].recv_string()
-                    try:
-                        reply = reply.decode('utf-8')
-                    except UnicodeDecodeError:
-                        continue
-
+                    reply = self.devices[device]["socket"].recv_string(zmq.NOBLOCK)
                     print(f"{device} - Received: {reply}")
 
                     if reply.endswith("is up and running!"):
@@ -103,6 +95,7 @@ class Node:
 
                 except zmq.error.Again:
                     print(f"{device} - Ping FAIL - Retrying...")
+                    time.sleep(1)
                     attempts += 1
 
             print(f"Device {device} - Ping FAIL - Device likely disconnected")
