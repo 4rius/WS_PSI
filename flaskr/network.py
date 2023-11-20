@@ -62,10 +62,10 @@ class Node:
                 self.devices[peer]["last_seen"] = day_time
                 self.devices[peer]["socket"].send_string(f"{self.id} is up and running!")
             elif message.startswith("Added "):
-                peer = message.split(" ")[1]
+                peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
             else:
-                print(f"{self.id} received: {message} but doesn't know what to do with it")
+                print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
 
@@ -79,7 +79,7 @@ class Node:
             while attempts < 3:  # Intenta el ping 3 veces
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
                 try:
-                    reply = self.router_socket.recv(flags=zmq.NOBLOCK)
+                    reply = self.devices[device]["socket"].recv_string()
                     try:
                         reply = reply.decode('utf-8')
                     except UnicodeDecodeError:
