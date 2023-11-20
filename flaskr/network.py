@@ -1,32 +1,39 @@
 import zmq
-import json
 import threading
 import time
 
-
 class Node:
     def __init__(self, id, port, peers):
-        self.id = id  # IP local
-        self.port = port  # Puerto local
-        self.peers = peers  # Lista de peers (después se puede cambiar por un discovery service)
-        self.context = zmq.Context()  # Contexto de ZMQ
-        self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER - Escuchar conexiones entrantes
-        self.dealer_socket = self.context.socket(zmq.DEALER)  # Socket DEALER - Conectar a otros nodos
-        self.devices = {}  # Diccionario de dispositivos conectados
+        self.id = id                                            # IP local
+        self.port = port                                        # Puerto local
+        self.peers = peers                                      # Lista de peers
+        self.context = zmq.Context()                            # Contexto de ZMQ
+        self.router_socket = self.context.socket(zmq.ROUTER)    # Socket ROUTER
+        self.devices = {}                                       # Dispositivos conectados
 
     def start(self):
-        # Iniciar los sockets en threads separados, para que no se bloquee el main thread
         threading.Thread(target=self.start_router_socket).start()
-        threading.Thread(target=self.start_dealer_socket).start()
+        time.sleep(1)  # Dar tiempo para que el socket ROUTER se inicie
+
+        # Conectar con los peers
+        for peer in self.peers:
+            print(f"Node {self.id} (You) connecting to Node {peer}")
+            dealer_socket = self.context.socket(zmq.DEALER)
+            dealer_socket.connect(f"tcp://{peer}")
+            if peer not in self.devices:
+                dealer_socket.send_string(f"Hello from Node {self.id}")
+            self.devices[peer] = {"socket": dealer_socket, "last_seen": None}
+            # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,
+            # se le enviará un mensaje de bienvenida y se actualizará su timestamp
+            # Cada peer tiene un socket DEALER para enviar mensajes
 
     def start_router_socket(self):
         # Iniciar el socket ROUTER
         self.router_socket.bind(f"tcp://*:{self.port}")
         print(f"Node {self.id} (You) listening on port {self.port}")
-        time.sleep(1)
 
         while True:
-            # Recibir el identificador del remitente y el mensaje
+            # Recibir mensajes con el identificador del dispositivo
             sender, message = self.router_socket.recv_multipart()
             try:
                 message = message.decode('utf-8')
@@ -34,45 +41,33 @@ class Node:
                 continue
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
-            # Si el mensaje es de bienvenida, agregamos el peer a nuestra lista de dispositivos
+            # Respuestas a los mensajes recibidos
             if message.startswith("Hello from Node"):
+                # Actualizar la lista de dispositivos
                 peer = message.split(" ")[3]
-                self.devices[peer] = "Last seen: " + day_time
-                # Enviar mensaje de bienvenida al peer
-                self.router_socket.send_multipart(
-                    [sender, f"Added {peer} to my network - From Node {self.id}".encode('utf-8')])
-            # Si el mensaje es de ping, respondemos que estamos conectados
+                self.devices[peer]["last_seen"] = day_time
+                self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
-                self.devices[peer] = "Last seen: " + day_time
-                # Send the reply to that specific peer
-                self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
+                self.devices[peer]["last_seen"] = day_time
+                self.devices[peer]["socket"].send_string(f"{self.id} is up and running!")
             elif message.startswith("Added "):
                 peer = message.split(" ")[1]
-                self.devices[peer] = "Last seen: " + day_time
-            # Si el mensaje no es de bienvenida ni de ping, es un mensaje de otro nodo, simplemente lo reenviamos
+                self.devices[peer]["last_seen"] = day_time
             else:
-                self.router_socket.send_multipart([sender, f"{self.id} received: {message} but doesn't know what to "
-                                                           f"do with it".encode('utf-8')])
-
-    def start_dealer_socket(self):
-        # Intentar conectarse a todos los peers de la lista, el que no esté en nuestra lista de dispositivos se
-        # agrega y se le envía un mensaje de bienvenida
-        for peer in self.peers:
-            print(f"Node {self.id} (You) connecting to Node {peer}")
-            self.dealer_socket.connect(f"tcp://{peer}")
-            if peer not in self.devices:
-                self.dealer_socket.send_string(f"Hello from Node {self.id}")
+                print(f"{self.id} received: {message} but doesn't know what to do with it")
+                peer = message.split(" ")[0]
+                self.devices[peer]["last_seen"] = day_time
 
     def get_devices(self):
-        return self.devices
+        return {device: info["last_seen"] for device, info in self.devices.items()}
 
     def ping_device(self, device):
         if device in self.devices:
             print(f"Pinging device: {device}")
             attempts = 0
             while attempts < 3:  # Intenta el ping 3 veces
-                self.dealer_socket.send_string(f"{self.id} is pinging you!")
+                self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
                 try:
                     reply = self.router_socket.recv(flags=zmq.NOBLOCK)
                     try:
@@ -87,15 +82,18 @@ class Node:
                     time.sleep(1.5)  # Esperar antes de intentar de nuevo
                 attempts += 1
             print(f"Device {device} - Ping FAIL - Device may have been disconnected")
-            self.devices[device] = False
+            self.devices[device]["last_seen"] = False
             return device + " - Ping FAIL - Device likely disconnected"
         else:
             print("Device not found")
             return "Device not found"
 
+    def broadcast_message(self, message):
+        for device in self.devices:
+            self.devices[device]["socket"].send_string(message)
+
     def join(self):
-        try:
-            self.router_socket.close()
-            self.dealer_socket.close()
-        finally:
-            self.context.term()
+        for device in self.devices:
+            self.devices[device]["socket"].close()
+        self.router_socket.close()
+        self.context.term()
