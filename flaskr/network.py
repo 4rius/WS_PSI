@@ -35,15 +35,15 @@ class Node:
             # Si el mensaje es de bienvenida, agregamos el peer a nuestra lista de dispositivos
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
-                self.devices[peer] = day_time
+                self.devices[peer] = "Last seen: " + day_time
                 # Confirmamos la conexión con el peer
                 # Respondemos con el router porque el dealer no puede enviar mensajes sin antes recibir uno
                 self.router_socket.send_string(f"{self.id} received: {message} and added {peer} to the list of devices")
             # Si el mensaje es de ping, respondemos que estamos conectados
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
-                self.router_socket.send_string(f"{self.id} is up and running!")
-                self.devices[peer] = day_time
+                self.dealer_socket.send_string(f"{self.id} is up and running!")
+                self.devices[peer] = "Last seen: " + day_time
             # Si el mensaje no es de bienvenida ni de ping, es un mensaje de otro nodo, simplemente lo reenviamos
             else:
                 self.dealer_socket.send_string(f"{self.id} received: {message} but doesn't know what to do with it")
@@ -53,6 +53,7 @@ class Node:
         for peer in self.peers:
             print(f"Node {self.id} (You) connecting to Node {peer}")
             self.dealer_socket.connect(f"tcp://{peer}")
+            time.sleep(0.5)
             if peer not in self.devices:
                 self.dealer_socket.send_string(f"Hello from Node {self.id}")
 
@@ -70,13 +71,13 @@ class Node:
                         reply = reply.decode('utf-8')
                     except UnicodeDecodeError:
                         continue
-                    if reply == f"{device} is up and running!":
+                    if reply.endswith("is up and running!"):
                         print(f"Device {device} is still connected")
                         return device + " - Ping OK"
                 except zmq.error.Again:
                     time.sleep(1)  # Espera 1 segundo antes de intentar de nuevo
             print(f"Device {device} did not reply, it may have been disconnected")
-            self.devices[device] = False
+            self.devices[device] = "Disconnected - You can try to ping it again"
             return device + " - Ping FAIL - Likely disconnected"
         else:
             print("Device not found")

@@ -30,7 +30,7 @@ def create_app(test_config=None):
 
     # Inicializar el nodo
     # Peers hardcodeados para probar su funcionamiento
-    peers = ["192.168.1.49:5001", "192.168.1.3:5001", "192.168.1.4:5001"]
+    peers = ["192.168.1.112:5001", "192.168.1.3:5001", "192.168.1.4:5001"]
     local_ip = socket.gethostbyname(socket.gethostname())
     node = Node(local_ip, 5001, peers)
     node.start()
@@ -50,5 +50,15 @@ def create_app(test_config=None):
     @app.route('/api/ping/<device>', methods=['GET'])
     def api_ping(device):
         return jsonify({'status': node.ping_device(device)})
+
+    @app.route('/api/disconnect', methods=['POST'])
+    def api_disconnect():
+        node.join()
+        return jsonify({'status': 'ok'})
+
+    @app.route('/api/connect', methods=['POST'])
+    def api_connect():
+        node.start()
+        return jsonify({'status': 'ok'})
 
     return app
