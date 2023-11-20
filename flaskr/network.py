@@ -49,6 +49,9 @@ class Node:
             if message.startswith("Hello from Node"):
                 # Si el dispositivo no está en la lista, agregarlo
                 if sender not in self.devices:
+                    # Quita el puerto del identificador
+                    sender = sender.split(":")[0]
+                    print(f"Adding {sender} to my network")
                     self.devices[sender] = {"socket": self.context.socket(zmq.DEALER), "last_seen": day_time}
                     self.devices[sender]["socket"].connect(f"tcp://{sender}")
                 # Actualizar la lista de dispositivos
