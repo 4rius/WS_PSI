@@ -1,0 +1,20 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+button {
+    margin: 5px;
+}
+#disconnect {
+    background-color: red;
+    color: white;
+}
+table {
+    width: 50%;
+    margin: 20px auto;
+}
+button {
+    margin: 5px;
+}

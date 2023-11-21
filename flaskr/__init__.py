@@ -52,6 +52,10 @@ def create_app(test_config=None):
     def api_ping(device):
         return jsonify({'status': node.ping_device(device)})
 
+    @app.route('/api/port', methods=['GET'])
+    def api_port():
+        return jsonify({'port': node.port})
+
     @app.route('/api/disconnect', methods=['POST'])
     def api_disconnect():
         node.join()
