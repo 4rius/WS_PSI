@@ -7,6 +7,7 @@ import platform
 
 class Node:
     def __init__(self, id, port, peers):
+        self.running = True  # Saber si el nodo está corriendo por si queremos desconectarnos en algún momento
         self.id = id  # IP local
         self.port = port  # Puerto local
         self.peers = peers  # Lista de peers
@@ -36,7 +37,7 @@ class Node:
         self.router_socket.bind(f"tcp://*:{self.port}")
         print(f"Node {self.id} (You) listening on port {self.port}")
 
-        while True:
+        while self.running:
             # Recibir mensajes con el identificador del dispositivo
             sender, message = self.router_socket.recv_multipart()
             try:
@@ -69,6 +70,9 @@ class Node:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
+        self.router_socket.close()
+        self.router_socket.unbind(f"tcp://*:{self.port}")
+        self.context.term()
 
     def get_devices(self):
         return {device: info["last_seen"] for device, info in self.devices.items()}
@@ -111,10 +115,10 @@ class Node:
             self.devices[device]["socket"].send_string(message)
 
     def join(self):
+        self.running = False
         for device in self.devices:
             self.devices[device]["socket"].close()
-        self.router_socket.close()
-        self.context.term()
+        self.devices = {}
 
 
 def get_local_ip():

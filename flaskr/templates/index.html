@@ -10,22 +10,23 @@
     <script src="../static/script.js"></script>
 </head>
 <body>
-    <h1>Dispositivos conectados - Puerto de la red: <span id="port"></span></h1>
+    <h2>Dispositivos conectados - Puerto de la red: <span id="port"></span></h2>
     <div id="devices"></div>
 
     <!--Dropdown siguiendo la estética para elegir una implementación de PSI-->
     <h5>Imlementación de PSI a utilizar</h5>
     <label for="psi"></label><select id="psi">
-        <option value="psi">PSI</option>
-        <option value="psi2">PSI2</option>
-        <option value="psi3">PSI3</option>
+        <option value="psi">Paillier</option>
+        <option value="psi2">TBD</option>
+        <option value="psi3">TBD</option>
     </select>
     <br><br>
-    <input type="submit" value="Confirmar" onclick="change_psi_imp()">
+    <input type="submit" value="Confirmar" onclick="change_psi_imp()" class="btn waves-effect waves-light">
+
     <hr>
 
     <button class="btn waves-effect waves-light" onclick="location.href='/metrics'">Ver métricas</button>
-    <button class="btn waves-effect waves-light" onclick="connect()">Conectar</button>
+    <button id="connect" class="btn waves-effect waves-light" onclick="connect()">Conectar</button>
     <button id="disconnect" class="btn waves-effect waves-light" onclick="disconnect()">Desconectar</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>

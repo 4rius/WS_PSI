@@ -54,16 +54,18 @@ def create_app(test_config=None):
 
     @app.route('/api/port', methods=['GET'])
     def api_port():
+        if not node.running:
+            return jsonify({'port': "Not connected to the network"})
         return jsonify({'port': node.port})
 
     @app.route('/api/disconnect', methods=['POST'])
     def api_disconnect():
         node.join()
-        return jsonify({'status': 'ok'})
+        return jsonify({'status': 'Disconnected from the network'})
 
     @app.route('/api/connect', methods=['POST'])
     def api_connect():
         node.start()
-        return jsonify({'status': 'ok'})
+        return jsonify({'status': 'Found peers and connected to the network'})
 
     return app
