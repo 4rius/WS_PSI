@@ -1,15 +1,22 @@
 $(document).ready(function(){
     $('select').formSelect();
-        $.getJSON('/api/devices', function(data){
-            $.each(data, function(key, value){
-                $('#devices').append('<p id="' + key + '">' + key + ': Last seen: ' + value + ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button></p>');
-            });
-        });
+        update_devices();
         get_port();
         $('#connect').prop('disabled', true);
     });
 
 function update_devices() {
+    $('#devices').html('<div class="preloader-wrapper small active">\
+                            \n<div class="spinner-layer spinner-green-only">\
+                            \n<div class="circle-clipper left">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="gap-patch">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="circle-clipper right">\
+                            \n<div class="circle"></div>\
+                            \n</div>\
+                            \n</div>\
+                            \n</div>');
     $.getJSON('/api/devices', function(data){
         $('#devices').empty();
         $.each(data, function(key, value){
@@ -19,7 +26,7 @@ function update_devices() {
 }
 
 function ping(device) {
-    $.get('/api/ping/' + device, function(data){
+    $.post('/api/ping/' + device, function(data){
     }).done(function(data){
         alert(data.status);
         update_devices();

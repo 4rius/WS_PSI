@@ -61,7 +61,8 @@ class Node:
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
-                # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del peer
+                # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del
+                # peer
                 self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]

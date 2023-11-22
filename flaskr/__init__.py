@@ -48,7 +48,7 @@ def create_app(test_config=None):
     def api_devices():
         return jsonify(node.get_devices())
 
-    @app.route('/api/ping/<device>', methods=['GET'])
+    @app.route('/api/ping/<device>', methods=['POST'])
     def api_ping(device):
         return jsonify({'status': node.ping_device(device)})
 
