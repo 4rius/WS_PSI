@@ -26,7 +26,10 @@ class Node:
             dealer_socket.connect(f"tcp://{peer}")
             if peer not in self.devices:
                 dealer_socket.send_string(f"Hello from Node {self.id}")
-            peer = peer.split(":")[0]
+            if "[" in peer and "]" in peer:  # Si es una dirección IPv6
+                peer = peer[peer.index("[") + 1:peer.index("]")]
+            else:  # Si es una dirección IPv4
+                peer = peer.split(":")[0]
             self.devices[peer] = {"socket": dealer_socket, "last_seen": None}
             # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,
             # se le enviará un mensaje de bienvenida y se actualizará su timestamp
@@ -132,9 +135,12 @@ def get_local_ip():
             s.connect(("1.1.1.1", 80))  # No tiene ni que ser un host real
             ip = s.getsockname()[0]
             s.close()
+            # Si es ipv6 la tenemos que devolver entre corchetes
+            if ":" in ip:
+                return "[" + ip + "]"
             return ip
         except OSError:
             print("Error fetching IP, using loopback")
-            return socket.gethostbyname(socket.gethostname())
-    elif system == "Windows":
-        return socket.gethostbyname(socket.gethostname())
+    # Windows y errores de macOS y Linux tiran por aquí
+    if ":" in socket.gethostbyname(socket.gethostname()) or ":" in socket.gethostname():
+        return "[" + socket.gethostbyname(socket.gethostname()) + "]"
