@@ -11,6 +11,10 @@ button {
     background-color: red;
     color: white;
 }
+.red {
+    background-color: red;
+    color: white;
+}
 table {
     width: 50%;
     margin: 20px auto;

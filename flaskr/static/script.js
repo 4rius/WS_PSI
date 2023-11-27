@@ -20,7 +20,18 @@ function update_devices() {
     $.getJSON('/api/devices', function(data){
         $('#devices').empty();
         $.each(data, function(key, value){
-            $('#devices').append('<p id="' + key + '">' + key + ': Last seen: ' + value + ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button></p>');
+            var displayKey = key;
+            // Check if the key is an IPv6 address
+            if (/:/.test(key)) {
+                // Abbreviate the IPv6 address for display
+                displayKey = key.replace(/:.*:/, '::');
+            }
+            $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
+            ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="send_large_message(\'' + key + '\')">Send File >10MB</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="send_small_message(\'' + key + '\')">Send File <1MB</button>');
+            // +
+            //' <button class="btn waves-effect waves-light red" onclick="hide_device(\'' + key + '\')">Hide Device</button></p>');
         });
     });
 }
@@ -57,5 +68,17 @@ function disconnect() {
         get_port();
         $('#connect').prop('disabled', false);
         $('#disconnect').prop('disabled', true);
+    });
+}
+
+function send_large_message(device) {
+    $.post('/api/send_large_message/' + device, function(data){
+        alert(data.status);
+    });
+}
+
+function send_small_message(device) {
+    $.post('/api/send_small_message/' + device, function(data){
+        alert(data.status);
     });
 }
