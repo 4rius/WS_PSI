@@ -1,8 +1,12 @@
+import random
+
 import zmq
 import threading
 import time
 import socket
 import platform
+
+from flaskr.implementations.Paillier import generate_keys
 
 
 class Node:
@@ -14,8 +18,24 @@ class Node:
         self.context = zmq.Context()  # Contexto de ZMQ
         self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
         self.devices = {}  # Dispositivos conectados
+        self.keys = {}  # Claves públicas de los dispositivos conectados
+        self.pkey = None  # Clave privada del nodo
+        self.skey = None  # Clave pública del nodo
+        self.myData = []  # Datos del nodo, empezamos con números aleatorios
 
     def start(self):
+        print(f"Node {self.id} (You) starting...")
+        # Por defecto se generan las claves del nodo usando la implementación de Paillier de phe
+        self.pkey, self.skey = generate_keys()
+        print(f"Node {self.id} (You) - Public key: {self.pkey}")
+        print(f"Node {self.id} (You) - Private key: {self.skey} - Keep this safe!")
+
+        # Generamos 20 números aleatorios para empezar
+        for i in range(20):
+            self.myData.append(random.randint(0, 100))
+        print(f"Node {self.id} (You) - My data: {self.myData}")
+
+        # Iniciar el socket ROUTER en un hilo
         threading.Thread(target=self.start_router_socket).start()
         time.sleep(1)  # Dar tiempo para que el socket ROUTER se inicie
 
@@ -25,7 +45,7 @@ class Node:
             dealer_socket = self.context.socket(zmq.DEALER)
             dealer_socket.connect(f"tcp://{peer}")
             if peer not in self.devices:
-                dealer_socket.send_string(f"Hello from Node {self.id}")
+                dealer_socket.send_string(f"Hello from Node {self.id}, my public key is {self.pkey}")
             if "[" in peer and "]" in peer:  # Si es una dirección IPv6
                 peer = peer.split("]:")[0] + "]"
             else:  # Si es una dirección IPv4
@@ -52,6 +72,8 @@ class Node:
             # Respuestas a los mensajes recibidos
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
+                pkey = message.split(" ")[-1]
+                self.keys[peer] = pkey
                 # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
                 if peer not in self.devices:
                     dealer_socket = self.context.socket(zmq.DEALER)
@@ -123,6 +145,12 @@ class Node:
         for device in self.devices:
             self.devices[device]["socket"].close()
         self.devices = {}
+
+    def get_device_pubkey(self, device):
+        if device in self.keys:
+            return self.keys[device]
+        else:
+            return "Device not found"
 
 
 def get_local_ip():

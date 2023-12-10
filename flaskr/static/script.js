@@ -20,7 +20,7 @@ function update_devices() {
     $.getJSON('/api/devices', function(data){
         $('#devices').empty();
         $.each(data, function(key, value){
-            var displayKey = key;
+            let displayKey = key;
             // Check if the key is an IPv6 address
             if (/:/.test(key)) {
                 // Abbreviate the IPv6 address for display
@@ -28,8 +28,8 @@ function update_devices() {
             }
             $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="send_large_message(\'' + key + '\')">Send File >10MB</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="send_small_message(\'' + key + '\')">Send File <1MB</button>');
+            ' <button class="btn waves-effect waves-light" onclick="find_intersection(\'' + key + '\')">Buscar intersección</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="pubkey(\'' + key + '\')">Clave pública</button>');
             // +
             //' <button class="btn waves-effect waves-light red" onclick="hide_device(\'' + key + '\')">Hide Device</button></p>');
         });
@@ -37,9 +37,21 @@ function update_devices() {
 }
 
 function ping(device) {
+    $('#devices').html('<div class="preloader-wrapper small active">\
+                            \n<div class="spinner-layer spinner-green-only">\
+                            \n<div class="circle-clipper left">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="gap-patch">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="circle-clipper right">\
+                            \n<div class="circle"></div>\
+                            \n</div>\
+                            \n</div>\
+                            \n</div>');
     $.post('/api/ping/' + device, function(data){
     }).done(function(data){
-        alert(data.status);
+        const message = data.status;
+        M.toast({html: message});
         update_devices();
     });
 }
@@ -53,7 +65,8 @@ function get_port() {
 
 function connect() {
     $.post('/api/connect', function(data){
-        alert(data.status);
+        const message = data.status;
+        M.toast({html: message});
         update_devices();
         get_port();
         $('#connect').prop('disabled', true);
@@ -63,7 +76,8 @@ function connect() {
 
 function disconnect() {
     $.post('/api/disconnect', function(data){
-        alert(data.status);
+        const message = data.status;
+        M.toast({html: message});
         update_devices();
         get_port();
         $('#connect').prop('disabled', false);
@@ -71,14 +85,22 @@ function disconnect() {
     });
 }
 
-function send_large_message(device) {
-    $.post('/api/send_large_message/' + device, function(data){
+function find_intersection(device) {
+    $.post('/api/find_intersection/' + device, function(data){
         alert(data.status);
     });
 }
 
-function send_small_message(device) {
-    $.post('/api/send_small_message/' + device, function(data){
+function pubkey(device) {
+    $.get('/api/pubkey/' + device, function(data){
         alert(data.status);
+    });
+}
+
+function mykeys() {
+    $.get('/api/mykeys', function(data){
+        const message = "Clave pública: " + "\nN: " + data.pubkeyN + "\ng: " + data.pubkeyG
+            + "\nClave privada: " + "\nP: " + data.privkeyP + "\nQ: " + data.privkeyQ;
+        alert(message);
     });
 }
