@@ -86,7 +86,7 @@ function disconnect() {
 }
 
 function find_intersection(device) {
-    $.post('/api/find_intersection/' + device, function(data){
+    $.post('/api/intersection/' + device, function(data){
         alert(data.status);
     });
 }

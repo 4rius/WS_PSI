@@ -77,4 +77,8 @@ def create_app(test_config=None):
     def api_pubkey_device(device):
         return jsonify({'pubkey': node.get_device_pubkey(device)})
 
+    @app.route('/api/intersection/<device>', methods=['POST'])
+    def api_find_intersection(device):
+        return jsonify({'status': node.paillier_intersection(device)})
+
     return app

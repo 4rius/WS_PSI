@@ -6,7 +6,7 @@ import time
 import socket
 import platform
 
-from flaskr.implementations.Paillier import generate_keys
+from flaskr.implementations.Paillier import generate_keys, encrypt, calculate_intersection
 
 
 class Node:
@@ -89,6 +89,20 @@ class Node:
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
+            elif message.endswith("Paillier"):
+                peer = message.split(" ")[0]
+                self.devices[peer]["last_seen"] = day_time
+                print(f"Node {self.id} (You) - Calculating intersection with {peer} - Paillier")
+                # Calculamos la intersección con el peer
+                peer_data = self.devices[peer]["socket"].recv_json()
+                # Pasamos los datos del peer a una lista
+                peer_data_list = []
+                for i in range(len(peer_data)):
+                    peer_data_list[i] = peer_data[i]
+                # Llamamos al método de intersección
+                calculate_intersection(self.myData, peer_data_list, self.skey)
+                # Rezamos
+                # Aquí irá el código para enviar la intersección resultante al peer
             else:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
@@ -129,6 +143,29 @@ class Node:
             print(f"Device {device} - Ping FAIL - Device likely disconnected")
             self.devices[device]["last_seen"] = False
             return device + " - Ping FAIL - Device likely disconnected"
+        else:
+            print("Device not found")
+            return "Device not found"
+
+    def paillier_intersection(self, device):
+    # Se cifra el conjunto de datos del nodo y se envía al peer
+        if device in self.devices:
+            print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
+            # Cifrar los datos del nodo
+            encrypted_data = []
+            for i in range(len(self.myData)):
+                encrypted_data.append(encrypt(self.pkey, self.myData[i]))
+            # Enviar los datos cifrados al peer
+            self.devices[device]["socket"].send_json(encrypted_data)
+            # Recibir los datos cifrados del peer
+            # peer_data = self.devices[device]["socket"].recv_json()
+            # Descifrar los datos del peer
+            # decrypted_data = [self.skey.decrypt(x) for x in peer_data]
+            # Calcular la intersección
+            # intersection = list(set(self.myData).intersection(set(decrypted_data)))
+            # print(f"Node {self.id} (You) - Intersection with {device} - Result: {intersection}")
+            # return intersection
+            return "Intersection with " + device + " - Paillier"
         else:
             print("Device not found")
             return "Device not found"
