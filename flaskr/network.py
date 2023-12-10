@@ -18,7 +18,7 @@ class Node:
         self.context = zmq.Context()  # Contexto de ZMQ
         self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
         self.devices = {}  # Dispositivos conectados
-        self.keys = {}  # Claves públicas de los dispositivos conectados
+        self.keys = {}  # Claves públicas de los dispositivos conectados, puede que no haga falta porque se pueden pedir
         self.pkey = None  # Clave privada del nodo
         self.skey = None  # Clave pública del nodo
         self.myData = []  # Datos del nodo, empezamos con números aleatorios
@@ -27,8 +27,7 @@ class Node:
         print(f"Node {self.id} (You) starting...")
         # Por defecto se generan las claves del nodo usando la implementación de Paillier de phe
         self.pkey, self.skey = generate_keys()
-        print(f"Node {self.id} (You) - Public key: {self.pkey}")
-        print(f"Node {self.id} (You) - Private key: {self.skey} - Keep this safe!")
+        print(f"Node {self.id} (You) - Keys generated - Objects: {self.pkey} - {self.skey}")
 
         # Generamos 20 números aleatorios para empezar
         for i in range(20):
@@ -45,7 +44,7 @@ class Node:
             dealer_socket = self.context.socket(zmq.DEALER)
             dealer_socket.connect(f"tcp://{peer}")
             if peer not in self.devices:
-                dealer_socket.send_string(f"Hello from Node {self.id}, my public key is {self.pkey}")
+                dealer_socket.send_string(f"Hello from Node {self.id}")
             if "[" in peer and "]" in peer:  # Si es una dirección IPv6
                 peer = peer.split("]:")[0] + "]"
             else:  # Si es una dirección IPv4
@@ -72,8 +71,6 @@ class Node:
             # Respuestas a los mensajes recibidos
             if message.startswith("Hello from Node"):
                 peer = message.split(" ")[3]
-                pkey = message.split(" ")[-1]
-                self.keys[peer] = pkey
                 # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
                 if peer not in self.devices:
                     dealer_socket = self.context.socket(zmq.DEALER)
