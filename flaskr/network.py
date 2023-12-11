@@ -148,13 +148,15 @@ class Node:
             return "Device not found"
 
     def paillier_intersection(self, device):
-    # Se cifra el conjunto de datos del nodo y se envía al peer
+        # Se cifra el conjunto de datos del nodo y se envía al peer
         if device in self.devices:
             print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
             # Cifrar los datos del nodo
             encrypted_data = []
             for i in range(len(self.myData)):
-                encrypted_data.append(encrypt(self.pkey, self.myData[i]))
+                enc = encrypt(self.pkey, self.myData[i])
+                # Convertir el objeto cifrado a una representación serializable
+                encrypted_data.append({'ciphertext': str(enc.ciphertext), 'exponent': str(enc.exponent)})
             # Enviar los datos cifrados al peer
             self.devices[device]["socket"].send_json(encrypted_data)
             # Recibir los datos cifrados del peer

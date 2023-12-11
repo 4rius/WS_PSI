@@ -27,9 +27,13 @@ def calculate_intersection(node1_encrypted_set, node2_encrypted_set, private_key
     for encrypted_number1 in node1_encrypted_set:
         # Compara ese número con cada número encriptado en el segundo conjunto
         for encrypted_number2 in node2_encrypted_set:
-            if encrypted_number1 == encrypted_number2:
+            # Deserializa los números encriptados
+            enc_num1 = paillier.EncryptedNumber(private_key.public_key(), int(encrypted_number1['ciphertext']),
+                                                int(encrypted_number1['exponent']))
+            enc_num2 = paillier.EncryptedNumber(private_key.public_key(), int(encrypted_number2['ciphertext']),
+                                                int(encrypted_number2['exponent']))
+            if enc_num1 == enc_num2:
                 # Desencripta el número y lo agrega a la lista de intersección
-                intersection.append(decrypt(private_key, encrypted_number1))
+                intersection.append(private_key.decrypt(enc_num1))
     # Devuelve la lista de intersección
     return intersection
-

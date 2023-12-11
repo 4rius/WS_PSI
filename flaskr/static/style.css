@@ -22,3 +22,25 @@ table {
 button {
     margin: 5px;
 }
+.left-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200px;
+        height: 100%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        overflow: auto;
+}
+.content {
+    margin-left: 220px;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.details {
+    text-align: center;
+    font-style: italic;
+}

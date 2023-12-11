@@ -2,8 +2,15 @@ $(document).ready(function(){
     $('select').formSelect();
         update_devices();
         get_port();
+        get_id();
         $('#connect').prop('disabled', true);
     });
+
+function get_id() {
+    $.get('/api/id', function(data){
+        $('#id').text(data.id);
+    });
+}
 
 function update_devices() {
     $('#devices').html('<div class="preloader-wrapper small active">\
@@ -86,8 +93,21 @@ function disconnect() {
 }
 
 function find_intersection(device) {
+    $('#devices').html('<div class="preloader-wrapper small active">\
+                            \n<div class="spinner-layer spinner-green-only">\
+                            \n<div class="circle-clipper left">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="gap-patch">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="circle-clipper right">\
+                            \n<div class="circle"></div>\
+                            \n</div>\
+                            \n</div>\
+                            \n</div>');
     $.post('/api/intersection/' + device, function(data){
-        alert(data.status);
+        const message = data.status;
+        M.toast({html: message});
+        update_devices();
     });
 }
 
@@ -101,6 +121,13 @@ function mykeys() {
     $.get('/api/mykeys', function(data){
         const message = "Clave pública: " + "\nN: " + data.pubkeyN + "\ng: " + data.pubkeyG
             + "\nClave privada: " + "\nP: " + data.privkeyP + "\nQ: " + data.privkeyQ;
-        alert(message);
+        window.open().document.write('<pre>' + message + '</pre>');
+    });
+}
+
+function my_data() {
+    $.get('/api/dataset', function(data){
+        const message = "Dataset: " + data.dataset;
+        window.open().document.write('<pre>' + message + '</pre>');
     });
 }
