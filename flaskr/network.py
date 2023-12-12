@@ -89,12 +89,15 @@ class Node:
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
-            elif message.endswith("Paillier"):
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
+            # Si recibe un json, es que el peer quiere calcular la intersección
+            elif message.startswith("["):
+                # Recibimos el json y sacamos el peer, el esquema y los datos
+                peer_data = self.router_socket.recv_json()
+                # El peer es un dato del json que viene como 'peer'
+                peer = peer_data.pop('peer')
+                # El esquema es un dato del json que viene como 'scheme', será útil cuando se implementen más esquemas
+                scheme = peer_data.pop('scheme')
                 print(f"Node {self.id} (You) - Calculating intersection with {peer} - Paillier")
-                # Calculamos la intersección con el peer
-                peer_data = self.devices[peer]["socket"].recv_json()
                 # Pasamos los datos del peer a una lista
                 peer_data_list = []
                 for i in range(len(peer_data)):
@@ -157,7 +160,8 @@ class Node:
                 enc = encrypt(self.pkey, self.myData[i])
                 # Convertir el objeto cifrado a una representación serializable
                 encrypted_data.append({'ciphertext': str(enc.ciphertext), 'exponent': str(enc.exponent)})
-            # Enviar los datos cifrados al peer
+            # Enviar los datos cifrados al peer y añadimos el esquema y el peer al mensaje
+            encrypted_data.append({'scheme': 'Paillier', 'peer': self.id})
             self.devices[device]["socket"].send_json(encrypted_data)
             # Recibir los datos cifrados del peer
             # peer_data = self.devices[device]["socket"].recv_json()
@@ -206,5 +210,7 @@ def get_local_ip():
         except OSError:
             print("Error fetching IP, using loopback")
     # Windows y errores de macOS y Linux tiran por aquí
-    if ":" in socket.gethostbyname(socket.gethostname()) or ":" in socket.gethostname():
-        return "[" + socket.gethostbyname(socket.gethostname()) + "]"
+    ip = socket.gethostbyname(socket.gethostname())
+    if ":" in ip:
+        return "[" + ip + "]"
+    return ip
