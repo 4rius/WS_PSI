@@ -32,7 +32,7 @@ class Node:
 
         # Generamos 20 números aleatorios para empezar
         for i in range(20):
-            self.myData.append(random.randint(0, 100))
+            self.myData.append(random.randint(0, 50))
         print(f"Node {self.id} (You) - My data: {self.myData}")
 
         # Iniciar el socket ROUTER en un hilo
@@ -98,11 +98,12 @@ class Node:
                     # Si es un JSON válido, extraemos el esquema, el peer y los datos
                     peer = peer_data.pop('peer')
                     scheme = peer_data.pop('scheme')
+                    peer_pubkey = peer_data.pop('pubkey')
                     intersect_data = peer_data.pop('data')
                     print(f"Node {self.id} (You) - Calculating intersection with {peer} - {scheme}")
                     # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
                     # Esto es necesario para calcular la intersección
-                    my_encrypted_data = self.encrypt_my_data()
+                    my_encrypted_data = self.encrypt_my_data_pubkey(peer_pubkey)
                     # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
                     if scheme == "Paillier":
                         intersection_result = calculate_intersection(my_encrypted_data, intersect_data, self.skey)
@@ -162,8 +163,8 @@ class Node:
             print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
             # Cifrar los datos del nodo
             encrypted_data = self.encrypt_my_data()
-            # Enviar los datos cifrados al peer y añadimos el esquema y el peer al mensaje
-            message = {'data': encrypted_data, 'scheme': 'Paillier', 'peer': self.id}
+            # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
+            message = {'data': encrypted_data, 'scheme': 'Paillier', 'peer': self.id, 'pubkey': self.pkey}
             self.devices[device]["socket"].send_json(message)
             # Recibir los datos cifrados del peer
             # peer_data = self.devices[device]["socket"].recv_json()
