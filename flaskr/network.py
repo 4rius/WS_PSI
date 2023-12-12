@@ -103,7 +103,7 @@ class Node:
                 for i in range(len(peer_data)):
                     peer_data_list[i] = peer_data[i]
                 # Llamamos al método de intersección
-                calculate_intersection(self.myData, peer_data_list, self.skey)
+                print(calculate_intersection(self.myData, peer_data_list, self.skey))
                 # Rezamos
                 # Aquí irá el código para enviar la intersección resultante al peer
             else:
@@ -158,8 +158,10 @@ class Node:
             encrypted_data = []
             for i in range(len(self.myData)):
                 enc = encrypt(self.pkey, self.myData[i])
-                # Convertir el objeto cifrado a una representación serializable
-                encrypted_data.append({'ciphertext': str(enc.ciphertext), 'exponent': str(enc.exponent)})
+                # Llamar al método ciphertext para obtener el valor cifrado
+                encrypted_value = enc.ciphertext()  # Asegúrate de que esto es un método y no una propiedad
+                # Convertir el valor cifrado a una representación serializable
+                encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
             # Enviar los datos cifrados al peer y añadimos el esquema y el peer al mensaje
             encrypted_data.append({'scheme': 'Paillier', 'peer': self.id})
             self.devices[device]["socket"].send_json(encrypted_data)
