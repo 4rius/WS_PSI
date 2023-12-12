@@ -98,7 +98,7 @@ class Node:
                     peer_data = json.loads(message)
                     # Si es un JSON válido, extraemos el esquema, el peer y los datos
                     peer = peer_data.pop('peer')
-                    scheme = peer_data.pop('scheme')
+                    scheme = peer_data.pop('implementation')
                     peer_pubkey = peer_data.pop('pubkey')
                     peer_pubkey_reconstructed = reconstruct_public_key(peer_pubkey)
                     intersect_data = peer_data.pop('data')
@@ -109,7 +109,8 @@ class Node:
                     # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
                     if scheme == "Paillier":
                         intersection_result = calculate_intersection(my_encrypted_data, intersect_data, peer_pubkey_reconstructed)
-                        # Estos números están encriptados y solo se ha calculado la intersección usando las propiedades homomórficas de
+                        # Estos números están encriptados y solo se ha calculado la intersección usando las
+                        # propiedades homomórficas de
                         print(f"Node {self.id} (You) - Intersection with {peer} - Encrypted result: {intersection_result}")
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
@@ -168,7 +169,7 @@ class Node:
             encrypted_data = self.encrypt_my_data()
             # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
             serialized_pubkey = serialize_public_key(self.pkey)
-            message = {'data': encrypted_data, 'scheme': 'Paillier', 'peer': self.id, 'pubkey': serialized_pubkey}
+            message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id, 'pubkey': serialized_pubkey}
             self.devices[device]["socket"].send_json(message)
             # Recibir los datos cifrados del peer
             # peer_data = self.devices[device]["socket"].recv_json()
