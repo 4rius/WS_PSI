@@ -110,7 +110,7 @@ class Node:
                     if scheme == "Paillier":
                         intersection_result = calculate_intersection(my_encrypted_data, intersect_data, peer_pubkey_reconstructed)
                         # Estos números están encriptados y solo se ha calculado la intersección usando las propiedades homomórficas de
-                        print(intersection_result)
+                        print(f"Node {self.id} (You) - Intersection with {peer} - Encrypted result: {intersection_result}")
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
                     print("Received message is not a valid JSON.")

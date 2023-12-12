@@ -37,23 +37,18 @@ def decrypt(private_key, encrypted_number):
 # El cálculo de la intersección usando los sets de dos nodos.
 # Nodo 1 solicita -> Nodo 2 calcula. Se implementará una forma de que le envíe la intersección de vuelta.
 def calculate_intersection(node1_encrypted_set, node2_encrypted_set, public_key):
-    # Diccionario para almacenar los números encriptados del primer conjunto
-    encrypted_set_dict = defaultdict(list)
-    for encrypted_number in node1_encrypted_set:
-        enc_num = paillier.EncryptedNumber(public_key, int(encrypted_number['ciphertext']),
-                                           int(encrypted_number['exponent']))
-        # Almacena el número encriptado en el diccionario usando su hash como clave
-        encrypted_set_dict[hash(enc_num)].append(enc_num)
+    # Convertir los conjuntos de números cifrados en conjuntos de EncryptedNumber para poder calcular la intersección
+    node1_enc_set = {paillier.EncryptedNumber(public_key, int(num['ciphertext']), int(num['exponent']))
+                     for num in node1_encrypted_set}
+    node2_enc_set = {paillier.EncryptedNumber(public_key, int(num['ciphertext']), int(num['exponent']))
+                     for num in node2_encrypted_set}
 
-    intersection = []
-    # Recorre cada número encriptado en el segundo conjunto
-    for encrypted_number in node2_encrypted_set:
-        enc_num = paillier.EncryptedNumber(public_key, int(encrypted_number['ciphertext']),
-                                           int(encrypted_number['exponent']))
-        # Verifica si el hash del número encriptado existe en el diccionario
-        if hash(enc_num) in encrypted_set_dict:
-            # Agrega el número encriptado a la lista de intersección
-            intersection.append(enc_num)
+    # Calcular la intersección de los conjuntos
+    intersection = node1_enc_set.intersection(node2_enc_set)
 
-    # La intersección contiene números encriptados, que pueden ser procesados más adelante
-    return intersection
+    # Convertir la intersección en una lista de diccionarios para su serialización
+    intersection_serialized = [{'ciphertext': str(num.ciphertext()), 'exponent': num.exponent}
+                               for num in intersection]
+
+    return intersection_serialized
+
