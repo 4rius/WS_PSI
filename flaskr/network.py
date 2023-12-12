@@ -91,19 +91,22 @@ class Node:
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
             # Si recibe un json, es que el peer quiere calcular la intersección
-            elif message.startswith("["):
+            elif message.startswith("{"):
                 try:
                     # Intentamos deserializar el mensaje para ver si es un JSON válido
                     peer_data = json.loads(message)
                     # Si es un JSON válido, extraemos el esquema, el peer y los datos
                     peer = peer_data.pop('peer')
                     scheme = peer_data.pop('scheme')
+                    intersect_data = peer_data.pop('data')
                     print(f"Node {self.id} (You) - Calculating intersection with {peer} - {scheme}")
-                    # Pasamos los datos del peer a una lista
-                    peer_data_list = [data for data in peer_data]
-                    # Llamamos al método de intersección
-                    intersection_result = calculate_intersection(self.myData, peer_data_list, self.skey)
-                    print(intersection_result)
+                    # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
+                    # Esto es necesario para calcular la intersección
+                    my_encrypted_data = self.encrypt_my_data()
+                    # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
+                    if scheme == "Paillier":
+                        intersection_result = calculate_intersection(my_encrypted_data, intersect_data, self.skey)
+                        print(intersection_result)
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
                     print("Received message is not a valid JSON.")
@@ -158,13 +161,7 @@ class Node:
         if device in self.devices:
             print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
             # Cifrar los datos del nodo
-            encrypted_data = []
-            for i in range(len(self.myData)):
-                enc = encrypt(self.pkey, self.myData[i])
-                # Llamar al método ciphertext para obtener el valor cifrado
-                encrypted_value = enc.ciphertext()  # Asegúrate de que esto es un método y no una propiedad
-                # Convertir el valor cifrado a una representación serializable
-                encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
+            encrypted_data = self.encrypt_my_data()
             # Enviar los datos cifrados al peer y añadimos el esquema y el peer al mensaje
             message = {'data': encrypted_data, 'scheme': 'Paillier', 'peer': self.id}
             self.devices[device]["socket"].send_json(message)
@@ -180,6 +177,16 @@ class Node:
         else:
             print("Device not found")
             return "Device not found"
+
+    def encrypt_my_data(self):
+        encrypted_data = []
+        for i in range(len(self.myData)):
+            enc = encrypt(self.pkey, self.myData[i])
+            # Llamar al método ciphertext para obtener el valor cifrado
+            encrypted_value = enc.ciphertext()
+            # Convertir el valor cifrado a una representación serializable
+            encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
+        return encrypted_data
 
     def broadcast_message(self, message):
         for device in self.devices:
