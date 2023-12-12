@@ -9,6 +9,19 @@ def generate_keys():
     return public_key, private_key
 
 
+def serialize_public_key(public_key):
+    # Convertir la clave pública en un diccionario con la n
+    public_key_dict = {
+        'n': str(public_key.n)
+    }
+    return public_key_dict
+
+
+def reconstruct_public_key(public_key_dict):
+    # Reconstruir la clave pública a partir del diccionario
+    return paillier.PaillierPublicKey(n=int(public_key_dict['n']))
+
+
 # Cifrar los números de los sets con los que arrancamos
 def encrypt(public_key, number):
     encrypted_number = public_key.encrypt(number)
@@ -44,4 +57,3 @@ def calculate_intersection(node1_encrypted_set, node2_encrypted_set, public_key)
 
     # La intersección contiene números encriptados, que pueden ser procesados más adelante
     return intersection
-
