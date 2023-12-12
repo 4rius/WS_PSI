@@ -106,7 +106,8 @@ class Node:
                     my_encrypted_data = self.encrypt_my_data_pubkey(peer_pubkey)
                     # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
                     if scheme == "Paillier":
-                        intersection_result = calculate_intersection(my_encrypted_data, intersect_data, self.skey)
+                        intersection_result = calculate_intersection(my_encrypted_data, intersect_data, peer_pubkey)
+                        # Estos números están encriptados y solo se ha calculado la intersección usando las propiedades homomórficas de
                         print(intersection_result)
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
