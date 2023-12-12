@@ -189,6 +189,16 @@ class Node:
             encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
         return encrypted_data
 
+    def encrypt_my_data_pubkey(self, pubkey):
+        encrypted_data = []
+        for i in range(len(self.myData)):
+            enc = encrypt(pubkey, self.myData[i])
+            # Llamar al método ciphertext para obtener el valor cifrado
+            encrypted_value = enc.ciphertext()
+            # Convertir el valor cifrado a una representación serializable
+            encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
+        return encrypted_data
+
     def broadcast_message(self, message):
         for device in self.devices:
             self.devices[device]["socket"].send_string(message)
