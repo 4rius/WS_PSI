@@ -1,14 +1,14 @@
 import json
+import platform
 import random
-
-import zmq
+import socket
 import threading
 import time
-import socket
-import platform
 
-from flaskr.implementations.Paillier import generate_keys, encrypt, serialize_public_key, \
-    reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set
+import zmq
+
+from flaskr.implementations.Paillier import generate_keys, serialize_public_key, \
+    reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data
 
 
 class Node:
@@ -23,7 +23,8 @@ class Node:
         self.keys = {}  # Claves públicas de los dispositivos conectados, puede que no haga falta porque se pueden pedir
         self.pkey = None  # Clave privada del nodo
         self.skey = None  # Clave pública del nodo
-        self.myData = set(random.sample(range(20), 20))  # Conjunto de datos del nodo (set de 10 números aleatorios)
+        self.myData = set(random.sample(range(40), 20))  # Conjunto de datos del nodo (set de 10 números aleatorios)
+        self.domain = 40  # Dominio de los números aleatorios sobre los que se trabaja
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -162,7 +163,7 @@ class Node:
         if device in self.devices:
             print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
             # Cifrar los datos del nodo
-            encrypted_data = self.encrypt_my_data()
+            encrypted_data = encrypt_my_data(self.myData, self.pkey, self.domain)
             # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
             serialized_pubkey = serialize_public_key(self.pkey)
             # Poner encrypted data de forma que sea serializable
@@ -184,9 +185,6 @@ class Node:
         else:
             print("Device not found")
             return "Device not found"
-
-    def encrypt_my_data(self):
-        return {element: encrypt(self.pkey, element) for element in self.myData}
 
     def broadcast_message(self, message):
         for device in self.devices:
