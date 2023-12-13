@@ -131,3 +131,10 @@ function my_data() {
         window.open().document.write('<pre>' + message + '</pre>');
     });
 }
+
+function results() {
+    $.get('/api/results', function(data){
+        const message = "Resultados: " + data.results;
+        window.open().document.write('<pre>' + message + '</pre>');
+    });
+}

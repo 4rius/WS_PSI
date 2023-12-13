@@ -48,4 +48,5 @@ def recv_multiplied_set(serialized_multiplied_set, public_key):
 
 def get_multiplied_set(enc_set, node_set):
     # Cita: https://blog.openmined.org/private-set-intersection-with-the-paillier-cryptosystem/
-    return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
+    return {element: encrypted_value.__pow__(int(element in node_set)) for element, encrypted_value in enc_set.items()}
+

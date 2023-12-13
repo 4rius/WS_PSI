@@ -23,8 +23,9 @@ class Node:
         self.keys = {}  # Claves públicas de los dispositivos conectados, puede que no haga falta porque se pueden pedir
         self.pkey = None  # Clave privada del nodo
         self.skey = None  # Clave pública del nodo
-        self.myData = set(random.sample(range(40), 20))  # Conjunto de datos del nodo (set de 10 números aleatorios)
+        self.myData = set(random.sample(range(40), 10))  # Conjunto de datos del nodo (set de 10 números aleatorios)
         self.domain = 40  # Dominio de los números aleatorios sobre los que se trabaja
+        self.results = {}  # Resultados de las intersecciones
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -90,7 +91,7 @@ class Node:
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
             # Si recibe un json, es que el peer quiere calcular la intersección
-            elif message.contains("implementation") and message.contains("peer"):
+            elif "implementation" in message and "peer" in message:
                 try:
                     # Intentamos deserializar el mensaje para ver si es un JSON válido
                     peer_data = json.loads(message)
@@ -126,6 +127,8 @@ class Node:
                     for element, encrypted_value in multiplied_set.items():
                         multiplied_set[element] = self.skey.decrypt(encrypted_value)
                     print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
+                    # Guardamos el resultado
+                    self.results[device] = multiplied_set
                 except json.JSONDecodeError:
                     print("Received message is not a valid JSON.")
             else:
