@@ -7,8 +7,8 @@ import time
 import socket
 import platform
 
-from flaskr.implementations.Paillier import generate_keys, encrypt, calculate_intersection, serialize_public_key, \
-    reconstruct_public_key
+from flaskr.implementations.Paillier import generate_keys, encrypt, serialize_public_key, \
+    reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set
 
 
 class Node:
@@ -23,7 +23,7 @@ class Node:
         self.keys = {}  # Claves públicas de los dispositivos conectados, puede que no haga falta porque se pueden pedir
         self.pkey = None  # Clave privada del nodo
         self.skey = None  # Clave pública del nodo
-        self.myData = []  # Datos del nodo, empezamos con números aleatorios
+        self.myData = set(random.sample(range(20), 20))  # Conjunto de datos del nodo (set de 10 números aleatorios)
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -31,9 +31,6 @@ class Node:
         self.pkey, self.skey = generate_keys()
         print(f"Node {self.id} (You) - Keys generated - Objects: {self.pkey} - {self.skey}")
 
-        # Generamos 20 números aleatorios para empezar
-        for i in range(20):
-            self.myData.append(random.randint(0, 50))
         print(f"Node {self.id} (You) - My data: {self.myData}")
 
         # Iniciar el socket ROUTER en un hilo
@@ -96,27 +93,26 @@ class Node:
                 try:
                     # Intentamos deserializar el mensaje para ver si es un JSON válido
                     peer_data = json.loads(message)
-                    # Si es un JSON válido, extraemos el esquema, el peer y los datos
+                    # Si es un JSON válido
                     peer = peer_data.pop('peer')
                     scheme = peer_data.pop('implementation')
                     peer_pubkey = peer_data.pop('pubkey')
                     peer_pubkey_reconstructed = reconstruct_public_key(peer_pubkey)
-                    intersect_data = peer_data.pop('data')
+                    encrypted_set = get_encrypted_set(peer_data.pop('data'), peer_pubkey_reconstructed)
                     print(f"Node {self.id} (You) - Calculating intersection with {peer} - {scheme}")
                     # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
-                    # Esto es necesario para calcular la intersección
-                    my_encrypted_data = self.encrypt_my_data_pubkey(peer_pubkey_reconstructed)
                     # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
                     if scheme == "Paillier":
-                        intersection_result = calculate_intersection(my_encrypted_data, intersect_data, peer_pubkey_reconstructed)
-                        # Estos números están encriptados y solo se ha calculado la intersección usando las
-                        # propiedades homomórficas de
-                        print(f"Node {self.id} (You) - Intersection with {peer} - Encrypted result: {intersection_result}")
+                        multiplied_set = get_multiplied_set(encrypted_set, self.myData)
+                        # Serializamos y mandamos de vuelta el resultado
+                        serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for element, encrypted_value in multiplied_set.items()}
+                        print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
+                        message = {'data': serialized_multiplied_set}
+                        self.devices[peer]["socket"].send_json(message)
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
                     print("Received message is not a valid JSON.")
                 # Rezamos
-                # Aquí irá el código para enviar la intersección resultante al peer
             else:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
@@ -169,15 +165,20 @@ class Node:
             encrypted_data = self.encrypt_my_data()
             # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
             serialized_pubkey = serialize_public_key(self.pkey)
+            # Poner encrypted data de forma que sea serializable
+            for element, encrypted_value in encrypted_data.items():
+                encrypted_data[element] = str(encrypted_value.ciphertext())
             message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id, 'pubkey': serialized_pubkey}
             self.devices[device]["socket"].send_json(message)
             # Recibir los datos cifrados del peer
-            # peer_data = self.devices[device]["socket"].recv_json()
+            peer_data = self.devices[device]["socket"].recv_json()
             # Descifrar los datos del peer
-            # decrypted_data = [self.skey.decrypt(x) for x in peer_data]
-            # Calcular la intersección
-            # intersection = list(set(self.myData).intersection(set(decrypted_data)))
-            # print(f"Node {self.id} (You) - Intersection with {device} - Result: {intersection}")
+            multiplied_set = peer_data.pop('data')
+            multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
+            # Desciframos los datos del peer
+            for element, encrypted_value in multiplied_set.items():
+                multiplied_set[element] = self.skey.decrypt(encrypted_value)
+            print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
             # return intersection
             return "Intersection with " + device + " - Paillier"
         else:
@@ -185,24 +186,7 @@ class Node:
             return "Device not found"
 
     def encrypt_my_data(self):
-        encrypted_data = []
-        for i in range(len(self.myData)):
-            enc = encrypt(self.pkey, self.myData[i])
-            # Llamar al método ciphertext para obtener el valor cifrado
-            encrypted_value = enc.ciphertext()
-            # Convertir el valor cifrado a una representación serializable
-            encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
-        return encrypted_data
-
-    def encrypt_my_data_pubkey(self, pubkey):
-        encrypted_data = []
-        for i in range(len(self.myData)):
-            enc = encrypt(pubkey, self.myData[i])
-            # Llamar al método ciphertext para obtener el valor cifrado
-            encrypted_value = enc.ciphertext()
-            # Convertir el valor cifrado a una representación serializable
-            encrypted_data.append({'ciphertext': str(encrypted_value), 'exponent': str(enc.exponent)})
-        return encrypted_data
+        return {element: encrypt(self.pkey, element) for element in self.myData}
 
     def broadcast_message(self, message):
         for device in self.devices:
