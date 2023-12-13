@@ -38,7 +38,7 @@ def decrypt(private_key, encrypted_number):
 
 
 def encrypt_my_data(my_set, public_key, domain):
-    return {element: public_key.encrypt(int(element in my_set)) for element in domain}
+    return {element: public_key.encrypt(int(element in my_set)) for element in range(domain)}
 
 
 def recv_multiplied_set(serialized_multiplied_set, public_key):

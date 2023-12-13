@@ -90,7 +90,7 @@ class Node:
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
             # Si recibe un json, es que el peer quiere calcular la intersección
-            elif message.startswith("{"):
+            elif message.contains("implementation") and message.contains("peer"):
                 try:
                     # Intentamos deserializar el mensaje para ver si es un JSON válido
                     peer_data = json.loads(message)
@@ -108,12 +108,26 @@ class Node:
                         # Serializamos y mandamos de vuelta el resultado
                         serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for element, encrypted_value in multiplied_set.items()}
                         print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
-                        message = {'data': serialized_multiplied_set}
+                        message = {'data': serialized_multiplied_set, 'peer': self.id}
                         self.devices[peer]["socket"].send_json(message)
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
                     print("Received message is not a valid JSON.")
                 # Rezamos
+            # Resto del cálculo de la intersección
+            elif message.startswith("{"):
+                try:
+                    peer_data = json.loads(message)
+                    # Descifrar los datos del peer
+                    multiplied_set = peer_data.pop('data')
+                    multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
+                    device = peer_data.pop('peer')
+                    # Desciframos los datos del peer
+                    for element, encrypted_value in multiplied_set.items():
+                        multiplied_set[element] = self.skey.decrypt(encrypted_value)
+                    print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
+                except json.JSONDecodeError:
+                    print("Received message is not a valid JSON.")
             else:
                 print(f"{self.id} (You) received: {message} but don't know what to do with it")
                 peer = message.split(" ")[0]
@@ -171,17 +185,7 @@ class Node:
                 encrypted_data[element] = str(encrypted_value.ciphertext())
             message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id, 'pubkey': serialized_pubkey}
             self.devices[device]["socket"].send_json(message)
-            # Recibir los datos cifrados del peer
-            peer_data = self.devices[device]["socket"].recv_json()
-            # Descifrar los datos del peer
-            multiplied_set = peer_data.pop('data')
-            multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
-            # Desciframos los datos del peer
-            for element, encrypted_value in multiplied_set.items():
-                multiplied_set[element] = self.skey.decrypt(encrypted_value)
-            print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
-            # return intersection
-            return "Intersection with " + device + " - Paillier"
+            return "Intersection with " + device + " - Paillier - Waiting for response..."
         else:
             print("Device not found")
             return "Device not found"
