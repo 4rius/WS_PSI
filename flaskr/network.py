@@ -97,19 +97,19 @@ class Node:
                     peer_data = json.loads(message)
                     # Si es un JSON válido
                     peer = peer_data.pop('peer')
-                    scheme = peer_data.pop('implementation')
+                    implementation = peer_data.pop('implementation')
                     peer_pubkey = peer_data.pop('pubkey')
                     peer_pubkey_reconstructed = reconstruct_public_key(peer_pubkey)
                     encrypted_set = get_encrypted_set(peer_data.pop('data'), peer_pubkey_reconstructed)
-                    print(f"Node {self.id} (You) - Calculating intersection with {peer} - {scheme}")
+                    print(f"Node {self.id} (You) - Calculating intersection with {peer} - {implementation}")
                     # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
                     # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
-                    if scheme == "Paillier":
+                    if implementation == "Paillier":
                         multiplied_set = get_multiplied_set(encrypted_set, self.myData)
                         # Serializamos y mandamos de vuelta el resultado
                         serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for element, encrypted_value in multiplied_set.items()}
                         print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
-                        message = {'data': serialized_multiplied_set, 'peer': self.id}
+                        message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
                         self.devices[peer]["socket"].send_json(message)
                 except json.JSONDecodeError:
                     # Si hay un error al deserializar, el mensaje no es un JSON válido
@@ -119,16 +119,9 @@ class Node:
             elif message.startswith("{"):
                 try:
                     peer_data = json.loads(message)
-                    # Descifrar los datos del peer
-                    multiplied_set = peer_data.pop('data')
-                    multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
-                    device = peer_data.pop('peer')
-                    # Desciframos los datos del peer
-                    for element, encrypted_value in multiplied_set.items():
-                        multiplied_set[element] = self.skey.decrypt(encrypted_value)
-                    print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
-                    # Guardamos el resultado
-                    self.results[device] = multiplied_set
+                    crypto_scheme = peer_data.pop('cryptpscheme')
+                    if crypto_scheme == "Paillier":
+                        self.paillier_intersection_final_step(peer_data)
                 except json.JSONDecodeError:
                     print("Received message is not a valid JSON.")
             else:
@@ -192,6 +185,19 @@ class Node:
         else:
             print("Device not found")
             return "Device not found"
+
+    def paillier_intersection_final_step(self, peer_data):
+        multiplied_set = peer_data.pop('data')
+        multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
+        device = peer_data.pop('peer')
+        # Desciframos los datos del peer
+        for element, encrypted_value in multiplied_set.items():
+            multiplied_set[element] = self.skey.decrypt(encrypted_value)
+        # Cogemos solo los valores que sean 1, que representan la intersección
+        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
+        print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
+        # Guardamos el resultado
+        self.results[device] = multiplied_set
 
     def broadcast_message(self, message):
         for device in self.devices:

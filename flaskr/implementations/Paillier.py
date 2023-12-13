@@ -63,7 +63,7 @@ def get_multiplied_set(enc_set, node_set):
     print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
     result = {}
     for element, encrypted_value in enc_set.items():
-        if element not in node_set:
+        if int(element) not in node_set:
             print("Elemento no encontrado en el set: " + str(element))
             result[element] = encrypted_value * 0
         else:

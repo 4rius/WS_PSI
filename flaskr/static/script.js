@@ -134,7 +134,7 @@ function my_data() {
 
 function results() {
     $.get('/api/results', function(data){
-        const message = "Resultados: " + data.results;
+        const message = "Result: " + JSON.stringify(data.result, null, 2);
         window.open().document.write('<pre>' + message + '</pre>');
     });
 }
