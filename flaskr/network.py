@@ -193,11 +193,11 @@ class Node:
         # Desciframos los datos del peer
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = self.skey.decrypt(encrypted_value)
+        # Guardamos el resultado
+        self.results[device] = multiplied_set
         # Cogemos solo los valores que sean 1, que representan la intersección
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
-        # Guardamos el resultado
-        self.results[device] = multiplied_set
 
     def broadcast_message(self, message):
         for device in self.devices:
