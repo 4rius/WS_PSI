@@ -38,8 +38,7 @@ def decrypt(private_key, encrypted_number):
 
 
 def encrypt_my_data(my_set, public_key, domain):
-    return {element: public_key.encrypt(int(element)) if element in my_set else public_key.encrypt(0) for element in
-            range(domain)}
+    return {element: public_key.encrypt(1) if element in my_set else public_key.encrypt(0) for element in range(domain)}
 
 
 def recv_multiplied_set(serialized_multiplied_set, public_key):
@@ -49,4 +48,4 @@ def recv_multiplied_set(serialized_multiplied_set, public_key):
 
 def get_multiplied_set(enc_set, node_set):
     # Cita: https://blog.openmined.org/private-set-intersection-with-the-paillier-cryptosystem/
-    return {element: encrypted_value.__pow__(int(element in node_set)) for element, encrypted_value in enc_set.items()}
+    return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
