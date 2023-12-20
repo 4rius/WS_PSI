@@ -66,8 +66,12 @@ def get_multiplied_set(enc_set, node_set):
         if int(element) not in node_set:
             print("Elemento no encontrado en el set: " + str(element))
             result[element] = encrypted_value * 0
+            # Print the result's element ciphertext for debugging purposes
+            print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 0")
         else:
             print("Elemento encontrado en el set: " + str(element))
             result[element] = encrypted_value * 1
+            # Print the result's element ciphertext for debugging purposes
+            print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 1")
     return result
     # return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
