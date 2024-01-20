@@ -144,3 +144,11 @@ function gen_paillier() {
         M.toast({html: message});
     });
 }
+
+function discover_peers() {
+    $.post('/api/discover_peers', function(data){
+        const message = data.status;
+        M.toast({html: message});
+        update_devices();
+    });
+}

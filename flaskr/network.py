@@ -7,7 +7,7 @@ import time
 
 import zmq
 
-from flaskr.implementations.Paillier import generate_keys, serialize_public_key, \
+from flaskr.implementations.Paillier import generate_paillier_keys, serialize_public_key, \
     reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data
 
 
@@ -30,7 +30,7 @@ class Node:
     def start(self):
         print(f"Node {self.id} (You) starting...")
         # Por defecto se generan las claves del nodo usando la implementación de Paillier de phe
-        self.pkey, self.skey = generate_keys()
+        self.pkey, self.skey = generate_paillier_keys()
         print(f"Node {self.id} (You) - Keys generated - Objects: {self.pkey} - {self.skey}")
 
         print(f"Node {self.id} (You) - My data: {self.myData}")
@@ -74,12 +74,7 @@ class Node:
                 peer = message.split(" ")[3]
                 # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
                 if peer not in self.devices:
-                    dealer_socket = self.context.socket(zmq.DEALER)
-                    dealer_socket.connect(f"tcp://{peer}:{self.port}")
-                    self.devices[peer] = {"socket": dealer_socket, "last_seen": day_time}
-                    print(f"Added {peer} to my network")
-                # Actualizar la lista de dispositivos
-                self.devices[peer]["last_seen"] = day_time
+                    self.new_peer(peer, day_time)
                 self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
             elif message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
@@ -87,34 +82,22 @@ class Node:
                 # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del
                 # peer
                 self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
+            elif message.startswith("DISCOVER:"):
+                peer = message.split(" ")[2]
+                if peer not in self.devices:
+                    self.new_peer(peer, day_time)
+                self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknoledges node {peer}")
+            elif message.startswith("DISCOVER_ACK:"):
+                peer = message.split(" ")[2]
+                if peer not in self.devices:
+                    self.new_peer(peer, day_time)
+                self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
             elif message.startswith("Added "):
                 peer = message.split(" ")[8]
                 self.devices[peer]["last_seen"] = day_time
             # Si recibe un json, es que el peer quiere calcular la intersección
             elif "implementation" in message and "peer" in message:
-                try:
-                    # Intentamos deserializar el mensaje para ver si es un JSON válido
-                    peer_data = json.loads(message)
-                    # Si es un JSON válido
-                    peer = peer_data.pop('peer')
-                    implementation = peer_data.pop('implementation')
-                    peer_pubkey = peer_data.pop('pubkey')
-                    peer_pubkey_reconstructed = reconstruct_public_key(peer_pubkey)
-                    encrypted_set = get_encrypted_set(peer_data.pop('data'), peer_pubkey_reconstructed)
-                    print(f"Node {self.id} (You) - Calculating intersection with {peer} - {implementation}")
-                    # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
-                    # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
-                    if implementation == "Paillier":
-                        multiplied_set = get_multiplied_set(encrypted_set, self.myData)
-                        # Serializamos y mandamos de vuelta el resultado
-                        serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for element, encrypted_value in multiplied_set.items()}
-                        print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
-                        message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
-                        self.devices[peer]["socket"].send_json(message)
-                except json.JSONDecodeError:
-                    # Si hay un error al deserializar, el mensaje no es un JSON válido
-                    print("Received message is not a valid JSON.")
-                # Rezamos
+                self.calc_intersection(message)
             # Resto del cálculo de la intersección
             elif message.startswith("{"):
                 try:
@@ -179,7 +162,8 @@ class Node:
             # Poner encrypted data de forma que sea serializable
             for element, encrypted_value in encrypted_data.items():
                 encrypted_data[element] = str(encrypted_value.ciphertext())
-            message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id, 'pubkey': serialized_pubkey}
+            message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id,
+                       'pubkey': serialized_pubkey}
             self.devices[device]["socket"].send_json(message)
             return "Intersection with " + device + " - Paillier - Waiting for response..."
         else:
@@ -216,8 +200,61 @@ class Node:
             return "Device not found"
 
     def gen_paillier(self):
-        self.pkey, self.skey = generate_keys()
-        return "Paillier keys generated"
+        self.pkey, self.skey = generate_paillier_keys()
+        return "New Paillier keys generated"
+
+    def new_peer(self, peer, last_seen):
+        dealer_socket = self.context.socket(zmq.DEALER)
+        dealer_socket.connect(f"tcp://{peer}:{self.port}")
+        self.devices[peer] = {"socket": dealer_socket, "last_seen": last_seen}
+        print(f"Added {peer} to my network")
+
+    def discover_peers(self):
+        print(f"Node {self.id} (You) - Discovering peers on port {self.port}")
+        # Iterar sobre todas las direcciones IP posibles en la subred
+        for i in range(1, 256):
+            ip = f"192.168.1.{i}"
+            if ip not in self.devices and ip != self.id:
+                try:
+                    # Crear un nuevo socket y tratar de conectar
+                    dealer_socket = self.context.socket(zmq.DEALER)
+                    print(f"Node {self.id} (You) - Trying to connect to " + ip)
+                    dealer_socket.setsockopt(zmq.RCVTIMEO, 1000)  # Tiempo de espera de 1 segundo
+                    dealer_socket.connect(f"tcp://{ip}:{self.port}")
+                    # Enviar un mensaje de descubrimiento
+                    dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
+                    # Matamos aquí el socket para no tener que esperar a que expire el tiempo de espera
+                    dealer_socket.close()
+                except zmq.error.Again:
+                    continue
+        return "Discovery finished"
+
+    def calc_intersection(self, message):
+        try:
+            # Intentamos deserializar el mensaje para ver si es un JSON válido
+            peer_data = json.loads(message)
+            # Si es un JSON válido
+            peer = peer_data.pop('peer')
+            implementation = peer_data.pop('implementation')
+            peer_pubkey = peer_data.pop('pubkey')
+            peer_pubkey_reconstructed = reconstruct_public_key(peer_pubkey)
+            encrypted_set = get_encrypted_set(peer_data.pop('data'), peer_pubkey_reconstructed)
+            print(f"Node {self.id} (You) - Calculating intersection with {peer} - {implementation}")
+            # Generamos una lista con exponentes y valores cifrados de nuestro conjunto de datos
+            # Si el esquema es Paillier, llamamos al método de intersección con los datos del peer
+            if implementation == "Paillier":
+                multiplied_set = get_multiplied_set(encrypted_set, self.myData)
+                # Serializamos y mandamos de vuelta el resultado
+                serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for
+                                             element, encrypted_value in multiplied_set.items()}
+                print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
+                message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
+                self.devices[peer]["socket"].send_json(message)
+            # Aquí irán las demás implementaciones
+        except json.JSONDecodeError:
+            # Si hay un error al deserializar, el mensaje no es un JSON válido
+            print("Received message is not a valid JSON.")
+        # Rezamos
 
 
 def get_local_ip():

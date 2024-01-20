@@ -98,4 +98,8 @@ def create_app(test_config=None):
     def api_gen_paillier():
         return jsonify({'status': node.gen_paillier()})
 
+    @app.route('/api/discover_peers', methods=['POST'])
+    def api_discover_peers():
+        return jsonify({'status': node.discover_peers()})
+
     return app
