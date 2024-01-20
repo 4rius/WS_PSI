@@ -35,8 +35,7 @@ function update_devices() {
             }
             $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="find_intersection(\'' + key + '\')">Buscar intersección</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="pubkey(\'' + key + '\')">Clave pública</button>');
+            ' <button class="btn waves-effect waves-light" onclick="find_intersection(\'' + key + '\')">Buscar intersección</button>');
             // +
             //' <button class="btn waves-effect waves-light red" onclick="hide_device(\'' + key + '\')">Hide Device</button></p>');
         });
@@ -136,5 +135,12 @@ function results() {
     $.get('/api/results', function(data){
         const message = "Result: " + JSON.stringify(data.result, null, 2);
         window.open().document.write('<pre>' + message + '</pre>');
+    });
+}
+
+function gen_paillier() {
+    $.post('/api/gen_paillier', function(data){
+        const message = data.status;
+        M.toast({html: message});
     });
 }

@@ -30,7 +30,7 @@ def create_app(test_config=None):
 
     # Inicializar el nodo
     # Peers hardcodeados para probar su funcionamiento
-    peers = ["192.168.1.71:5001", "172.19.0.4:5001", "172.19.0.3:5001", "172.19.0.2:5001",
+    peers = ["192.168.1.135:5001", "172.19.0.4:5001", "172.19.0.3:5001", "172.19.0.2:5001",
              "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
     # Get the local IP and not the loopback
     local_ip = network.get_local_ip()
@@ -93,5 +93,9 @@ def create_app(test_config=None):
     @app.route('/api/results', methods=['GET'])
     def api_result():
         return jsonify({'result': node.results})
+
+    @app.route('/api/gen_paillier', methods=['POST'])
+    def api_gen_paillier():
+        return jsonify({'status': node.gen_paillier()})
 
     return app

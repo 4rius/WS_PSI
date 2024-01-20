@@ -215,6 +215,10 @@ class Node:
         else:
             return "Device not found"
 
+    def gen_paillier(self):
+        self.pkey, self.skey = generate_keys()
+        return "Paillier keys generated"
+
 
 def get_local_ip():
     system = platform.system()
