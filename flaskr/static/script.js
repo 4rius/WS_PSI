@@ -146,9 +146,35 @@ function gen_paillier() {
 }
 
 function discover_peers() {
-    $.post('/api/discover_peers', function(data){
-        const message = data.status;
-        M.toast({html: message});
-        update_devices();
+    $('#devices').html('<div class="preloader-wrapper small active">\
+                            \n<div class="spinner-layer spinner-green-only">\
+                            \n<div class="circle-clipper left">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="gap-patch">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="circle-clipper right">\
+                            \n<div class="circle"></div>\
+                            \n</div>\
+                            \n</div>\
+                            \n</div>');
+
+    $.ajax({
+        type: 'POST',
+        url: '/api/discover_peers',
+        beforeSend: function() {
+            // Muestra el spinner antes de enviar la solicitud
+            $('.preloader-wrapper').show();
+        },
+        success: function(data) {
+            const message = data.status;
+            M.toast({html: message});
+
+            // Espera 2 segundos antes de ocultar el spinner
+            setTimeout(function() {
+                $('.preloader-wrapper').hide();
+                update_devices();
+            }, 2000);
+        }
     });
 }
+

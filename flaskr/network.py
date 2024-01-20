@@ -45,7 +45,7 @@ class Node:
             dealer_socket = self.context.socket(zmq.DEALER)
             dealer_socket.connect(f"tcp://{peer}")
             if peer not in self.devices:
-                dealer_socket.send_string(f"Hello from Node {self.id}")
+                dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
             if "[" in peer and "]" in peer:  # Si es una dirección IPv6
                 peer = peer.split("]:")[0] + "]"
             else:  # Si es una dirección IPv4
@@ -70,13 +70,7 @@ class Node:
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
             # Respuestas a los mensajes recibidos
-            if message.startswith("Hello from Node"):
-                peer = message.split(" ")[3]
-                # Si el dispositivo no está en la lista, agregarlo, útil cuando se implemente el descubrimiento
-                if peer not in self.devices:
-                    self.new_peer(peer, day_time)
-                self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
-            elif message.endswith("is pinging you!"):
+            if message.endswith("is pinging you!"):
                 peer = message.split(" ")[0]
                 self.devices[peer]["last_seen"] = day_time
                 # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del
@@ -86,7 +80,7 @@ class Node:
                 peer = message.split(" ")[2]
                 if peer not in self.devices:
                     self.new_peer(peer, day_time)
-                self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknoledges node {peer}")
+                self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknowledges node {peer}")
             elif message.startswith("DISCOVER_ACK:"):
                 peer = message.split(" ")[2]
                 if peer not in self.devices:
@@ -227,7 +221,7 @@ class Node:
                     dealer_socket.close()
                 except zmq.error.Again:
                     continue
-        return "Discovery finished"
+        return "Discovering peers..."
 
     def calc_intersection(self, message):
         try:
