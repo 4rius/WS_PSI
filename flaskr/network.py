@@ -7,6 +7,7 @@ import time
 
 import zmq
 
+from flaskr import Logs
 from flaskr.implementations.Paillier import generate_paillier_keys, serialize_public_key, \
     reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data
 
@@ -194,7 +195,10 @@ class Node:
             return "Device not found"
 
     def gen_paillier(self):
+        start_time = time.time()
         self.pkey, self.skey = generate_paillier_keys()
+        end_time = time.time()
+        Logs.log_activity("GENKEYS_PAILLIER", end_time - start_time, "1.0 - DEV - WS", self.id)
         return "New Paillier keys generated"
 
     def new_peer(self, peer, last_seen):
