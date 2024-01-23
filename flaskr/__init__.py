@@ -2,9 +2,9 @@ import os
 
 from flask import Flask, render_template, jsonify
 
-from . import db
-from . import network
-from .network import Node
+from . import Node
+from .Node import Node
+from . import networking
 
 
 def create_app(test_config=None):
@@ -33,7 +33,7 @@ def create_app(test_config=None):
     peers = ["192.168.1.135:5001", "172.19.0.4:5001", "172.19.0.3:5001", "172.19.0.2:5001",
              "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
     # Get the local IP and not the loopback
-    local_ip = network.get_local_ip()
+    local_ip = networking.get_local_ip()
     node = Node(local_ip, 5001, peers)
     node.start()
 
@@ -80,7 +80,7 @@ def create_app(test_config=None):
 
     @app.route('/api/intersection/<device>', methods=['POST'])
     def api_find_intersection(device):
-        return jsonify({'status': node.paillier_intersection(device)})
+        return jsonify({'status': node.paillier_intersection_first_step(device)})
 
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():

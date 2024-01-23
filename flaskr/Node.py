@@ -1,7 +1,5 @@
 import json
-import platform
 import random
-import socket
 import threading
 import time
 
@@ -21,7 +19,6 @@ class Node:
         self.context = zmq.Context()  # Contexto de ZMQ
         self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
         self.devices = {}  # Dispositivos conectados
-        self.keys = {}  # Claves públicas de los dispositivos conectados, puede que no haga falta porque se pueden pedir
         self.pkey = None  # Clave privada del nodo
         self.skey = None  # Clave pública del nodo
         self.myData = set(random.sample(range(40), 10))  # Conjunto de datos del nodo (set de 10 números aleatorios)
@@ -33,7 +30,6 @@ class Node:
         # Por defecto se generan las claves del nodo usando la implementación de Paillier de phe
         self.pkey, self.skey = generate_paillier_keys()
         print(f"Node {self.id} (You) - Keys generated - Objects: {self.pkey} - {self.skey}")
-
         print(f"Node {self.id} (You) - My data: {self.myData}")
 
         # Iniciar el socket ROUTER en un hilo
@@ -71,44 +67,47 @@ class Node:
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
             # Respuestas a los mensajes recibidos
-            if message.endswith("is pinging you!"):
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
-                # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del
-                # peer
-                self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
-            elif message.startswith("DISCOVER:"):
-                peer = message.split(" ")[2]
-                if peer not in self.devices:
-                    self.new_peer(peer, day_time)
-                self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknowledges node {peer}")
-            elif message.startswith("DISCOVER_ACK:"):
-                peer = message.split(" ")[2]
-                if peer not in self.devices:
-                    self.new_peer(peer, day_time)
-                self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
-            elif message.startswith("Added "):
-                peer = message.split(" ")[8]
-                self.devices[peer]["last_seen"] = day_time
-            # Si recibe un json, es que el peer quiere calcular la intersección
-            elif "implementation" in message and "peer" in message:
-                self.calc_intersection(message)
-            # Resto del cálculo de la intersección
-            elif message.startswith("{"):
-                try:
-                    peer_data = json.loads(message)
-                    crypto_scheme = peer_data.pop('cryptpscheme')
-                    if crypto_scheme == "Paillier":
-                        self.paillier_intersection_final_step(peer_data)
-                except json.JSONDecodeError:
-                    print("Received message is not a valid JSON.")
-            else:
-                print(f"{self.id} (You) received: {message} but don't know what to do with it")
-                peer = message.split(" ")[0]
-                self.devices[peer]["last_seen"] = day_time
+            self.handle_message(sender, message, day_time)
         self.router_socket.close()
         self.router_socket.unbind(f"tcp://*:{self.port}")
         self.context.term()
+
+    def handle_message(self, sender, message, day_time):
+        if message.endswith("is pinging you!"):
+            peer = message.split(" ")[0]
+            self.devices[peer]["last_seen"] = day_time
+            # Se manda con el router_socket para que lo pueda consumir ping_devices y no lo consuma el router del
+            # peer
+            self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
+        elif message.startswith("DISCOVER:"):
+            peer = message.split(" ")[2]
+            if peer not in self.devices:
+                self.new_peer(peer, day_time)
+            self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknowledges node {peer}")
+        elif message.startswith("DISCOVER_ACK:"):
+            peer = message.split(" ")[2]
+            if peer not in self.devices:
+                self.new_peer(peer, day_time)
+            self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
+        elif message.startswith("Added "):
+            peer = message.split(" ")[8]
+            self.devices[peer]["last_seen"] = day_time
+        # Si recibe un json, es que el peer quiere calcular la intersección
+        elif "implementation" in message and "peer" in message:
+            self.paillier_intersection_second_step(message)
+        # Resto del cálculo de la intersección
+        elif message.startswith("{"):
+            try:
+                peer_data = json.loads(message)
+                crypto_scheme = peer_data.pop('cryptpscheme')
+                if crypto_scheme == "Paillier":
+                    self.paillier_intersection_final_step(peer_data)
+            except json.JSONDecodeError:
+                print("Received message is not a valid JSON.")
+        else:
+            print(f"{self.id} (You) received: {message} but don't know what to do with it")
+            peer = message.split(" ")[0]
+            self.devices[peer]["last_seen"] = day_time
 
     def get_devices(self):
         return {device: info["last_seen"] for device, info in self.devices.items()}
@@ -146,38 +145,6 @@ class Node:
             print("Device not found")
             return "Device not found"
 
-    def paillier_intersection(self, device):
-        # Se cifra el conjunto de datos del nodo y se envía al peer
-        if device in self.devices:
-            print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
-            # Cifrar los datos del nodo
-            encrypted_data = encrypt_my_data(self.myData, self.pkey, self.domain)
-            # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
-            serialized_pubkey = serialize_public_key(self.pkey)
-            # Poner encrypted data de forma que sea serializable
-            for element, encrypted_value in encrypted_data.items():
-                encrypted_data[element] = str(encrypted_value.ciphertext())
-            message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id,
-                       'pubkey': serialized_pubkey}
-            self.devices[device]["socket"].send_json(message)
-            return "Intersection with " + device + " - Paillier - Waiting for response..."
-        else:
-            print("Device not found")
-            return "Device not found"
-
-    def paillier_intersection_final_step(self, peer_data):
-        multiplied_set = peer_data.pop('data')
-        multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
-        device = peer_data.pop('peer')
-        # Desciframos los datos del peer
-        for element, encrypted_value in multiplied_set.items():
-            multiplied_set[element] = self.skey.decrypt(encrypted_value)
-        # Guardamos el resultado
-        self.results[device] = multiplied_set
-        # Cogemos solo los valores que sean 1, que representan la intersección
-        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
-        print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
-
     def broadcast_message(self, message):
         for device in self.devices:
             self.devices[device]["socket"].send_string(message)
@@ -187,12 +154,6 @@ class Node:
         for device in self.devices:
             self.devices[device]["socket"].close()
         self.devices = {}
-
-    def get_device_pubkey(self, device):
-        if device in self.keys:
-            return self.keys[device]
-        else:
-            return "Device not found"
 
     def gen_paillier(self):
         start_time = time.time()
@@ -227,8 +188,31 @@ class Node:
                     continue
         return "Discovering peers..."
 
-    def calc_intersection(self, message):
+    def paillier_intersection_first_step(self, device):
+        # Se cifra el conjunto de datos del nodo y se envía al peer
+        if device in self.devices:
+            print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
+            start_time = time.time()
+            # Cifrar los datos del nodo
+            encrypted_data = encrypt_my_data(self.myData, self.pkey, self.domain)
+            # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
+            serialized_pubkey = serialize_public_key(self.pkey)
+            # Poner encrypted data de forma que sea serializable
+            for element, encrypted_value in encrypted_data.items():
+                encrypted_data[element] = str(encrypted_value.ciphertext())
+            message = {'data': encrypted_data, 'implementation': 'Paillier', 'peer': self.id,
+                       'pubkey': serialized_pubkey}
+            self.devices[device]["socket"].send_json(message)
+            end_time = time.time()
+            Logs.log_activity("INTERSECTION_PAILLIER_1", end_time - start_time, "1.0 - DEV - WS", self.id, device)
+            return "Intersection with " + device + " - Paillier - Waiting for response..."
+        else:
+            print("Device not found")
+            return "Device not found"
+
+    def paillier_intersection_second_step(self, message):  # Calculate intersection
         try:
+            start_time = time.time()
             # Intentamos deserializar el mensaje para ver si es un JSON válido
             peer_data = json.loads(message)
             # Si es un JSON válido
@@ -248,31 +232,26 @@ class Node:
                 print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
                 message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
                 self.devices[peer]["socket"].send_json(message)
+                end_time = time.time()
+                Logs.log_activity("INTERSECTION_PAILLIER_2", end_time - start_time, "1.0 - DEV - WS", self.id, peer)
             # Aquí irán las demás implementaciones
         except json.JSONDecodeError:
             # Si hay un error al deserializar, el mensaje no es un JSON válido
             print("Received message is not a valid JSON.")
         # Rezamos
 
-
-def get_local_ip():
-    system = platform.system()
-
-    # macOS y Linux
-    if system == "Linux" or system == "Darwin":
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("1.1.1.1", 80))  # No tiene ni que ser un host real
-            ip = s.getsockname()[0]
-            s.close()
-            # Si es ipv6 la tenemos que devolver entre corchetes
-            if ":" in ip:
-                return "[" + ip + "]"
-            return ip
-        except OSError:
-            print("Error fetching IP, using loopback")
-    # Windows y errores de macOS y Linux tiran por aquí
-    ip = socket.gethostbyname(socket.gethostname())
-    if ":" in ip:
-        return "[" + ip + "]"
-    return ip
+    def paillier_intersection_final_step(self, peer_data):
+        start_time = time.time()
+        multiplied_set = peer_data.pop('data')
+        multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
+        device = peer_data.pop('peer')
+        # Desciframos los datos del peer
+        for element, encrypted_value in multiplied_set.items():
+            multiplied_set[element] = self.skey.decrypt(encrypted_value)
+        # Cogemos solo los valores que sean 1, que representan la intersección
+        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
+        # Guardamos el resultado
+        self.results[device] = multiplied_set
+        end_time = time.time()
+        Logs.log_activity("INTERSECTION_PAILLIER_F", end_time - start_time, "1.0 - DEV - WS", self.id, device)
+        print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")

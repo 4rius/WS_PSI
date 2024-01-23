@@ -1,4 +1,3 @@
-import firebase_admin
 import datetime
 import psutil
 import platform
@@ -8,20 +7,32 @@ from firebase import firebase
 firebase = firebase.FirebaseApplication('https://tfg-en-psi-default-rtdb.europe-west1.firebasedatabase.app/', None)
 
 
-def log_activity(activity_code, time, version, id):
+def log_activity(activity_code, time, version, id, peer=False):
     formatted_id = id.replace(".", "-")
 
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    log = {
-        "id": id,
-        "timestamp": timestamp,
-        "version": version,
-        "type": "Desktop (Flask): " + get_system_info(),
-        "activity_code": activity_code,
-        "time": round(time, 2),
-        "RAM": get_ram_usage()
-    }
+    if peer:
+        log = {
+            "id": id,
+            "timestamp": timestamp,
+            "version": version,
+            "type": "Desktop (Flask): " + get_system_info(),
+            "activity_code": activity_code,
+            "peer": peer,
+            "time": round(time, 2),
+            "RAM": get_ram_usage()
+        }
+    else:
+        log = {
+            "id": id,
+            "timestamp": timestamp,
+            "version": version,
+            "type": "Desktop (Flask): " + get_system_info(),
+            "activity_code": activity_code,
+            "time": round(time, 2),
+            "RAM": get_ram_usage()
+        }
 
     firebase.post(f"/logs/{formatted_id}/activities", log)
 
