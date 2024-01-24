@@ -7,49 +7,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="../static/style.css">
+    <script src="../static/metrics.js"></script>
 </head>
 <body>
-    <h1>Métricas actuales</h1>
-    <!-- Uso de la CPU y la memoria del dispositivo arriba -->
-    <h5>Uso de la CPU y la memoria del dispositivo</h5>
+    <h1 id="mylogs">Logs recuperados</h1>
     <table class="striped">
         <thead>
             <tr>
-                <th>Métrica</th>
-                <th>Valor</th>
+                <th>Fecha y hora</th>
+                <th>Actividad</th>
+                <th>Tiempo (s)</th>
+                <th>Uso de RAM</th>
+                <th>Uso de RAM - Programa</th>
+                <th>Uso de CPU</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="logs">
             <tr>
-                <td>Uso de la CPU</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>Uso de la memoria</td>
-                <td>0</td>
-            </tr>
-        </tbody>
-    </table>
-    <h5>Medición de tiempo</h5>
-    <table class="striped">
-        <thead>
-            <tr>
-                <th>Métrica</th>
-                <th>Valor</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Tiempo generación de claves</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>Tiempo envío grande</td>
-                <td>0</td>
-            </tr>
-            <tr>
-                <td>Tiempo envío pequeño</td>
-                <td>0</td>
             </tr>
         </tbody>
     </table>

@@ -40,16 +40,16 @@ def decrypt(private_key, encrypted_number):
 def encrypt_my_data(my_set, public_key, domain):
     # Propósito de depuración
     print("Ciframos los elementos del set A")
-    result = {}
-    for element in range(domain):
-        if element not in my_set:
-            print("Elemento no encontrado en el set: " + str(element))
-            result[element] = public_key.encrypt(0)
-        else:
-            print("Elemento encontrado en el set: " + str(element))
-            result[element] = public_key.encrypt(1)
-    return result
-    # return {element: public_key.encrypt(1) if element in my_set else public_key.encrypt(0) for element in range(domain)}
+    # result = {}
+    # for element in range(domain):
+    #     if element not in my_set:
+    #         print("Elemento no encontrado en el set: " + str(element))
+    #         result[element] = public_key.encrypt(0)
+    #     else:
+    #         print("Elemento encontrado en el set: " + str(element))
+    #         result[element] = public_key.encrypt(1)
+    # return result
+    return {element: public_key.encrypt(1) if element in my_set else public_key.encrypt(0) for element in range(domain)}
 
 
 def recv_multiplied_set(serialized_multiplied_set, public_key):
@@ -61,17 +61,22 @@ def get_multiplied_set(enc_set, node_set):
     # Cita: https://blog.openmined.org/private-set-intersection-with-the-paillier-cryptosystem/
     # Propósito de depuración
     print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
+    # result = {}
+    # for element, encrypted_value in enc_set.items():
+    #     if int(element) not in node_set:
+    #         print("Elemento no encontrado en el set: " + str(element))
+    #         result[element] = encrypted_value * 0
+    #         # Print the result's element ciphertext for debugging purposes
+    #         print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 0")
+    #     else:
+    #         print("Elemento encontrado en el set: " + str(element))
+    #         result[element] = encrypted_value * 1
+    #         # Print the result's element ciphertext for debugging purposes
+    #         print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 1")
+    # return result
     result = {}
     for element, encrypted_value in enc_set.items():
-        if int(element) not in node_set:
-            print("Elemento no encontrado en el set: " + str(element))
-            result[element] = encrypted_value * 0
-            # Print the result's element ciphertext for debugging purposes
-            print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 0")
-        else:
-            print("Elemento encontrado en el set: " + str(element))
-            result[element] = encrypted_value * 1
-            # Print the result's element ciphertext for debugging purposes
-            print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 1")
+        multiplier = int(element) in node_set
+        result[element] = encrypted_value * multiplier
     return result
     # return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}

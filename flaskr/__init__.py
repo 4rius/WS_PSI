@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template, jsonify
 
-from . import Node
+from . import Node, Logs
 from .Node import Node
 from . import networking
 
@@ -101,5 +101,9 @@ def create_app(test_config=None):
     @app.route('/api/discover_peers', methods=['POST'])
     def api_discover_peers():
         return jsonify({'status': node.discover_peers()})
+
+    @app.route('/api/logs', methods=['GET'])
+    def api_metrics():
+        return Logs.get_logs(node.id)
 
     return app

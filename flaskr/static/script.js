@@ -1,10 +1,10 @@
 $(document).ready(function(){
     $('select').formSelect();
-        update_devices();
-        get_port();
-        get_id();
-        $('#connect').prop('disabled', true);
-    });
+    update_devices();
+    get_port();
+    get_id();
+    $('#connect').prop('disabled', true);
+});
 
 function get_id() {
     $.get('/api/id', function(data){
