@@ -1,5 +1,6 @@
 import datetime
 import os
+import threading
 import time
 
 import psutil
@@ -9,8 +10,12 @@ from firebase import firebase
 
 firebase = firebase.FirebaseApplication('https://tfg-en-psi-default-rtdb.europe-west1.firebasedatabase.app/', None)
 
+cpu_usage = []
+avg_cpu_usage = 0
+logging_cpu_usage = False
 
-def log_activity(activity_code, time, version, id, cpuusage, peer=False):
+
+def log_activity(activity_code, time, version, id, cpu_usage, peer=False):
     formatted_id = id.replace(".", "-")
 
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -25,7 +30,7 @@ def log_activity(activity_code, time, version, id, cpuusage, peer=False):
             "peer": peer,
             "time": round(time, 2),
             "RAM": get_ram_usage(),
-            "CPU": str(cpuusage) + "% - " + get_cpu_usage(),
+            "CPU": str(cpu_usage) + "% - " + get_cpu_usage(),
             "Instance_RAM": get_instance_ram_usage(),
         }
     else:
@@ -37,7 +42,7 @@ def log_activity(activity_code, time, version, id, cpuusage, peer=False):
             "activity_code": activity_code,
             "time": round(time, 2),
             "RAM": get_ram_usage(),
-            "CPU": str(cpuusage) + "% - " + get_cpu_usage(),
+            "CPU": str(cpu_usage) + "% - " + get_cpu_usage(),
             "Instance_RAM": get_instance_ram_usage(),
         }
 
@@ -50,7 +55,7 @@ def get_ram_usage():
     mem_info = psutil.virtual_memory()
     total_mem = round(mem_info.total / (1024 ** 2), 2)
     available_mem = round(mem_info.available / (1024 ** 2), 2)
-    mem_use = total_mem - available_mem
+    mem_use = round(total_mem - available_mem, 2)
     mem_use_percent = round(mem_info.percent, 2)
     return f"{mem_use} MB / {total_mem} MB - {mem_use_percent}%"
 
@@ -74,3 +79,26 @@ def get_system_info():
 def get_logs(id):
     formatted_id = id.replace(".", "-")
     return firebase.get(f"/logs/{formatted_id}/activities", None)
+
+
+def start_logging_cpu_usage():
+    global logging_cpu_usage
+    logging_cpu_usage = True
+    thread = threading.Thread(target=log_cpu_usage)
+    thread.start()
+
+
+def stop_logging_cpu_usage():
+    global logging_cpu_usage, avg_cpu_usage, cpu_usage
+    logging_cpu_usage = False
+    avg_cpu_usage = sum(cpu_usage) / len(cpu_usage)
+    result = avg_cpu_usage
+    cpu_usage = []
+    return round(result, 2)
+
+
+def log_cpu_usage():
+    global cpu_usage
+    while logging_cpu_usage:
+        cpu_usage.append(psutil.cpu_percent())
+        time.sleep(0.1)
