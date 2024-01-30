@@ -11,11 +11,26 @@ from firebase import firebase
 firebase = firebase.FirebaseApplication('https://tfg-en-psi-default-rtdb.europe-west1.firebasedatabase.app/', None)
 
 cpu_usage = []
+ram_usage = []
 avg_cpu_usage = 0
+avg_ram_usage = 0
+peak_cpu_usage = 0
+peak_ram_usage = 0
+logging_ram_usage = False
 logging_cpu_usage = False
 
 
-def log_activity(activity_code, time, version, id, cpu_usage, peer=False):
+def clean_variables():
+    global cpu_usage, ram_usage, avg_cpu_usage, avg_ram_usage, peak_cpu_usage, peak_ram_usage
+    cpu_usage = []
+    ram_usage = []
+    avg_cpu_usage = 0
+    avg_ram_usage = 0
+    peak_cpu_usage = 0
+    peak_ram_usage = 0
+
+
+def log_activity(activity_code, time, version, id, peer=False):
     formatted_id = id.replace(".", "-")
 
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -29,8 +44,10 @@ def log_activity(activity_code, time, version, id, cpu_usage, peer=False):
             "activity_code": activity_code,
             "peer": peer,
             "time": round(time, 2),
-            "RAM": get_ram_usage(),
-            "CPU": str(cpu_usage) + "% - " + get_cpu_usage(),
+            "RAM": get_ram_info(),
+            "Peak_RAM": str(peak_ram_usage) + " MB",
+            "CPU": str(avg_cpu_usage) + "% - " + get_cpu_info(),
+            "Peak_CPU": str(peak_cpu_usage) + "%",
             "Instance_RAM": get_instance_ram_usage(),
         }
     else:
@@ -41,23 +58,24 @@ def log_activity(activity_code, time, version, id, cpu_usage, peer=False):
             "type": "Desktop (Flask): " + get_system_info(),
             "activity_code": activity_code,
             "time": round(time, 2),
-            "RAM": get_ram_usage(),
-            "CPU": str(cpu_usage) + "% - " + get_cpu_usage(),
+            "Avg_RAM": get_ram_info(),
+            "Peak_RAM": str(peak_ram_usage) + " MB",
+            "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info(),
+            "Peak_CPU": str(peak_cpu_usage) + "%",
             "Instance_RAM": get_instance_ram_usage(),
         }
 
     firebase.post(f"/logs/{formatted_id}/activities", log)
-
     print(f"Activity log sent to Firebase")
 
+    clean_variables()
 
-def get_ram_usage():
+
+def get_ram_info():
     mem_info = psutil.virtual_memory()
     total_mem = round(mem_info.total / (1024 ** 2), 2)
-    available_mem = round(mem_info.available / (1024 ** 2), 2)
-    mem_use = round(total_mem - available_mem, 2)
-    mem_use_percent = round(mem_info.percent, 2)
-    return f"{mem_use} MB / {total_mem} MB - {mem_use_percent}%"
+    mem_use_percent = round(avg_ram_usage / total_mem * 100, 2)
+    return f"{avg_ram_usage} MB / {total_mem} MB - {mem_use_percent}%"
 
 
 def get_instance_ram_usage():
@@ -67,7 +85,7 @@ def get_instance_ram_usage():
     return f"{memory_info} MB"
 
 
-def get_cpu_usage():
+def get_cpu_info():
     cpu_info = psutil.cpu_freq().current / 1000, psutil.cpu_count()
     return f"{cpu_info[0]} GHz - {cpu_info[1]} cores"
 
@@ -81,24 +99,43 @@ def get_logs(id):
     return firebase.get(f"/logs/{formatted_id}/activities", None)
 
 
-def start_logging_cpu_usage():
-    global logging_cpu_usage
+def start_logging():
+    global logging_cpu_usage, logging_ram_usage
     logging_cpu_usage = True
+    logging_ram_usage = True
     thread = threading.Thread(target=log_cpu_usage)
+    thread2 = threading.Thread(target=log_ram_usage)
     thread.start()
+    thread2.start()
 
 
 def stop_logging_cpu_usage():
-    global logging_cpu_usage, avg_cpu_usage, cpu_usage
+    global logging_cpu_usage, avg_cpu_usage, cpu_usage, peak_cpu_usage
     logging_cpu_usage = False
-    avg_cpu_usage = sum(cpu_usage) / len(cpu_usage)
-    result = avg_cpu_usage
-    cpu_usage = []
-    return round(result, 2)
+    result = sum(cpu_usage) / len(cpu_usage)
+    avg_cpu_usage = round(result, 2)
+    peak_cpu_usage = round(max(cpu_usage), 2)
+    return
+
+
+def stop_logging_ram_usage():
+    global logging_ram_usage, ram_usage, peak_ram_usage, avg_ram_usage
+    logging_ram_usage = False
+    result = sum(ram_usage) / len(ram_usage)
+    avg_ram_usage = round(result, 2)
+    peak_ram_usage = round(max(ram_usage), 2)
+    return
 
 
 def log_cpu_usage():
     global cpu_usage
     while logging_cpu_usage:
         cpu_usage.append(psutil.cpu_percent())
+        time.sleep(0.1)
+
+
+def log_ram_usage():
+    global ram_usage
+    while logging_ram_usage:
+        ram_usage.append(psutil.virtual_memory().used / (1024 ** 2))
         time.sleep(0.1)

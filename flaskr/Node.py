@@ -158,10 +158,12 @@ class Node:
 
     def gen_paillier(self):
         start_time = time.time()
-        Logs.start_logging_cpu_usage()
+        Logs.start_logging()
         self.pkey, self.skey = generate_paillier_keys()
         end_time = time.time()
-        Logs.log_activity("GENKEYS_PAILLIER", end_time - start_time , "1.0 - DEV - WS", self.id, Logs.stop_logging_cpu_usage())
+        Logs.stop_logging_cpu_usage()
+        Logs.stop_logging_ram_usage()
+        Logs.log_activity("GENKEYS_PAILLIER", end_time - start_time , "1.0 - DEV - WS", self.id)
         return "New Paillier keys generated"
 
     def new_peer(self, peer, last_seen):
@@ -195,7 +197,7 @@ class Node:
         if device in self.devices:
             print(f"Node {self.id} (You) - Intersection with {device} - Paillier")
             start_time = time.time()
-            Logs.start_logging_cpu_usage()
+            Logs.start_logging()
             # Cifrar los datos del nodo
             encrypted_data = encrypt_my_data(self.myData, self.pkey, self.domain)
             # Enviar los datos cifrados al peer y añadimos el esquema, el peer y nuestra clave pública
@@ -207,7 +209,9 @@ class Node:
                        'pubkey': serialized_pubkey}
             self.devices[device]["socket"].send_json(message)
             end_time = time.time()
-            Logs.log_activity("INTERSECTION_PAILLIER_1", end_time - start_time, "1.0 - DEV - WS", self.id, Logs.stop_logging_cpu_usage(), device)
+            Logs.stop_logging_cpu_usage()
+            Logs.stop_logging_ram_usage()
+            Logs.log_activity("INTERSECTION_PAILLIER_1", end_time - start_time, "1.0 - DEV - WS", self.id, device)
             return "Intersection with " + device + " - Paillier - Waiting for response..."
         else:
             print("Device not found")
@@ -216,7 +220,7 @@ class Node:
     def paillier_intersection_second_step(self, message):  # Calculate intersection
         try:
             start_time = time.time()
-            Logs.start_logging_cpu_usage()
+            Logs.start_logging()
             # Intentamos deserializar el mensaje para ver si es un JSON válido
             peer_data = json.loads(message)
             # Si es un JSON válido
@@ -237,7 +241,9 @@ class Node:
                 message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
                 self.devices[peer]["socket"].send_json(message)
                 end_time = time.time()
-                Logs.log_activity("INTERSECTION_PAILLIER_2", end_time - start_time, "1.0 - DEV - WS", self.id, Logs.stop_logging_cpu_usage(), peer)
+                Logs.stop_logging_cpu_usage()
+                Logs.stop_logging_ram_usage()
+                Logs.log_activity("INTERSECTION_PAILLIER_2", end_time - start_time, "1.0 - DEV - WS", self.id, peer)
             # Aquí irán las demás implementaciones
         except json.JSONDecodeError:
             # Si hay un error al deserializar, el mensaje no es un JSON válido
@@ -246,7 +252,7 @@ class Node:
 
     def paillier_intersection_final_step(self, peer_data):
         start_time = time.time()
-        Logs.start_logging_cpu_usage()
+        Logs.start_logging()
         multiplied_set = peer_data.pop('data')
         multiplied_set = recv_multiplied_set(multiplied_set, self.pkey)
         device = peer_data.pop('peer')
@@ -258,5 +264,7 @@ class Node:
         # Guardamos el resultado
         self.results[device] = multiplied_set
         end_time = time.time()
-        Logs.log_activity("INTERSECTION_PAILLIER_F", end_time - start_time, "1.0 - DEV - WS", self.id, Logs.stop_logging_cpu_usage(), device)
+        Logs.stop_logging_cpu_usage()
+        Logs.stop_logging_ram_usage()
+        Logs.log_activity("INTERSECTION_PAILLIER_F", end_time - start_time, "1.0 - DEV - WS", self.id, device)
         print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
