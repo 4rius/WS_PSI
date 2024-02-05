@@ -7,6 +7,8 @@ import psutil
 import zmq
 
 from flaskr import Logs
+from flaskr.implementations.Damgard_jurik import encrypt_my_data_dj, serialize_public_key_dj, reconstruct_public_key_dj, \
+    get_encrypted_set_dj, get_multiplied_set_dj, recv_multiplied_set_dj
 from flaskr.implementations.Paillier import generate_paillier_keys, serialize_public_key, \
     reconstruct_public_key, get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data
 
@@ -267,4 +269,66 @@ class Node:
         Logs.stop_logging_cpu_usage()
         Logs.stop_logging_ram_usage()
         Logs.log_activity("INTERSECTION_PAILLIER_F", end_time - start_time, "1.0 - DEV - WS", self.id, device)
+        print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
+
+    def damgard_jurik_intersection_first_step(self, device):
+        if device in self.devices:
+            print(f"Node {self.id} (You) - Intersection with {device} - Damgard-Jurik")
+            start_time = time.time()
+            Logs.start_logging()
+            encrypted_data = encrypt_my_data_dj(self.myData, self.pkey, self.domain)
+            serialized_pubkey = serialize_public_key_dj(self.pkey)
+            for element, encrypted_value in encrypted_data.items():
+                encrypted_data[element] = str(encrypted_value.ciphertext())
+            message = {'data': encrypted_data, 'implementation': 'Damgard-Jurik', 'peer': self.id,
+                       'pubkey': serialized_pubkey}
+            self.devices[device]["socket"].send_json(message)
+            end_time = time.time()
+            Logs.stop_logging_cpu_usage()
+            Logs.stop_logging_ram_usage()
+            Logs.log_activity("INTERSECTION_DJ_1", end_time - start_time, "1.0 - DEV - WS", self.id, device)
+            return "Intersection with " + device + " - Damgard-Jurik - Waiting for response..."
+        else:
+            print("Device not found")
+            return "Device not found"
+
+    def damgard_jurik_intersection_second_step(self, message):
+        try:
+            start_time = time.time()
+            Logs.start_logging()
+            peer_data = json.loads(message)
+            peer = peer_data.pop('peer')
+            implementation = peer_data.pop('implementation')
+            peer_pubkey = peer_data.pop('pubkey')
+            peer_pubkey_reconstructed = reconstruct_public_key_dj(peer_pubkey)
+            encrypted_set = get_encrypted_set_dj(peer_data.pop('data'), peer_pubkey_reconstructed)
+            print(f"Node {self.id} (You) - Calculating intersection with {peer} - {implementation}")
+            if implementation == "Damgard-Jurik":
+                multiplied_set = get_multiplied_set_dj(encrypted_set, self.myData)
+                serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for
+                                             element, encrypted_value in multiplied_set.items()}
+                print(f"Node {self.id} (You) - Intersection with {peer} - Multiplied set: {multiplied_set}")
+                message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': implementation}
+                self.devices[peer]["socket"].send_json(message)
+                end_time = time.time()
+                Logs.stop_logging_cpu_usage()
+                Logs.stop_logging_ram_usage()
+                Logs.log_activity("INTERSECTION_DJ_2", end_time - start_time, "1.0 - DEV - WS", self.id, peer)
+        except json.JSONDecodeError:
+            print("Received message is not a valid JSON.")
+
+    def damgard_jurik_intersection_final_step(self, peer_data):
+        start_time = time.time()
+        Logs.start_logging()
+        multiplied_set = peer_data.pop('data')
+        multiplied_set = recv_multiplied_set_dj(multiplied_set, self.pkey)
+        device = peer_data.pop('peer')
+        for element, encrypted_value in multiplied_set.items():
+            multiplied_set[element] = self.skey.decrypt(encrypted_value)
+        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
+        self.results[device] = multiplied_set
+        end_time = time.time()
+        Logs.stop_logging_cpu_usage()
+        Logs.stop_logging_ram_usage()
+        Logs.log_activity("INTERSECTION_DJ_F", end_time - start_time, "1.0 - DEV - WS", self.id, device)
         print(f"Node {self.id} (You) - Intersection with {device} - Result: {multiplied_set}")
