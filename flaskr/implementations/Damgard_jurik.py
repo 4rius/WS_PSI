@@ -1,7 +1,7 @@
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
 
-def generate_keypair():
+def generate_keypair_dj():
     public_key, private_key_ring = keygen()
     return public_key, private_key_ring
 

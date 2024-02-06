@@ -20,7 +20,7 @@
         <button class="btn waves-effect waves-light" onclick="my_data()">Mi dataset</button>
         <button class="btn waves-effect waves-light" onclick="mykeys()">Mis claves</button>
         <button class="btn waves-effect waves-light" onclick="gen_paillier()">Nuevas claves P</button>
-        <button class="btn waves-effect waves-light" onclick="gen_elgamal()">Nuevas claves EG</button>
+        <button class="btn waves-effect waves-light" onclick="gen_dj()">Nuevas claves DJ</button>
         <button class="btn waves-effect waves-light" onclick="discover_peers()">Buscar peers</button>
         <button id="connect" class="btn waves-effect waves-light" onclick="connect()">Conectar</button>
         <button class="btn waves-effect waves-light red" onclick="disconnect()">Desconectar</button>
@@ -30,15 +30,7 @@
     <div class="content">
         <h2>Dispositivos conectados</h2>
         <div id="devices"></div>
-
-        <!--Dropdown siguiendo la estética para elegir una implementación de PSI-->
-        <h5>Criptosistema a utilizar para calcular las intersecciones</h5>
-        <label for="psi"></label><select id="psi">
-            <option value="psi">Paillier</option>
-            <option value="psi2">El Gamal</option>
-        </select>
-        <br><br>
-        <input type="submit" value="Confirmar" onclick="change_psi_imp()" class="btn waves-effect waves-light">
+        <p>Seleccione sobre el dispositivo el criptosistema que quiere utilizar para calcular la intersección</p>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>

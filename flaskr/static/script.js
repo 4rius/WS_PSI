@@ -35,9 +35,9 @@ function update_devices() {
             }
             $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="find_intersection(\'' + key + '\')">Buscar intersección</button>');
-            // +
-            //' <button class="btn waves-effect waves-light red" onclick="hide_device(\'' + key + '\')">Hide Device</button></p>');
+            ' <button class="btn waves-effect waves-light" onclick="int_paillier(\'' + key + '\')">Paillier</button>'
+            +
+            ' <button class="btn waves-effect waves-light red" onclick="int_dj(\'' + key + '\')">Damgard-Jurik</button></p>');
         });
     });
 }
@@ -90,8 +90,7 @@ function disconnect() {
         $('#disconnect').prop('disabled', true);
     });
 }
-
-function find_intersection(device) {
+function int_paillier(device) {
     $('#devices').html('<div class="preloader-wrapper small active">\
                             \n<div class="spinner-layer spinner-green-only">\
                             \n<div class="circle-clipper left">\
@@ -103,7 +102,26 @@ function find_intersection(device) {
                             \n</div>\
                             \n</div>\
                             \n</div>');
-    $.post('/api/intersection/' + device, function(data){
+    $.post('/api/int_paillier/' + device, function(data){
+        const message = data.status;
+        M.toast({html: message});
+        update_devices();
+    });
+}
+
+function int_dj(device) {
+    $('#devices').html('<div class="preloader-wrapper small active">\
+                            \n<div class="spinner-layer spinner-green-only">\
+                            \n<div class="circle-clipper left">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="gap-patch">\
+                            \n<div class="circle"></div>\
+                            \n</div><div class="circle-clipper right">\
+                            \n<div class="circle"></div>\
+                            \n</div>\
+                            \n</div>\
+                            \n</div>');
+    $.post('/api/int_dj/' + device, function(data){
         const message = data.status;
         M.toast({html: message});
         update_devices();

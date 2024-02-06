@@ -4,7 +4,7 @@ from phe import paillier, EncryptedNumber
 # Devuelve los objetos clave pública y privada
 def generate_paillier_keys():
     public_key, private_key = paillier.generate_paillier_keypair()
-    return public_key, private_key
+    return private_key, public_key
 
 
 def serialize_public_key(public_key):

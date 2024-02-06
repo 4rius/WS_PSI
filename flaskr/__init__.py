@@ -71,16 +71,16 @@ def create_app(test_config=None):
 
     @app.route('/api/mykeys', methods=['GET'])
     def api_pubkey():
-        return jsonify({'pubkeyN': str(node.pkey.n), 'pubkeyG': str(node.pkey.g), 'privkeyP': str(node.skey.p),
-                        'privkeyQ': str(node.skey.q)})
+        return jsonify({'pubkeyN': str(node.privkey_paillier.n), 'pubkeyG': str(node.privkey_paillier.g), 'privkeyP': str(node.pubkey_paillier.p),
+                        'privkeyQ': str(node.pubkey_paillier.q)})
 
-    @app.route('/api/pubkey/<device>', methods=['GET'])
-    def api_pubkey_device(device):
-        return jsonify({'pubkey': node.get_device_pubkey(device)})
-
-    @app.route('/api/intersection/<device>', methods=['POST'])
+    @app.route('/api/int_paillier/<device>', methods=['POST'])
     def api_find_intersection(device):
         return jsonify({'status': node.paillier_intersection_first_step(device)})
+
+    @app.route('/api/int_dj/<device>', methods=['POST'])
+    def api_find_intersection_dj(device):
+        return jsonify({'status': node.dj_intersection_first_step(device)})
 
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():
