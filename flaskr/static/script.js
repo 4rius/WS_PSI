@@ -171,3 +171,10 @@ function discover_peers() {
     });
 }
 
+function gen_dj() {
+    $.post('/api/gen_dj', function(data){
+        const message = data.status;
+        M.toast({html: message});
+    });
+}
+

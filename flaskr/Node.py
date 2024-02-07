@@ -192,6 +192,16 @@ class Node:
         Logs.log_activity("GENKEYS_PAILLIER", end_time - start_time, "1.0 - DEV - WS", self.id)
         return "New Paillier keys generated"
 
+    def gen_dj(self):
+        start_time = time.time()
+        Logs.start_logging()
+        self.pubkey_dj, self.privkeyring_dj = generate_keypair_dj()
+        end_time = time.time()
+        Logs.stop_logging_cpu_usage()
+        Logs.stop_logging_ram_usage()
+        Logs.log_activity("GENKEYS_DJ", end_time - start_time, "1.0 - DEV - WS", self.id)
+        return "New Damgard-Jurik keys generated"
+
     def new_peer(self, peer, last_seen):
         dealer_socket = self.context.socket(zmq.DEALER)
         dealer_socket.connect(f"tcp://{peer}:{self.port}")
@@ -308,9 +318,9 @@ class Node:
             return "Device not found"
 
     def dj_intersection_first_step(self, device):
-        self.intersection_first_step(device, encrypt_my_data_dj, serialize_public_key_dj, self.pubkey_dj,
-                                     'Damgard-Jurik')
+        return self.intersection_first_step(device, encrypt_my_data_dj, serialize_public_key_dj, self.pubkey_dj,
+                                            'Damgard-Jurik')
 
     def paillier_intersection_first_step(self, device):
-        self.intersection_first_step(device, encrypt_my_data, serialize_public_key, self.pubkey_paillier,
-                                     'Paillier')
+        return self.intersection_first_step(device, encrypt_my_data, serialize_public_key, self.pubkey_paillier,
+                                            'Paillier')
