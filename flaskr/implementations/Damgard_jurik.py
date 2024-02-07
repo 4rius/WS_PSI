@@ -2,7 +2,7 @@ from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
 
 def generate_keypair_dj():
-    public_key, private_key_ring = keygen(n_bits=3072, s=1, threshold=1, n_shares=1)
+    public_key, private_key_ring = keygen(n_bits=1024, s=2, threshold=1, n_shares=1)
     return public_key, private_key_ring
 
 
