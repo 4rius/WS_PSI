@@ -223,10 +223,10 @@ class Node:
         implementation = peer_data['implementation']
 
         if implementation == "Paillier":
-            encrypted_set = get_encrypted_set(peer_data, peer_data['pubkey'])
+            encrypted_set = get_encrypted_set(peer_data['data'], peer_data['pubkey'])
             self.handle_paillier(peer_data, encrypted_set)
         elif implementation == "Damgard-Jurik":
-            encrypted_set = get_encrypted_set_dj(peer_data, peer_data['pubkey'])
+            encrypted_set = get_encrypted_set_dj(peer_data['data'], peer_data['pubkey'])
             self.handle_damgard_jurik(peer_data, encrypted_set)
 
         end_time = time.time()
