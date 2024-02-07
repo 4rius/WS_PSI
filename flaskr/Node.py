@@ -8,9 +8,9 @@ import zmq
 from flaskr import Logs
 from flaskr.JSONExtractor import extract_peer_data
 from flaskr.implementations.Damgard_jurik import encrypt_my_data_dj, serialize_public_key_dj, get_encrypted_set_dj, \
-    get_multiplied_set_dj, recv_multiplied_set_dj, generate_keypair_dj
+    get_multiplied_set_dj, recv_multiplied_set_dj, generate_keypair_dj, decrypt_dj
 from flaskr.implementations.Paillier import generate_paillier_keys, serialize_public_key, \
-    get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data
+    get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data, decrypt
 
 
 class Node:
@@ -256,17 +256,20 @@ class Node:
         message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': cryptpscheme}
         self.devices[peer_data['peer']]["socket"].send_json(message)
 
-    def intersection_final_step(self, peer_data, decrypt_function, implementation):
+    def intersection_final_step(self, peer_data, implementation):
         multiplied_set = {}
         start_time = time.time()
         Logs.start_logging()
         if implementation == "Paillier":
             multiplied_set = recv_multiplied_set(peer_data['data'], self.pubkey_paillier)
+            for element, encrypted_value in multiplied_set.items():
+                multiplied_set[element] = decrypt(self.privkey_paillier, encrypted_value)
         elif implementation == "Damgard-Jurik":
             multiplied_set = recv_multiplied_set_dj(peer_data['data'], self.pubkey_dj)
+            for element, encrypted_value in multiplied_set.items():
+                multiplied_set[element] = decrypt_dj(self.privkeyring_dj, encrypted_value)
         device = peer_data['peer']
-        for element, encrypted_value in multiplied_set.items():
-            multiplied_set[element] = decrypt_function(encrypted_value)
+
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         self.results[device] = multiplied_set
         end_time = time.time()
@@ -277,10 +280,10 @@ class Node:
         print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
 
     def paillier_intersection_final_step(self, peer_data):
-        self.intersection_final_step(peer_data, self.privkey_paillier.decrypt, 'Paillier')
+        self.intersection_final_step(peer_data,'Paillier')
 
     def damgard_jurik_intersection_final_step(self, peer_data):
-        self.intersection_final_step(peer_data, self.privkeyring_dj.decrypt, 'Damgard-Jurik')
+        self.intersection_final_step(peer_data,'Damgard-Jurik')
 
     def intersection_first_step(self, device, encrypt_function, serialize_function, pubkey, implementation):
         if device in self.devices:
