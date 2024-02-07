@@ -90,10 +90,10 @@ class Node:
             self.handle_discover_ack(message, day_time)
         elif message.startswith("Added "):
             self.handle_added(message, day_time)
+        elif "cryptpscheme" in message and "peer" in message:
+            self.handle_intersection(message)
         elif message.startswith("{"):
             self.intersection_second_step(message)
-        elif "implementation" in message and "peer" in message:
-            self.handle_intersection(message)
         else:
             self.handle_unknown(message, day_time)
 
@@ -106,6 +106,7 @@ class Node:
         peer = message.split(" ")[2]
         if peer not in self.devices:
             self.new_peer(peer, day_time)
+        self.devices[peer]["last_seen"] = day_time
         self.devices[peer]["socket"].send_string(f"DISCOVER_ACK: Node {self.id} acknowledges node {peer}")
 
     def handle_discover_ack(self, message, day_time):
