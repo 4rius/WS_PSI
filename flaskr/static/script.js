@@ -12,7 +12,7 @@ function get_id() {
     });
 }
 
-function update_devices() {
+function loader() {
     $('#devices').html('<div class="preloader-wrapper small active">\
                             \n<div class="spinner-layer spinner-green-only">\
                             \n<div class="circle-clipper left">\
@@ -24,6 +24,10 @@ function update_devices() {
                             \n</div>\
                             \n</div>\
                             \n</div>');
+}
+
+function update_devices() {
+    loader();
     $.getJSON('/api/devices', function(data){
         $('#devices').empty();
         $.each(data, function(key, value){
@@ -43,17 +47,7 @@ function update_devices() {
 }
 
 function ping(device) {
-    $('#devices').html('<div class="preloader-wrapper small active">\
-                            \n<div class="spinner-layer spinner-green-only">\
-                            \n<div class="circle-clipper left">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="gap-patch">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="circle-clipper right">\
-                            \n<div class="circle"></div>\
-                            \n</div>\
-                            \n</div>\
-                            \n</div>');
+    loader();
     $.post('/api/ping/' + device, function(data){
     }).done(function(data){
         const message = data.status;
@@ -91,18 +85,9 @@ function disconnect() {
     });
 }
 function int_paillier(device) {
-    $('#devices').html('<div class="preloader-wrapper small active">\
-                            \n<div class="spinner-layer spinner-green-only">\
-                            \n<div class="circle-clipper left">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="gap-patch">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="circle-clipper right">\
-                            \n<div class="circle"></div>\
-                            \n</div>\
-                            \n</div>\
-                            \n</div>');
+    loader();
     $.post('/api/int_paillier/' + device, function(data){
+    }).done(function(data){
         const message = data.status;
         M.toast({html: message});
         update_devices();
@@ -110,18 +95,9 @@ function int_paillier(device) {
 }
 
 function int_dj(device) {
-    $('#devices').html('<div class="preloader-wrapper small active">\
-                            \n<div class="spinner-layer spinner-green-only">\
-                            \n<div class="circle-clipper left">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="gap-patch">\
-                            \n<div class="circle"></div>\
-                            \n</div><div class="circle-clipper right">\
-                            \n<div class="circle"></div>\
-                            \n</div>\
-                            \n</div>\
-                            \n</div>');
+    loader();
     $.post('/api/int_dj/' + device, function(data){
+    }).done(function(data){
         const message = data.status;
         M.toast({html: message});
         update_devices();
@@ -175,7 +151,6 @@ function discover_peers() {
                             \n</div>\
                             \n</div>\
                             \n</div>');
-
     $.ajax({
         type: 'POST',
         url: '/api/discover_peers',
