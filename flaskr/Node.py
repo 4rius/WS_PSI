@@ -90,10 +90,10 @@ class Node:
             self.handle_discover_ack(message, day_time)
         elif message.startswith("Added "):
             self.handle_added(message, day_time)
-        elif "implementation" in message and "peer" in message:
-            self.handle_intersection(message)
         elif message.startswith("{"):
             self.intersection_second_step(message)
+        elif "implementation" in message and "peer" in message:
+            self.handle_intersection(message)
         else:
             self.handle_unknown(message, day_time)
 
