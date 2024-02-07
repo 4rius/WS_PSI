@@ -246,8 +246,13 @@ class Node:
         self.send_message(peer_data, multiplied_set, 'Damgard-Jurik')
 
     def send_message(self, peer_data, multiplied_set, cryptpscheme):
-        serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for
-                                     element, encrypted_value in multiplied_set.items()}
+        serialized_multiplied_set = {}
+        if cryptpscheme == "Paillier":
+            serialized_multiplied_set = {element: str(encrypted_value.ciphertext()) for
+                                         element, encrypted_value in multiplied_set.items()}
+        elif cryptpscheme == "Damgard-Jurik":
+            serialized_multiplied_set = {element: str(encrypted_value.value) for
+                                         element, encrypted_value in multiplied_set.items()}
         message = {'data': serialized_multiplied_set, 'peer': self.id, 'cryptpscheme': cryptpscheme}
         self.devices[peer_data['peer']]["socket"].send_json(message)
 

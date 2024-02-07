@@ -49,6 +49,8 @@ def get_multiplied_set_dj(enc_set, node_set):
     print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
     result = {}
     for element, encrypted_value in enc_set.items():
-        multiplier = int(element) in node_set
-        result[element] = encrypted_value * multiplier
+        multiplier = int(int(element) in node_set)
+        # Convertir el valor encriptado a un entero antes de multiplicarlo
+        result[element] = EncryptedNumber(public_key=encrypted_value.public_key,
+                                          value=int(encrypted_value.value)) * multiplier
     return result
