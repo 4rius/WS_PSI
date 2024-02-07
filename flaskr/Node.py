@@ -113,6 +113,7 @@ class Node:
         peer = message.split(" ")[2]
         if peer not in self.devices:
             self.new_peer(peer, day_time)
+        self.devices[peer]["last_seen"] = day_time
         self.devices[peer]["socket"].send_string(f"Added {peer} to my network - From Node {self.id}")
 
     def handle_added(self, message, day_time):
@@ -271,10 +272,10 @@ class Node:
         print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
 
     def paillier_intersection_final_step(self, peer_data):
-        self.intersection_final_step(peer_data, self.pubkey_paillier.decrypt, 'Paillier')
+        self.intersection_final_step(peer_data, self.privkey_paillier.decrypt, 'Paillier')
 
     def damgard_jurik_intersection_final_step(self, peer_data):
-        self.intersection_final_step(peer_data, self.pubkey_paillier.decrypt, 'Damgard-Jurik')
+        self.intersection_final_step(peer_data, self.privkeyring_dj.decrypt, 'Damgard-Jurik')
 
     def intersection_first_step(self, device, encrypt_function, serialize_function, pubkey, implementation):
         if device in self.devices:

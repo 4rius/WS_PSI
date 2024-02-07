@@ -137,6 +137,11 @@ def stop_logging_cpu_usage():
     result = sum(cpu_usage) / len(cpu_usage)
     avg_cpu_usage = round(result, 2)
     peak_cpu_usage = round(max(cpu_usage), 2)
+    # If len(instance_cpu_usage) == 0, the result will be Na
+    if len(instance_cpu_usage) == 0:
+        avg_instance_cpu_usage = 0
+        peak_instance_cpu_usage = 0
+        return
     result = sum(instance_cpu_usage) / len(instance_cpu_usage)
     avg_instance_cpu_usage = round(result, 2)
     peak_instance_cpu_usage = round(max(instance_cpu_usage), 2)
