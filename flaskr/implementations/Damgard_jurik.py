@@ -2,7 +2,7 @@ from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
 
 def generate_keypair_dj():
-    public_key, private_key_ring = keygen()
+    public_key, private_key_ring = keygen(n_bits=128, s=2, threshold=5, n_shares=10)
     return public_key, private_key_ring
 
 
@@ -41,7 +41,7 @@ def encrypt_my_data_dj(my_set, public_key, domain):
 
 def recv_multiplied_set_dj(serialized_multiplied_set, public_key):
     print("Ciframos los elementos del set A")
-    return {element: EncryptedNumber(ciphertext, public_key) for element, ciphertext in
+    return {element: EncryptedNumber(int(ciphertext), public_key) for element, ciphertext in
             serialized_multiplied_set.items()}
 
 
