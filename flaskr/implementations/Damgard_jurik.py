@@ -54,3 +54,7 @@ def get_multiplied_set_dj(enc_set, node_set):
         result[element] = EncryptedNumber(public_key=encrypted_value.public_key,
                                           value=int(encrypted_value.value)) * multiplier
     return result
+
+
+def intersection_enc_size_dj(multiplied_set):
+    return sum([int(element.value) for element in multiplied_set.values()])

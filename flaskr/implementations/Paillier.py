@@ -58,7 +58,6 @@ def recv_multiplied_set(serialized_multiplied_set, public_key):
 
 
 def get_multiplied_set(enc_set, node_set):
-    # Cita: https://blog.openmined.org/private-set-intersection-with-the-paillier-cryptosystem/
     # Propósito de depuración
     print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
     # result = {}
@@ -80,3 +79,9 @@ def get_multiplied_set(enc_set, node_set):
         result[element] = encrypted_value * multiplier
     return result
     # return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
+
+
+def intersection_enc_size(multiplied_set):
+    # Suma homomórfica de los elementos del set A
+    # La suma, una vez descifrada, nos da el tamaño de la intersección, al ser unos y ceros lo que hay cifrados
+    return sum([element.ciphertext for element in multiplied_set.values()])
