@@ -7,7 +7,9 @@ ENV FLASK_ENV=development
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN apk add build-base python3-dev linux-headers net-tools wireless-tools gmp-dev mpfr-dev mpc1-dev
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 

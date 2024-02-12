@@ -1,3 +1,5 @@
+import random
+
 from phe import paillier, EncryptedNumber
 
 
@@ -23,6 +25,10 @@ def reconstruct_public_key(public_key_dict):
 def get_encrypted_set(serialized_encrypted_set, public_key):
     return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
             serialized_encrypted_set.items()}
+
+
+def get_encrypted_list(serialized_encrypted_list, public_key):
+    return [EncryptedNumber(public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
 
 
 # Cifrar los números de los sets con los que arrancamos
@@ -85,3 +91,49 @@ def intersection_enc_size(multiplied_set):
     # Suma homomórfica de los elementos del set A
     # La suma, una vez descifrada, nos da el tamaño de la intersección, al ser unos y ceros lo que hay cifrados
     return sum([element.ciphertext for element in multiplied_set.values()])
+
+
+""" OPE - Oblivious Polynomial Evaluation stuff """
+
+
+def polinomio_raices(roots, neg_one=-1, one=1):
+    """
+    Interpolates the unique polynomial that encodes the given roots.
+    The function also requires the one and the negative one of the underlying ring.
+    """
+    print("Calculo de polinomio con raices: " + str(roots))
+    zero = one + neg_one
+    coefs = [neg_one * roots[0], one]
+    for r in roots[1:]:
+        coefs = multiplicar_polinomios(coefs, [neg_one * r, one], zero)
+    print("Coeficientes del polinomio: " + str(coefs))
+    return coefs
+
+
+def multiplicar_polinomios(coefs1, coefs2, zero=0):
+    """
+    Multiplies two polynomials whose coefficients are given in coefs1 and coefs2.
+    Zero value of the underlying ring is required on the input zero.
+    """
+    coefs3 = [zero] * (len(coefs1) + len(coefs2) - 1)
+    for i in range(len(coefs1)):
+        for j in range(len(coefs2)):
+            coefs3[i + j] += coefs1[i] * coefs2[j]
+    return coefs3
+
+
+def horner_encrypted_eval(coeffs, x):
+    result = coeffs[-1]
+    for coef in reversed(coeffs[:-1]):
+        result = coef._add_encrypted(x * result)
+    return result
+
+
+def eval_coefficients(coeffs, pubkey, my_data):
+    print("Evaluamos el polinomio en los elementos del set B")
+    encrypted_results = []
+    for element in my_data:
+        rb = random.randint(1, 1000)
+        Epbj = horner_encrypted_eval(coeffs, element)
+        encrypted_results.append(pubkey.encrypt(element)._add_encrypted(rb * Epbj))
+    return encrypted_results

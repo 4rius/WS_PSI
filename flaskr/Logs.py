@@ -54,7 +54,7 @@ def log_activity(activity_code, time, version, id, peer=False):
             "Peak_RAM": str(peak_ram_usage) + " MB",
             "Avg_instance_RAM": str(avg_instance_ram_usage) + " MB",
             "Peak_instance_RAM": str(peak_instance_ram_usage) + " MB",
-            "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info(),
+            "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info() if avg_cpu_usage != 0 or None else "N/A",
             "Peak_CPU": str(peak_cpu_usage) + "%",
             "Avg_instance_CPU": str(avg_instance_cpu_usage) + "%",
             "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%"
@@ -71,7 +71,7 @@ def log_activity(activity_code, time, version, id, peer=False):
             "Peak_RAM": str(peak_ram_usage) + " MB",
             "Avg_instance_RAM": str(avg_instance_ram_usage) + " MB",
             "Peak_instance_RAM": str(peak_instance_ram_usage) + " MB",
-            "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info(),
+            "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info() if avg_cpu_usage != 0 or None else "N/A",
             "Peak_CPU": str(peak_cpu_usage) + "%",
             "Avg_instance_CPU": str(avg_instance_cpu_usage) + "%",
             "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%"
