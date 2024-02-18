@@ -1,8 +1,10 @@
+import random
+
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
 
 def generate_keypair_dj():
-    public_key, private_key_ring = keygen(n_bits=1024, s=2, threshold=1, n_shares=1)
+    public_key, private_key_ring = keygen(n_bits=128, s=2, threshold=1, n_shares=1)
     return public_key, private_key_ring
 
 
@@ -26,6 +28,9 @@ def serialize_public_key_dj(public_key):
 
 
 def reconstruct_public_key_dj(public_key_dict):
+    # Si proviene de un dispositivo Android, no traerá ni m, threshold ni delta, por lo que los marcaremos a 1 por defecto, no hacen falta para el cifrado
+    if public_key_dict['m'] == 'None':
+        return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), 1, 1, 1)
     return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), int(public_key_dict['m']),
                      int(public_key_dict['threshold']), int(public_key_dict['delta']))
 
@@ -33,6 +38,10 @@ def reconstruct_public_key_dj(public_key_dict):
 def get_encrypted_set_dj(serialized_encrypted_set, public_key):
     return {element: EncryptedNumber(ciphertext, public_key) for element, ciphertext in
             serialized_encrypted_set.items()}
+
+
+def get_encrypted_list_dj(serialized_encrypted_list, public_key):
+    return [EncryptedNumber(ciphertext, public_key) for ciphertext in serialized_encrypted_list]
 
 
 def encrypt_my_data_dj(my_set, public_key, domain):
@@ -58,3 +67,23 @@ def get_multiplied_set_dj(enc_set, node_set):
 
 def intersection_enc_size_dj(multiplied_set):
     return sum([int(element.value) for element in multiplied_set.values()])
+
+
+""" OPE stuff """
+
+
+def horner_eval_crypt_dj(coefs, x):
+    result = coefs[-1]
+    for coef in reversed(coefs[:-1]):
+        result = coef + x * result
+    return result
+
+
+def eval_coefficients_dj(coefs, pubkey, my_data):
+    print("Evaluamos el polinomio en los elementos del set B")
+    encrypted_results = []
+    for element in my_data:
+        rb = random.randint(1, 1000)
+        Epbj = horner_eval_crypt_dj(coefs, element)
+        encrypted_results.append(pubkey.encrypt(element) + rb * Epbj)
+    return encrypted_results

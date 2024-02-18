@@ -41,8 +41,9 @@ function update_devices() {
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
             ' <button class="btn waves-effect waves-light" onclick="int_paillier(\'' + key + '\')">Paillier</button>'
             +
-            ' <button class="btn waves-effect waves-light red" onclick="int_dj(\'' + key + '\')">Damgard-Jurik</button></p>' +
-            ' <button class="btn waves-effect waves-light" onclick="int_paillier_ope(\'' + key + '\')">Paillier - OPE</button>');
+            ' <button class="btn waves-effect waves-light" onclick="int_dj(\'' + key + '\')">Damgard-Jurik</button></p>' +
+            ' <button class="btn waves-effect waves-light" onclick="int_paillier_ope(\'' + key + '\')">Paillier - OPE</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="int_dj_ope(\'' + key + '\')">Damgard-Jurik - OPE</button>');
         });
     });
 }
@@ -114,6 +115,20 @@ function int_dj(device) {
 function int_paillier_ope(device) {
     loader();
     $.post('/api/int_paillier_ope/' + device, function(data){
+    })
+    .done(function(data) {
+        const message = data.status;
+        M.toast({html: message});
+        update_devices();
+    })
+    .fail(function() {
+        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
+    });
+}
+
+function int_dj_ope(device) {
+    loader();
+    $.post('/api/int_dj_ope/' + device, function(data){
     })
     .done(function(data) {
         const message = data.status;

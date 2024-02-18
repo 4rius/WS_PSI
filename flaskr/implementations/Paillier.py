@@ -5,7 +5,7 @@ from phe import paillier, EncryptedNumber
 
 # Devuelve los objetos clave pública y privada
 def generate_paillier_keys():
-    public_key, private_key = paillier.generate_paillier_keypair()
+    public_key, private_key = paillier.generate_paillier_keypair(n_length=128)
     return private_key, public_key
 
 
@@ -26,6 +26,9 @@ def get_encrypted_set(serialized_encrypted_set, public_key):
     return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
             serialized_encrypted_set.items()}
 
+
+def get_encrypted_list_f(serialized_encrypted_list):
+    return [int(ciphertext) for ciphertext in serialized_encrypted_list]
 
 def get_encrypted_list(serialized_encrypted_list, public_key):
     return [EncryptedNumber(public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
@@ -94,32 +97,6 @@ def intersection_enc_size(multiplied_set):
 
 
 """ OPE - Oblivious Polynomial Evaluation stuff """
-
-
-def polinomio_raices(roots, neg_one=-1, one=1):
-    """
-    Interpolates the unique polynomial that encodes the given roots.
-    The function also requires the one and the negative one of the underlying ring.
-    """
-    print("Calculo de polinomio con raices: " + str(roots))
-    zero = one + neg_one
-    coefs = [neg_one * roots[0], one]
-    for r in roots[1:]:
-        coefs = multiplicar_polinomios(coefs, [neg_one * r, one], zero)
-    print("Coeficientes del polinomio: " + str(coefs))
-    return coefs
-
-
-def multiplicar_polinomios(coefs1, coefs2, zero=0):
-    """
-    Multiplies two polynomials whose coefficients are given in coefs1 and coefs2.
-    Zero value of the underlying ring is required on the input zero.
-    """
-    coefs3 = [zero] * (len(coefs1) + len(coefs2) - 1)
-    for i in range(len(coefs1)):
-        for j in range(len(coefs2)):
-            coefs3[i + j] += coefs1[i] * coefs2[j]
-    return coefs3
 
 
 def horner_encrypted_eval(coeffs, x):

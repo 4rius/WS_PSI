@@ -86,6 +86,10 @@ def create_app(test_config=None):
     def api_find_intersection_ope(device):
         return jsonify({'status': node.paillier_intersection_first_step_ope(device)})
 
+    @app.route('/api/int_dj_ope/<device>', methods=['POST'])
+    def api_find_intersection_dj_ope(device):
+        return jsonify({'status': node.dj_intersection_first_step_ope(device)})
+
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():
         return jsonify({'dataset': list(node.myData)})
