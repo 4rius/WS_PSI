@@ -29,7 +29,7 @@ def serialize_public_key_dj(public_key):
 
 def reconstruct_public_key_dj(public_key_dict):
     # Si proviene de un dispositivo Android, no traerá ni m, threshold ni delta, por lo que los marcaremos a 1 por defecto, no hacen falta para el cifrado
-    if public_key_dict['m'] == 'None':
+    if 'm' not in public_key_dict:
         return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), 1, 1, 1)
     return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), int(public_key_dict['m']),
                      int(public_key_dict['threshold']), int(public_key_dict['delta']))
@@ -59,9 +59,7 @@ def get_multiplied_set_dj(enc_set, node_set):
     result = {}
     for element, encrypted_value in enc_set.items():
         multiplier = int(int(element) in node_set)
-        # Convertir el valor encriptado a un entero antes de multiplicarlo
-        result[element] = EncryptedNumber(public_key=encrypted_value.public_key,
-                                          value=int(encrypted_value.value)) * multiplier
+        result[element] = EncryptedNumber(encrypted_value.value * multiplier, encrypted_value.public_key)
     return result
 
 
