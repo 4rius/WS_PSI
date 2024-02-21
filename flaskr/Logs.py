@@ -24,19 +24,23 @@ peak_instance_ram_usage = 0
 peak_instance_cpu_usage = 0
 logging_ram_usage = False
 logging_cpu_usage = False
+lock = threading.Lock()
+active_threads = 0
 
 
 def clean_variables():
-    global cpu_usage, ram_usage, avg_cpu_usage, avg_ram_usage, peak_cpu_usage, peak_ram_usage
-    cpu_usage = []
-    ram_usage = []
-    avg_cpu_usage = 0
-    avg_ram_usage = 0
-    peak_cpu_usage = 0
-    peak_ram_usage = 0
+    if active_threads == 1:
+        global cpu_usage, ram_usage, avg_cpu_usage, avg_ram_usage, peak_cpu_usage, peak_ram_usage
+        cpu_usage = []
+        ram_usage = []
+        avg_cpu_usage = 0
+        avg_ram_usage = 0
+        peak_cpu_usage = 0
+        peak_ram_usage = 0
 
 
 def log_activity(activity_code, time, version, id, peer=False):
+    global active_threads
     formatted_id = id.replace(".", "-")
 
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -81,6 +85,8 @@ def log_activity(activity_code, time, version, id, peer=False):
     print(f"Activity log sent to Firebase")
 
     clean_variables()
+    active_threads -= 1
+    print(f"Active threads: {active_threads}")
 
 
 def get_ram_info():
@@ -118,17 +124,14 @@ def get_logs(id):
 
 
 def start_logging():
-    global logging_cpu_usage, logging_ram_usage
+    global logging_cpu_usage, logging_ram_usage, active_threads
     logging_cpu_usage = True
     logging_ram_usage = True
-    thread = threading.Thread(target=log_cpu_usage)
-    thread2 = threading.Thread(target=log_ram_usage)
-    thread3 = threading.Thread(target=log_instance_ram_usage)
-    thread4 = threading.Thread(target=log_instance_cpu_usage)
-    thread.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
+    threads = [threading.Thread(target=log_cpu_usage), threading.Thread(target=log_ram_usage), threading.Thread(target=log_instance_ram_usage), threading.Thread(target=log_instance_cpu_usage)]
+    for t in threads:
+        t.start()
+    with lock:
+        active_threads += 1
 
 
 def stop_logging_cpu_usage():

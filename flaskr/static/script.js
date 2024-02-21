@@ -87,12 +87,10 @@ function disconnect() {
     });
 }
 function int_paillier(device) {
-    loader();
     $.post('/api/int_paillier/' + device, function(data){
     }).done(function(data){
         const message = data.status;
         M.toast({html: message});
-        update_devices();
     })
     .fail(function() {
         M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
@@ -100,12 +98,10 @@ function int_paillier(device) {
 }
 
 function int_dj(device) {
-    loader();
     $.post('/api/int_dj/' + device, function(data){
     }).done(function(data){
         const message = data.status;
         M.toast({html: message});
-        update_devices();
     })
     .fail(function() {
         M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
@@ -113,13 +109,11 @@ function int_dj(device) {
 }
 
 function int_paillier_ope(device) {
-    loader();
     $.post('/api/int_paillier_ope/' + device, function(data){
     })
     .done(function(data) {
         const message = data.status;
         M.toast({html: message});
-        update_devices();
     })
     .fail(function() {
         M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
@@ -127,13 +121,11 @@ function int_paillier_ope(device) {
 }
 
 function int_dj_ope(device) {
-    loader();
     $.post('/api/int_dj_ope/' + device, function(data){
     })
     .done(function(data) {
         const message = data.status;
         M.toast({html: message});
-        update_devices();
     })
     .fail(function() {
         M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
