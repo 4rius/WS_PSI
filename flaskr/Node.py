@@ -382,30 +382,26 @@ class Node:
         return "Device not found"
 
     def intersection_first_step_ope(self, device, implementation, serialize_function, encrypt_function, pubkey):
-        if device in self.devices:
-            start_time = time.time()
-            Logs.start_logging()
-            serialized_pubkey = serialize_function(pubkey)
-            my_data = [int(element) for element in self.myData]
-            coeffs = polinomio_raices(my_data)
-            encrypted_coeffs = [encrypt_function(pubkey, coeff) for coeff in coeffs]
-            if implementation == "Paillier_OPE" or implementation == "Paillier OPE":
-                encrypted_coeffs = [str(encrypted_value.ciphertext()) for encrypted_value in encrypted_coeffs]
-            elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
-                encrypted_coeffs = [str(encrypted_value.value) for encrypted_value in encrypted_coeffs]
+        start_time = time.time()
+        Logs.start_logging()
+        serialized_pubkey = serialize_function(pubkey)
+        my_data = [int(element) for element in self.myData]
+        coeffs = polinomio_raices(my_data)
+        encrypted_coeffs = [encrypt_function(pubkey, coeff) for coeff in coeffs]
+        if implementation == "Paillier_OPE" or implementation == "Paillier OPE":
+            encrypted_coeffs = [str(encrypted_value.ciphertext()) for encrypted_value in encrypted_coeffs]
+        elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
+            encrypted_coeffs = [str(encrypted_value.value) for encrypted_value in encrypted_coeffs]
 
-            print(f"Intersection with {device} - {implementation} - Sending coeffs: {encrypted_coeffs}")
-            message = {'data': encrypted_coeffs, 'implementation': implementation, 'peer': self.id,
-                       'pubkey': serialized_pubkey}
-            self.devices[device]["socket"].send_json(message)
-            end_time = time.time()
-            Logs.stop_logging_cpu_usage()
-            Logs.stop_logging_ram_usage()
-            Logs.log_activity("INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
-                              device)
-            return "Intersection with " + device + " - " + implementation + "- OPE - Waiting for response..."
-        else:
-            return "Device not found - Have the peer send an ACK first"
+        print(f"Intersection with {device} - {implementation} - Sending coeffs: {encrypted_coeffs}")
+        message = {'data': encrypted_coeffs, 'implementation': implementation, 'peer': self.id,
+                   'pubkey': serialized_pubkey}
+        self.devices[device]["socket"].send_json(message)
+        end_time = time.time()
+        Logs.stop_logging_cpu_usage()
+        Logs.stop_logging_ram_usage()
+        Logs.log_activity("INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
+                          device)
 
     def paillier_intersection_first_step_ope(self, device):
         if device in self.devices:
