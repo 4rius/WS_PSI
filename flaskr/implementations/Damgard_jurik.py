@@ -2,9 +2,11 @@ import random
 
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
+from flaskr.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
+
 
 def generate_keypair_dj():
-    public_key, private_key_ring = keygen(n_bits=128, s=2, threshold=1, n_shares=1)
+    public_key, private_key_ring = keygen(n_bits=DEFL_KEYSIZE, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
     return public_key, private_key_ring
 
 

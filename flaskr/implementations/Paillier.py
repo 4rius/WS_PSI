@@ -2,10 +2,12 @@ import random
 
 from phe import paillier, EncryptedNumber
 
+from flaskr.DbConstants import DEFL_KEYSIZE
+
 
 # Devuelve los objetos clave pública y privada
 def generate_paillier_keys():
-    public_key, private_key = paillier.generate_paillier_keypair(n_length=128)
+    public_key, private_key = paillier.generate_paillier_keypair(n_length=DEFL_KEYSIZE)
     return private_key, public_key
 
 
