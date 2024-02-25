@@ -206,3 +206,20 @@ def setup_logs(id, set_size, domain):
     }
     firebase.post(f"/logs/{formatted_id}/setup", log)
     print(f"Log setup sent to Firebase")
+
+
+def log_result(implementation, result, version, id, device):
+    formatted_id = id.replace(".", "-")
+    timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    log = {
+        "id": id,
+        "timestamp": timestamp,
+        "implementation": implementation,
+        "result": result,
+        "device": device,
+        "version": version,
+        "type": "Desktop (Flask): " + get_system_info()
+    }
+    firebase.post(f"/logs/{formatted_id}/results", log)
+    print(f"Result log sent to Firebase")
+    return

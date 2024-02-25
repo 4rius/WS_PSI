@@ -322,6 +322,7 @@ class Node:
         Logs.stop_logging_ram_usage()
         Logs.log_activity("INTERSECTION_" + implementation + "_F", end_time - start_time, VERSION, self.id,
                           device)
+        Logs.log_result("INTERSECTION_" + implementation, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
 
     def paillier_intersection_final_step(self, peer_data):
@@ -442,4 +443,5 @@ class Node:
         Logs.stop_logging_ram_usage()
         Logs.log_activity("INTERSECTION_" + param + "_F", end_time - start_time, VERSION, self.id,
                           device)
+        Logs.log_result("INTERSECTION_" + param, result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {param} - Result: {result_formatted}")
