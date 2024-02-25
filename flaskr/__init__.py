@@ -36,6 +36,7 @@ def create_app(test_config=None):
     local_ip = networking.get_local_ip()
     node = Node(local_ip, 5001, peers)
     node.start()
+    Logs.setup_logs(node.id, len(node.myData), node.domain)
 
     @app.route('/')
     def index():

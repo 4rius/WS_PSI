@@ -193,3 +193,16 @@ def log_instance_cpu_usage():
         instance_cpu_usage.append(get_instance_cpu_usage())
         time.sleep(0.1)
     return
+
+
+def setup_logs(id, set_size, domain):
+    formatted_id = id.replace(".", "-")
+    log = {
+        "id": id,
+        "timestamp": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "set_size": set_size,
+        "domain": domain,
+        "type": "Desktop (Flask): " + get_system_info()
+    }
+    firebase.post(f"/logs/{formatted_id}/setup", log)
+    print(f"Log setup sent to Firebase")
