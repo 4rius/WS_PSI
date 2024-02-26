@@ -323,6 +323,8 @@ class Node:
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_F", end_time - start_time, VERSION, self.id,
                           device)
+        # Make multiplied_set serializable
+        multiplied_set = list(multiplied_set)
         Logs.log_result("INTERSECTION_" + implementation, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
 

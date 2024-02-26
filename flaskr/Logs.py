@@ -93,9 +93,9 @@ def stop_logging(thread_data):
 
 
 def stop_logging_cpu_usage(thread_data):
-    result = sum(thread_data.cpu_usage) / len(thread_data.cpu_usage)
-    thread_data.avg_cpu_usage = round(result, 2)
-    thread_data.peak_cpu_usage = round(max(thread_data.cpu_usage), 2)
+    result = sum(thread_data.cpu_usage) / len(thread_data.cpu_usage) if len(thread_data.cpu_usage) != 0 else 0
+    thread_data.avg_cpu_usage = round(result, 2) if len(thread_data.cpu_usage) != 0 else 0
+    thread_data.peak_cpu_usage = round(max(thread_data.cpu_usage), 2) if len(thread_data.cpu_usage) != 0 else 0
     # If len(instance_cpu_usage) == 0, the result will be Na
     if len(thread_data.instance_cpu_usage) == 0:
         thread_data.avg_instance_cpu_usage = 0
