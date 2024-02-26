@@ -8,6 +8,7 @@ import zmq
 from flaskr import Logs
 from flaskr.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE, VERSION
 from flaskr.JSONExtractor import extract_peer_data
+from flaskr.Logs import ThreadData
 from flaskr.implementations.Damgard_jurik import encrypt_my_data_dj, serialize_public_key_dj, get_encrypted_set_dj, \
     get_multiplied_set_dj, recv_multiplied_set_dj, generate_keypair_dj, encrypt_dj, reconstruct_public_key_dj, \
     get_encrypted_list_dj, eval_coefficients_dj
@@ -208,15 +209,15 @@ class Node:
 
     def genkeys(self, cs):
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         if cs == "Paillier":
             self.privkey_paillier, self.pubkey_paillier = generate_paillier_keys()
         elif cs == "Damgard-Jurik":
             self.pubkey_dj, self.privkeyring_dj = generate_keypair_dj()
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
 
     def new_peer(self, peer, last_seen):
         dealer_socket = self.context.socket(zmq.DEALER)
@@ -246,7 +247,8 @@ class Node:
 
     def intersection_second_step(self, message):
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         peer_data = extract_peer_data(message)
         implementation = peer_data['implementation']
 
@@ -262,9 +264,8 @@ class Node:
             self.handle_damgard_jurik_ope(peer_data, peer_data['data'], peer_data['pubkey'])
 
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
                           peer_data['peer'])
 
     def handle_paillier(self, peer_data, encrypted_set):
@@ -307,7 +308,8 @@ class Node:
     def intersection_final_step(self, peer_data, decrypt_function, implementation):
         multiplied_set = {}
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         if implementation == "Paillier":
             multiplied_set = recv_multiplied_set(peer_data['data'], self.pubkey_paillier)
         elif implementation == "Damgard-Jurik":
@@ -318,9 +320,8 @@ class Node:
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         self.results[device] = multiplied_set
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("INTERSECTION_" + implementation + "_F", end_time - start_time, VERSION, self.id,
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_F", end_time - start_time, VERSION, self.id,
                           device)
         Logs.log_result("INTERSECTION_" + implementation, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
@@ -347,7 +348,8 @@ class Node:
 
     def intersection_first_step(self, device, encrypt_function, serialize_function, pubkey, implementation):
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         encrypted_data = encrypt_function(self.myData, pubkey, self.domain)
         serialized_pubkey = serialize_function(pubkey)
         if implementation == "Paillier":
@@ -361,9 +363,8 @@ class Node:
                    'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
                           device)
 
     def dj_intersection_first_step(self, device):
@@ -384,7 +385,8 @@ class Node:
 
     def intersection_first_step_ope(self, device, implementation, serialize_function, encrypt_function, pubkey):
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         serialized_pubkey = serialize_function(pubkey)
         my_data = [int(element) for element in self.myData]
         coeffs = polinomio_raices(my_data)
@@ -399,9 +401,8 @@ class Node:
                    'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
                           device)
 
     def paillier_intersection_first_step_ope(self, device):
@@ -424,7 +425,8 @@ class Node:
 
     def intersection_final_step_ope(self, peer_data, decrypt, param):
         start_time = time.time()
-        Logs.start_logging()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         result = []
         if param == "Paillier_OPE":
             result = get_encrypted_list_f(peer_data['data'])
@@ -439,9 +441,8 @@ class Node:
                 result_formatted.append(element)
         self.results[device] = result_formatted
         end_time = time.time()
-        Logs.stop_logging_cpu_usage()
-        Logs.stop_logging_ram_usage()
-        Logs.log_activity("INTERSECTION_" + param + "_F", end_time - start_time, VERSION, self.id,
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + param + "_F", end_time - start_time, VERSION, self.id,
                           device)
         Logs.log_result("INTERSECTION_" + param, result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {param} - Result: {result_formatted}")
