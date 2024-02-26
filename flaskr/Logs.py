@@ -22,8 +22,6 @@ peak_cpu_usage = 0
 peak_ram_usage = 0
 peak_instance_ram_usage = 0
 peak_instance_cpu_usage = 0
-logging_ram_usage = False
-logging_cpu_usage = False
 lock = threading.Lock()
 active_threads = 0
 
@@ -42,7 +40,7 @@ def clean_variables():
 def log_activity(activity_code, time, version, id, peer=False):
     global active_threads
     formatted_id = id.replace(".", "-")
-
+    active_threads -= 1
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     if peer:
@@ -61,7 +59,8 @@ def log_activity(activity_code, time, version, id, peer=False):
             "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info() if avg_cpu_usage != 0 or None else "N/A",
             "Peak_CPU": str(peak_cpu_usage) + "%",
             "Avg_instance_CPU": str(avg_instance_cpu_usage) + "%",
-            "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%"
+            "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%",
+            "Active_threads": active_threads
         }
     else:
         log = {
@@ -78,14 +77,14 @@ def log_activity(activity_code, time, version, id, peer=False):
             "Avg_CPU": str(avg_cpu_usage) + "% - " + get_cpu_info() if avg_cpu_usage != 0 or None else "N/A",
             "Peak_CPU": str(peak_cpu_usage) + "%",
             "Avg_instance_CPU": str(avg_instance_cpu_usage) + "%",
-            "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%"
+            "Peak_instance_CPU": str(peak_instance_cpu_usage) + "%",
+            "Active_threads": active_threads
         }
 
     firebase.post(f"/logs/{formatted_id}/activities", log)
     print(f"Activity log sent to Firebase")
 
     clean_variables()
-    active_threads -= 1
     print(f"Active threads: {active_threads}")
 
 
@@ -124,10 +123,9 @@ def get_logs(id):
 
 
 def start_logging():
-    global logging_cpu_usage, logging_ram_usage, active_threads
-    logging_cpu_usage = True
-    logging_ram_usage = True
-    threads = [threading.Thread(target=log_cpu_usage), threading.Thread(target=log_ram_usage), threading.Thread(target=log_instance_ram_usage), threading.Thread(target=log_instance_cpu_usage)]
+    global active_threads
+    threads = [threading.Thread(target=log_cpu_usage), threading.Thread(target=log_ram_usage),
+               threading.Thread(target=log_instance_ram_usage), threading.Thread(target=log_instance_cpu_usage)]
     for t in threads:
         t.start()
     with lock:
@@ -135,8 +133,7 @@ def start_logging():
 
 
 def stop_logging_cpu_usage():
-    global logging_cpu_usage, avg_cpu_usage, cpu_usage, peak_cpu_usage, avg_instance_cpu_usage, peak_instance_cpu_usage, instance_cpu_usage
-    logging_cpu_usage = False
+    global avg_cpu_usage, cpu_usage, peak_cpu_usage, avg_instance_cpu_usage, peak_instance_cpu_usage, instance_cpu_usage
     result = sum(cpu_usage) / len(cpu_usage)
     avg_cpu_usage = round(result, 2)
     peak_cpu_usage = round(max(cpu_usage), 2)
@@ -152,8 +149,7 @@ def stop_logging_cpu_usage():
 
 
 def stop_logging_ram_usage():
-    global logging_ram_usage, ram_usage, peak_ram_usage, avg_ram_usage, instance_ram_usage, avg_instance_ram_usage, peak_instance_ram_usage
-    logging_ram_usage = False
+    global ram_usage, peak_ram_usage, avg_ram_usage, instance_ram_usage, avg_instance_ram_usage, peak_instance_ram_usage
     result = sum(ram_usage) / len(ram_usage)
     avg_ram_usage = round(result, 2)
     peak_ram_usage = round(max(ram_usage), 2)
@@ -165,7 +161,7 @@ def stop_logging_ram_usage():
 
 def log_cpu_usage():
     global cpu_usage
-    while logging_cpu_usage:
+    while active_threads > 0:
         cpu_usage.append(psutil.cpu_percent())
         time.sleep(0.1)
     return
@@ -173,7 +169,7 @@ def log_cpu_usage():
 
 def log_ram_usage():
     global ram_usage
-    while logging_ram_usage:
+    while active_threads > 0:
         ram_usage.append(psutil.virtual_memory().used / (1024 ** 2))
         time.sleep(0.1)
     return
@@ -181,7 +177,7 @@ def log_ram_usage():
 
 def log_instance_ram_usage():
     global instance_ram_usage
-    while logging_ram_usage:
+    while active_threads > 0:
         instance_ram_usage.append(get_instance_ram_usage())
         time.sleep(0.1)
     return
@@ -189,7 +185,7 @@ def log_instance_ram_usage():
 
 def log_instance_cpu_usage():
     global instance_cpu_usage
-    while logging_cpu_usage:
+    while active_threads > 0:
         instance_cpu_usage.append(get_instance_cpu_usage())
         time.sleep(0.1)
     return
