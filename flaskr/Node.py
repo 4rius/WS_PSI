@@ -284,7 +284,7 @@ class Node:
         if cryptpscheme == "Paillier":
             set_to_send = {element: str(encrypted_value.ciphertext()) for
                            element, encrypted_value in set.items()}
-        elif cryptpscheme == "Damgard-Jurik":
+        elif cryptpscheme == "Damgard-Jurik" or cryptpscheme == "DamgardJurik":
             set_to_send = {element: str(encrypted_value.value) for
                            element, encrypted_value in set.items()}
         elif cryptpscheme == "Paillier_OPE" or cryptpscheme == "Paillier OPE":
