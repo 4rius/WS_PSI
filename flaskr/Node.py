@@ -9,13 +9,9 @@ from flaskr import Logs
 from flaskr.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE, VERSION
 from flaskr.JSONExtractor import extract_peer_data
 from flaskr.Logs import ThreadData
-from flaskr.implementations.Damgard_jurik import encrypt_my_data_dj, serialize_public_key_dj, get_encrypted_set_dj, \
-    get_multiplied_set_dj, recv_multiplied_set_dj, generate_keypair_dj, encrypt_dj, reconstruct_public_key_dj, \
-    get_encrypted_list_dj, eval_coefficients_dj
-from flaskr.implementations.Paillier import generate_paillier_keys, serialize_public_key, \
-    get_encrypted_set, get_multiplied_set, recv_multiplied_set, encrypt_my_data, \
-    encrypt, eval_coefficients, get_encrypted_list, reconstruct_public_key, get_encrypted_list_f
-from flaskr.implementations.Polynomials import polinomio_raices
+from flaskr.handlers.IntersectionHandler import IntersectionHandler
+from flaskr.implementations.Damgard_jurik import DamgardJurik
+from flaskr.implementations.Paillier import Paillier
 
 
 class Node:
@@ -27,24 +23,21 @@ class Node:
         self.context = zmq.Context()  # Contexto de ZMQ
         self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
         self.devices = {}  # Dispositivos conectados
-        self.privkey_paillier = None  # Clave privada del nodo
-        self.pubkey_paillier = None  # Clave pública del nodo
-        self.privkeyring_dj = None
-        self.pubkey_dj = None
+        self.paillier = Paillier()
+        self.damgard_jurik = DamgardJurik()
         self.myData = set(
-            random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo (set de 10 números aleatorios)
+            random.sample(range(DEFL_DOMAIN),
+                          DEFL_SET_SIZE))  # Conjunto de datos del nodo (set de 10 números aleatorios)
         self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
         self.results = {}  # Resultados de las intersecciones
+        self.intersection_handler = IntersectionHandler(self.myData, self.devices, self.results, self.id, self.domain)
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
-        # Por defecto se generan las claves del nodo usando la implementación de Paillier de phe
-        self.privkey_paillier, self.pubkey_paillier = generate_paillier_keys()
-        self.pubkey_dj, self.privkeyring_dj = generate_keypair_dj()
         print(
-            f"Node {self.id} (You) - Paillier keys generated - Objects: {self.privkey_paillier} - {self.pubkey_paillier}")
+            f"Node {self.id} (You) - Paillier keys generated - Objects: {self.paillier.private_key} - {self.paillier.public_key}")
         print(
-            f"Node {self.id} (You) - Damgard-Jurik keys generated - Objects: {self.pubkey_dj} - {self.privkeyring_dj}")
+            f"Node {self.id} (You) - Damgard-Jurik keys generated - Objects: {self.damgard_jurik.private_key_ring} - {self.damgard_jurik.public_key}")
         print(f"Node {self.id} (You) - My data: {self.myData}")
 
         # Iniciar el socket ROUTER en un hilo
@@ -132,16 +125,20 @@ class Node:
             peer_data = json.loads(message)
             crypto_scheme = peer_data.pop('cryptpscheme')
             if crypto_scheme == "Paillier":
-                t = threading.Thread(target=self.paillier_intersection_final_step, args=(peer_data,))
+                t = threading.Thread(target=self.intersection_handler.intersection_final_step,
+                                     args=(peer_data, self.paillier))
                 t.start()
             elif crypto_scheme == "Damgard-Jurik" or crypto_scheme == "DamgardJurik":
-                t = threading.Thread(target=self.damgard_jurik_intersection_final_step, args=(peer_data,))
+                t = threading.Thread(target=self.intersection_handler.intersection_final_step,
+                                     args=(peer_data, self.damgard_jurik))
                 t.start()
             elif crypto_scheme == "Paillier_OPE" or crypto_scheme == "Paillier OPE":
-                t = threading.Thread(target=self.paillier_intersection_final_step_ope, args=(peer_data,))
+                t = threading.Thread(target=self.intersection_handler.intersection_final_step_ope,
+                                     args=(peer_data, self.paillier))
                 t.start()
             elif crypto_scheme == "Damgard-Jurik_OPE" or crypto_scheme == "DamgardJurik OPE":
-                t = threading.Thread(target=self.damgard_jurik_intersection_final_step_ope, args=(peer_data,))
+                t = threading.Thread(target=self.intersection_handler.intersection_final_step_ope,
+                                     args=(peer_data, self.damgard_jurik))
                 t.start()
         except json.JSONDecodeError:
             print("Received message is not a valid JSON.")
@@ -212,9 +209,9 @@ class Node:
         thread_data = ThreadData()
         Logs.start_logging(thread_data)
         if cs == "Paillier":
-            self.privkey_paillier, self.pubkey_paillier = generate_paillier_keys()
+            self.paillier = Paillier()
         elif cs == "Damgard-Jurik":
-            self.pubkey_dj, self.privkeyring_dj = generate_keypair_dj()
+            self.damgard_jurik = DamgardJurik()
         end_time = time.time()
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
@@ -249,46 +246,38 @@ class Node:
         start_time = time.time()
         thread_data = ThreadData()
         Logs.start_logging(thread_data)
-        peer_data = extract_peer_data(message)
+        peer_data = extract_peer_data(message, self.paillier, self.damgard_jurik)
         implementation = peer_data['implementation']
 
         if implementation == "Paillier":
-            encrypted_set = get_encrypted_set(peer_data['data'], peer_data['pubkey'])
-            self.handle_paillier(peer_data, encrypted_set)
+            peer_data, encrypted_set, cryptscheme = self.intersection_handler.handle_intersection(peer_data,
+                                                                                                  self.paillier,
+                                                                                                  peer_data['pubkey'])
+            self.send_message(peer_data, encrypted_set, cryptscheme)
         elif implementation == "Damgard-Jurik" or implementation == "DamgardJurik":
-            encrypted_set = get_encrypted_set_dj(peer_data['data'], peer_data['pubkey'])
-            self.handle_damgard_jurik(peer_data, encrypted_set)
+            peer_data, encrypted_set, cryptscheme = self.intersection_handler.handle_intersection(peer_data,
+                                                                                                  self.damgard_jurik,
+                                                                                                  peer_data['pubkey'])
+            self.send_message(peer_data, encrypted_set, cryptscheme)
         elif implementation == "Paillier_OPE" or implementation == "Paillier OPE":
-            self.handle_paillier_ope(peer_data, peer_data['data'], peer_data['pubkey'])
+            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.intersection_handler.handle_ope(peer_data,
+                                                                                                      peer_data['data'],
+                                                                                                      peer_data[
+                                                                                                          'pubkey'],
+                                                                                                      self.paillier)
+            self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
         elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
-            self.handle_damgard_jurik_ope(peer_data, peer_data['data'], peer_data['pubkey'])
+            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.intersection_handler.handle_ope(peer_data,
+                                                                                                      peer_data['data'],
+                                                                                                      peer_data[
+                                                                                                          'pubkey'],
+                                                                                                      self.damgard_jurik)
+            self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
 
         end_time = time.time()
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
                           peer_data['peer'])
-
-    def handle_paillier(self, peer_data, encrypted_set):
-        multiplied_set = get_multiplied_set(encrypted_set, self.myData)
-        self.send_message(peer_data, multiplied_set, 'Paillier')
-
-    def handle_damgard_jurik(self, peer_data, encrypted_set):
-        multiplied_set = get_multiplied_set_dj(encrypted_set, self.myData)
-        self.send_message(peer_data, multiplied_set, 'Damgard-Jurik')
-
-    def handle_paillier_ope(self, peer_data, coeffs, pubkey):
-        my_data = [int(element) for element in self.myData]
-        pubkey = reconstruct_public_key(pubkey)
-        coeffs = get_encrypted_list(coeffs, pubkey)
-        encrypted_evaluated_coeffs = eval_coefficients(coeffs, pubkey, my_data)
-        self.send_message(peer_data, encrypted_evaluated_coeffs, 'Paillier_OPE')
-
-    def handle_damgard_jurik_ope(self, peer_data, coeffs, pubkey):
-        my_data = [int(element) for element in self.myData]
-        pubkey = reconstruct_public_key_dj(pubkey)
-        coeffs = get_encrypted_list_dj(coeffs, pubkey)
-        encrypted_evaluated_coeffs = eval_coefficients_dj(coeffs, pubkey, my_data)
-        self.send_message(peer_data, encrypted_evaluated_coeffs, 'Damgard-Jurik_OPE')
 
     def send_message(self, peer_data, set, cryptpscheme):
         set_to_send = {}
@@ -305,146 +294,34 @@ class Node:
         message = {'data': set_to_send, 'peer': self.id, 'cryptpscheme': cryptpscheme}
         self.devices[peer_data['peer']]["socket"].send_json(message)
 
-    def intersection_final_step(self, peer_data, decrypt_function, implementation):
-        multiplied_set = {}
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
-        if implementation == "Paillier":
-            multiplied_set = recv_multiplied_set(peer_data['data'], self.pubkey_paillier)
-        elif implementation == "Damgard-Jurik":
-            multiplied_set = recv_multiplied_set_dj(peer_data['data'], self.pubkey_dj)
-        device = peer_data['peer']
-        for element, encrypted_value in multiplied_set.items():
-            multiplied_set[element] = decrypt_function(encrypted_value)
-        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
-        self.results[device] = multiplied_set
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_F", end_time - start_time, VERSION, self.id,
-                          device)
-        # Make multiplied_set serializable
-        multiplied_set = list(multiplied_set)
-        Logs.log_result("INTERSECTION_" + implementation, multiplied_set, VERSION, self.id, device)
-        print(f"Intersection with {device} - {implementation} - Result: {multiplied_set}")
-
-    def paillier_intersection_final_step(self, peer_data):
-        t = threading.Thread(target=self.intersection_final_step,
-                             args=(peer_data, self.privkey_paillier.decrypt, 'Paillier'))
-        t.start()
-
-    def damgard_jurik_intersection_final_step(self, peer_data):
-        t = threading.Thread(target=self.intersection_final_step,
-                             args=(peer_data, self.privkeyring_dj.decrypt, 'Damgard-Jurik'))
-        t.start()
-
-    def damgard_jurik_intersection_final_step_ope(self, peer_data):
-        t = threading.Thread(target=self.intersection_final_step_ope,
-                             args=(peer_data, self.privkeyring_dj.decrypt, 'Damgard-Jurik_OPE'))
-        t.start()
-
-    def paillier_intersection_final_step_ope(self, peer_data):
-        t = threading.Thread(target=self.intersection_final_step_ope,
-                             args=(peer_data, self.privkey_paillier.raw_decrypt, 'Paillier_OPE'))
-        t.start()
-
-    def intersection_first_step(self, device, encrypt_function, serialize_function, pubkey, implementation):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
-        encrypted_data = encrypt_function(self.myData, pubkey, self.domain)
-        serialized_pubkey = serialize_function(pubkey)
-        if implementation == "Paillier":
-            for element, encrypted_value in encrypted_data.items():
-                encrypted_data[element] = str(encrypted_value.ciphertext())
-        elif implementation == "Damgard-Jurik" or implementation == "DamgardJurik":
-            for element, encrypted_value in encrypted_data.items():
-                encrypted_data[element] = str(encrypted_value.value)
-        print(f"Intersection with {device} - {implementation} - Sending data: {encrypted_data}")
-        message = {'data': encrypted_data, 'implementation': implementation, 'peer': self.id,
-                   'pubkey': serialized_pubkey}
-        self.devices[device]["socket"].send_json(message)
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
-                          device)
-
     def dj_intersection_first_step(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.intersection_first_step, args=(
-                device, encrypt_my_data_dj, serialize_public_key_dj, self.pubkey_dj, 'Damgard-Jurik'))
+            t = threading.Thread(target=self.intersection_handler.intersection_first_step,
+                                 args=(device, self.damgard_jurik))
             t.start()
             return "Intersection with " + device + " - Damgard-Jurik - Thread started, check logs"
         return "Device not found"
 
     def paillier_intersection_first_step(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.intersection_first_step,
-                                 args=(device, encrypt_my_data, serialize_public_key, self.pubkey_paillier, 'Paillier'))
+            t = threading.Thread(target=self.intersection_handler.intersection_first_step,
+                                 args=(device, self.paillier))
             t.start()
             return "Intersection with " + device + " - Paillier - Thread started, check logs"
         return "Device not found"
 
-    def intersection_first_step_ope(self, device, implementation, serialize_function, encrypt_function, pubkey):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
-        serialized_pubkey = serialize_function(pubkey)
-        my_data = [int(element) for element in self.myData]
-        coeffs = polinomio_raices(my_data)
-        encrypted_coeffs = [encrypt_function(pubkey, coeff) for coeff in coeffs]
-        if implementation == "Paillier_OPE" or implementation == "Paillier OPE":
-            encrypted_coeffs = [str(encrypted_value.ciphertext()) for encrypted_value in encrypted_coeffs]
-        elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
-            encrypted_coeffs = [str(encrypted_value.value) for encrypted_value in encrypted_coeffs]
-
-        print(f"Intersection with {device} - {implementation} - Sending coeffs: {encrypted_coeffs}")
-        message = {'data': encrypted_coeffs, 'implementation': implementation, 'peer': self.id,
-                   'pubkey': serialized_pubkey}
-        self.devices[device]["socket"].send_json(message)
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_1", end_time - start_time, VERSION, self.id,
-                          device)
-
     def paillier_intersection_first_step_ope(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.intersection_first_step_ope,
-                                 args=(device, 'Paillier_OPE', serialize_public_key, encrypt,
-                                       self.pubkey_paillier))
+            t = threading.Thread(target=self.intersection_handler.intersection_first_step_ope,
+                                 args=(device, self.paillier))
             t.start()
             return "Intersection with " + device + " - Paillier - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
 
     def dj_intersection_first_step_ope(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.intersection_first_step_ope,
-                                 args=(device, 'Damgard-Jurik_OPE', serialize_public_key_dj, encrypt_dj,
-                                       self.pubkey_dj))
+            t = threading.Thread(target=self.intersection_handler.intersection_first_step_ope,
+                                 args=(device, self.damgard_jurik))
             t.start()
             return "Intersection with " + device + " - Damgard-Jurik - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
-
-    def intersection_final_step_ope(self, peer_data, decrypt, param):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
-        result = []
-        if param == "Paillier_OPE":
-            result = get_encrypted_list_f(peer_data['data'])
-        elif param == "Damgard-Jurik_OPE":
-            result = get_encrypted_list_dj(peer_data['data'], self.pubkey_dj)
-        result = [int(decrypt(encrypted_value)) for encrypted_value in result]
-        print(f"Intersection with {peer_data['peer']} - {param} - Raw results: {result}")
-        device = peer_data['peer']
-        result_formatted = []
-        for element in result:
-            if element in self.myData:
-                result_formatted.append(element)
-        self.results[device] = result_formatted
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + param + "_F", end_time - start_time, VERSION, self.id,
-                          device)
-        Logs.log_result("INTERSECTION_" + param, result_formatted, VERSION, self.id, device)
-        print(f"Intersection with {device} - {param} - Result: {result_formatted}")
