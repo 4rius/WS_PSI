@@ -126,6 +126,7 @@ class IntersectionHandler:
                           device)
 
     def handle_intersection(self, peer_data, cs, pubkey):
+        pubkey = cs.reconstruct_public_key(pubkey)
         multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data['data'], pubkey), self.my_data)
         return peer_data, multiplied_set, cs.__class__.__name__
 

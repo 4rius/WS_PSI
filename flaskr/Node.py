@@ -7,7 +7,6 @@ import zmq
 
 from flaskr import Logs
 from flaskr.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE, VERSION
-from flaskr.JSONExtractor import extract_peer_data
 from flaskr.Logs import ThreadData
 from flaskr.handlers.IntersectionHandler import IntersectionHandler
 from flaskr.implementations.Damgard_jurik import DamgardJurik
@@ -246,7 +245,12 @@ class Node:
         start_time = time.time()
         thread_data = ThreadData()
         Logs.start_logging(thread_data)
-        peer_data = extract_peer_data(message, self.paillier, self.damgard_jurik)
+        try:
+            peer_data = json.loads(message)
+        except json.JSONDecodeError:
+            print("Received message is not a valid JSON.")
+            return "Received message is not a valid JSON."
+
         implementation = peer_data['implementation']
 
         if implementation == "Paillier":
