@@ -158,5 +158,5 @@ class IntersectionHandler:
         my_data = [int(element) for element in self.my_data]
         pubkey = cs.reconstruct_public_key(pubkey)
         coeffs = cs.get_encrypted_list(coeffs, pubkey)
-        result = cs.get_cardinality(self, coeffs, pubkey, my_data)
+        result = cs.get_cardinality(coeffs, pubkey, my_data)
         return result
