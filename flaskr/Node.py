@@ -278,12 +278,20 @@ class Node:
                                                                                                       self.damgard_jurik)
             self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
 
+        elif implementation == "Paillier PSI-CA OPE":
+            result = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.paillier)
+            self.send_message(peer_data, result, "Paillier PSI-CA OPE", "CA")
+
         end_time = time.time()
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
                           peer_data['peer'])
 
-    def send_message(self, peer_data, set, cryptpscheme):
+    def send_message(self, peer_data, set, cryptpscheme, type="PSI"):
+        if type == "CA":
+            message = {'data': set, 'peer': self.id, 'cryptpscheme': cryptpscheme}
+            self.devices[peer_data['peer']]["socket"].send_json(message)
+            return
         set_to_send = {}
         if cryptpscheme == "Paillier":
             set_to_send = {element: str(encrypted_value.ciphertext()) for
@@ -314,10 +322,10 @@ class Node:
             return "Intersection with " + device + " - Paillier - Thread started, check logs"
         return "Device not found"
 
-    def paillier_intersection_first_step_ope(self, device):
+    def paillier_intersection_first_step_ope(self, device, type="PSI"):
         if device in self.devices:
             t = threading.Thread(target=self.intersection_handler.intersection_first_step_ope,
-                                 args=(device, self.paillier))
+                                 args=(device, self.paillier, type))
             t.start()
             return "Intersection with " + device + " - Paillier - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"

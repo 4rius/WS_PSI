@@ -14,7 +14,7 @@ class IntersectionHandler:
         self.id = id
         self.domain = domain
 
-    def intersection_first_step_ope(self, device, cs):
+    def intersection_first_step_ope(self, device, cs, type):
         """
         This method performs the first step of the intersection operation using Oblivious Polynomial Evaluation (OPE)
 
@@ -43,7 +43,11 @@ class IntersectionHandler:
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
         print(f"Intersection with {device} - {cs.__class__.__name__}_OPE - Sending coeffs: {encrypted_coeffs}")
-        message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' OPE'), 'peer': self.id,
+        if type == "PSI-CA":
+            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' PSI-CA OPE'), 'peer': self.id,
+                       'pubkey': serialized_pubkey}
+        else:
+            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' OPE'), 'peer': self.id,
                    'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
         end_time = time.time()
@@ -149,3 +153,10 @@ class IntersectionHandler:
         multiplied_set = list(multiplied_set)
         Logs.log_result("INTERSECTION_" + cs.__class__.__name__, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.__class__.__name__} - Result: {multiplied_set}")
+
+    def handle_psi_ca_ope(self, coeffs, pubkey, cs):
+        my_data = [int(element) for element in self.my_data]
+        pubkey = cs.reconstruct_public_key(pubkey)
+        coeffs = cs.get_encrypted_list(coeffs, pubkey)
+        result = cs.get_cardinality(self, coeffs, pubkey, my_data)
+        return result

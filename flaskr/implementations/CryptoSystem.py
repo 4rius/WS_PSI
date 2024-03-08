@@ -47,3 +47,6 @@ class CryptoSystem:
 
     def get_ciphertext(self, encrypted_number):
         raise NotImplementedError
+
+    def get_cardinality(self, coeffs, pubkey, my_data):
+        raise NotImplementedError
