@@ -288,7 +288,7 @@ class Node:
                           peer_data['peer'])
 
     def send_message(self, peer_data, set, cryptpscheme, type="PSI"):
-        if type == "CA":
+        if type == "PSI-CA":
             message = {'data': set, 'peer': self.id, 'cryptpscheme': cryptpscheme}
             self.devices[peer_data['peer']]["socket"].send_json(message)
             return
