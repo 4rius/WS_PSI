@@ -283,19 +283,15 @@ class Node:
             self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
 
         elif implementation == "Paillier PSI-CA OPE":
-            result = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.paillier)
-            self.send_message(peer_data, result, "Paillier PSI-CA OPE", "CA")
+            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.paillier)
+            self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
 
         end_time = time.time()
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
                           peer_data['peer'])
 
-    def send_message(self, peer_data, set, cryptpscheme, type="PSI"):
-        if type == "PSI-CA":
-            message = {'data': set, 'peer': self.id, 'cryptpscheme': cryptpscheme}
-            self.devices[peer_data['peer']]["socket"].send_json(message)
-            return
+    def send_message(self, peer_data, set, cryptpscheme):
         set_to_send = {}
         if cryptpscheme == "Paillier":
             set_to_send = {element: str(encrypted_value.ciphertext()) for
@@ -303,7 +299,7 @@ class Node:
         elif cryptpscheme == "Damgard-Jurik" or cryptpscheme == "DamgardJurik":
             set_to_send = {element: str(encrypted_value.value) for
                            element, encrypted_value in set.items()}
-        elif cryptpscheme == "Paillier_OPE" or cryptpscheme == "Paillier OPE":
+        elif cryptpscheme == "Paillier_OPE" or cryptpscheme == "Paillier OPE" or cryptpscheme == "Paillier PSI-CA OPE":
             set_to_send = [str(encrypted_value.ciphertext()) for encrypted_value in set]
         elif cryptpscheme == "Damgard-Jurik_OPE" or cryptpscheme == "DamgardJurik OPE":
             set_to_send = [str(encrypted_value.value) for encrypted_value in set]

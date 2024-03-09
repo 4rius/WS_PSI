@@ -165,7 +165,6 @@ class IntersectionHandler:
         start_time = time.time()
         thread_data = ThreadData()
         Logs.start_logging(thread_data)
-        cardinality = 0
         result = cs.get_encrypted_list_f(peer_data['data'])
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} PSI-CA OPE - Raw results: {result}")
