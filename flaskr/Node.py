@@ -140,7 +140,7 @@ class Node:
                                      args=(peer_data, self.damgard_jurik))
                 t.start()
             elif crypto_scheme == "Paillier PSI-CA OPE":
-                t = threading.Thread(target=self.intersection_handler.intersection_final_step_psi_ca_ope,
+                t = threading.Thread(target=self.intersection_handler.final_step_psi_ca_ope,
                                      args=(peer_data, self.paillier))
                 t.start()
         except json.JSONDecodeError:

@@ -161,7 +161,7 @@ class IntersectionHandler:
         result = cs.get_evaluations(coeffs, pubkey, my_data)
         return result
 
-    def intersection_final_step_psi_ca_ope(self, peer_data, cs):
+    def final_step_psi_ca_ope(self, peer_data, cs):
         start_time = time.time()
         thread_data = ThreadData()
         Logs.start_logging(thread_data)
