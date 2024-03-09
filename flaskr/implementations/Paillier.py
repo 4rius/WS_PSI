@@ -116,14 +116,11 @@ class Paillier(CryptoSystem):
             encrypted_results.append(pubkey.encrypt(element)._add_encrypted(rb * Epbj))
         return encrypted_results
 
-    def get_cardinality(self, coeffs, pubkey, my_data):
+    def get_evaluations(self, coeffs, pubkey, my_data):
         print("Evaluamos el polinomio en los elementos del set B")
-        cardinality = 0
+        evaluations = []
         for element in my_data:
-            rb = random.randint(1, 1000)
-            Epbj = self.horner_encrypted_eval(coeffs, element)
-            encrypted_res = pubkey.encrypt(element)
-            encrypted_evaluated = encrypted_res._add_encrypted(rb * Epbj)
-            if encrypted_evaluated.ciphertext() != encrypted_res.ciphertext():
-                cardinality += 1
-        return cardinality
+            evaluations.append(self.horner_encrypted_eval(coeffs, element))
+        # Randomize the order of the evaluations
+        random.shuffle(evaluations)
+        return evaluations

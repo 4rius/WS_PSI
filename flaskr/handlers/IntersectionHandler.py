@@ -158,5 +158,25 @@ class IntersectionHandler:
         my_data = [int(element) for element in self.my_data]
         pubkey = cs.reconstruct_public_key(pubkey)
         coeffs = cs.get_encrypted_list(coeffs, pubkey)
-        result = cs.get_cardinality(coeffs, pubkey, my_data)
+        result = cs.get_evaluations(coeffs, pubkey, my_data)
         return result
+
+    def intersection_final_step_psi_ca_ope(self, peer_data, cs):
+        start_time = time.time()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
+        cardinality = 0
+        result = cs.get_encrypted_list_f(peer_data['data'])
+        result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
+        print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} PSI-CA OPE - Raw results: {result}")
+        device = peer_data['peer']
+        # When the element is 0, it means it's in the intersection
+        cardinality = sum([int(element == 0) for element in result])
+        self.results[device] = cardinality
+        end_time = time.time()
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_PSI-CA_OPE_F", end_time - start_time, VERSION,
+                          self.id,
+                          device)
+        Logs.log_result("CARDINALITY_" + (cs.__class__.__name__ + '_OPE'), cardinality, VERSION, self.id, device)
+        print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
