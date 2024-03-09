@@ -330,10 +330,10 @@ class Node:
             return "Intersection with " + device + " - Paillier - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
 
-    def dj_intersection_first_step_ope(self, device):
+    def dj_intersection_first_step_ope(self, device, type="PSI"):
         if device in self.devices:
             t = threading.Thread(target=self.intersection_handler.intersection_first_step_ope,
-                                 args=(device, self.damgard_jurik))
+                                 args=(device, self.damgard_jurik, type))
             t.start()
             return "Intersection with " + device + " - Damgard-Jurik - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"

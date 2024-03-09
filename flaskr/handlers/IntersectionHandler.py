@@ -14,7 +14,7 @@ class IntersectionHandler:
         self.id = id
         self.domain = domain
 
-    def intersection_first_step_ope(self, device, cs, type):
+    def intersection_first_step_ope(self, device, cs, type="PSI"):
         """
         This method performs the first step of the intersection operation using Oblivious Polynomial Evaluation (OPE)
 
