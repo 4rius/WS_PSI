@@ -120,7 +120,9 @@ class Paillier(CryptoSystem):
         print("Evaluamos el polinomio en los elementos del set B")
         evaluations = []
         for element in my_data:
-            evaluations.append(self.horner_encrypted_eval(coeffs, element))
+            rb = random.randint(1, 1000)
+            Epbj = self.horner_encrypted_eval(coeffs, element)
+            evaluations.append(pubkey.encrypt(0)._add_encrypted(rb * Epbj))
         # Randomize the order of the evaluations
         random.shuffle(evaluations)
         return evaluations
