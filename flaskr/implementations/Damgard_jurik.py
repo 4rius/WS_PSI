@@ -89,3 +89,12 @@ class DamgardJurik(CryptoSystem):
             Epbj = self.horner_encrypted_eval(coefs, element)
             encrypted_results.append(pubkey.encrypt(element) + rb * Epbj)
         return encrypted_results
+
+    def get_evaluations(self, coefs, pubkey, my_data):
+        print("Evaluamos el polinomio en los elementos del set B")
+        evaluations = []
+        for element in my_data:
+            rb = random.randint(1, 1000)
+            Epbj = self.horner_encrypted_eval(coefs, element)
+            evaluations.append(pubkey.encrypt(0) + rb * Epbj)
+        return evaluations

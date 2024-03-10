@@ -44,7 +44,8 @@ function update_devices() {
             ' <button class="btn waves-effect waves-light" onclick="int_dj(\'' + key + '\')">Damgard-Jurik</button></p>' +
             ' <button class="btn waves-effect waves-light" onclick="int_paillier_ope(\'' + key + '\')">Paillier - OPE</button>' +
             ' <button class="btn waves-effect waves-light" onclick="int_dj_ope(\'' + key + '\')">Damgard-Jurik - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="ca_paillier(\'' + key + '\')">Cardinality - Paillier</button>');
+            ' <button class="btn waves-effect waves-light" onclick="ca_paillier(\'' + key + '\')">Cardinality - Paillier</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="ca_dj(\'' + key + '\')">Public Key</button>');
         });
     });
 }
@@ -143,7 +144,18 @@ function ca_paillier(device) {
     .fail(function() {
         M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
     });
+}
 
+function ca_dj(device) {
+    $.post('/api/ca_dj/' + device, function(data){
+    })
+    .done(function(data) {
+        const message = data.status;
+        M.toast({html: message});
+    })
+    .fail(function() {
+        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
+    });
 }
 
 

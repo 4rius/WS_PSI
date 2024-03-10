@@ -95,6 +95,10 @@ def create_app(test_config=None):
     def api_ca_paillier(device):
         return jsonify({'status': node.paillier_intersection_first_step_ope(device, "PSI-CA")})
 
+    @app.route('/api/ca_dj/<device>', methods=['POST'])
+    def api_ca_dj(device):
+        return jsonify({'status': node.dj_intersection_first_step_ope(device, "PSI-CA")})
+
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():
         return jsonify({'dataset': list(node.myData)})

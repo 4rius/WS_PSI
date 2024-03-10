@@ -286,6 +286,10 @@ class Node:
             evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.paillier)
             self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
 
+        elif implementation == "Damgard-Jurik PSI-CA OPE":
+            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.damgard_jurik)
+            self.send_message(peer_data, evaluations, "Damgard-Jurik PSI-CA OPE")
+
         end_time = time.time()
         Logs.stop_logging(thread_data)
         Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
