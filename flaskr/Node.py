@@ -143,6 +143,10 @@ class Node:
                 t = threading.Thread(target=self.intersection_handler.final_step_psi_ca_ope,
                                      args=(peer_data, self.paillier))
                 t.start()
+            elif crypto_scheme == "Damgard-Jurik PSI-CA OPE":
+                t = threading.Thread(target=self.intersection_handler.final_step_psi_ca_ope,
+                                     args=(peer_data, self.damgard_jurik))
+                t.start()
         except json.JSONDecodeError:
             print("Received message is not a valid JSON.")
 
@@ -283,11 +287,13 @@ class Node:
             self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
 
         elif implementation == "Paillier PSI-CA OPE":
-            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.paillier)
+            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'],
+                                                                      self.paillier)
             self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
 
         elif implementation == "Damgard-Jurik PSI-CA OPE":
-            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'], self.damgard_jurik)
+            evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'],
+                                                                      self.damgard_jurik)
             self.send_message(peer_data, evaluations, "Damgard-Jurik PSI-CA OPE")
 
         end_time = time.time()
@@ -305,7 +311,7 @@ class Node:
                            element, encrypted_value in set.items()}
         elif cryptpscheme == "Paillier_OPE" or cryptpscheme == "Paillier OPE" or cryptpscheme == "Paillier PSI-CA OPE":
             set_to_send = [str(encrypted_value.ciphertext()) for encrypted_value in set]
-        elif cryptpscheme == "Damgard-Jurik_OPE" or cryptpscheme == "DamgardJurik OPE":
+        elif cryptpscheme == "Damgard-Jurik_OPE" or cryptpscheme == "DamgardJurik OPE" or cryptpscheme == "Damgard-Jurik PSI-CA OPE":
             set_to_send = [str(encrypted_value.value) for encrypted_value in set]
         message = {'data': set_to_send, 'peer': self.id, 'cryptpscheme': cryptpscheme}
         self.devices[peer_data['peer']]["socket"].send_json(message)
