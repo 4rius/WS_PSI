@@ -45,7 +45,7 @@ function update_devices() {
             ' <button class="btn waves-effect waves-light" onclick="int_paillier_ope(\'' + key + '\')">Paillier - OPE</button>' +
             ' <button class="btn waves-effect waves-light" onclick="int_dj_ope(\'' + key + '\')">Damgard-Jurik - OPE</button>' +
             ' <button class="btn waves-effect waves-light" onclick="ca_paillier(\'' + key + '\')">Cardinality - Paillier</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="ca_dj(\'' + key + '\')">Public Key</button>');
+            ' <button class="btn waves-effect waves-light" onclick="ca_dj(\'' + key + '\')">Cardinality - Damgard-Jurik</button>');
         });
     });
 }

@@ -143,7 +143,7 @@ class Node:
                 t = threading.Thread(target=self.intersection_handler.final_step_psi_ca_ope,
                                      args=(peer_data, self.paillier))
                 t.start()
-            elif crypto_scheme == "Damgard-Jurik PSI-CA OPE":
+            elif crypto_scheme == "Damgard-Jurik PSI-CA OPE" or crypto_scheme == "DamgardJurik PSI-CA OPE":
                 t = threading.Thread(target=self.intersection_handler.final_step_psi_ca_ope,
                                      args=(peer_data, self.damgard_jurik))
                 t.start()
@@ -291,7 +291,7 @@ class Node:
                                                                       self.paillier)
             self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
 
-        elif implementation == "Damgard-Jurik PSI-CA OPE":
+        elif implementation == "Damgard-Jurik PSI-CA OPE" or implementation == "DamgardJurik PSI-CA OPE":
             evaluations = self.intersection_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'],
                                                                       self.damgard_jurik)
             self.send_message(peer_data, evaluations, "Damgard-Jurik PSI-CA OPE")
