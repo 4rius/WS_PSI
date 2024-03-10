@@ -298,8 +298,14 @@ class Node:
 
         end_time = time.time()
         Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION, self.id,
-                          peer_data['peer'])
+        if implementation.endswith("PSI-CA OPE"):
+            Logs.log_activity(thread_data, "CARDINALITY_" + implementation + "_2", end_time - start_time, VERSION,
+                              self.id,
+                              peer_data['peer'])
+        else:
+            Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION,
+                              self.id,
+                              peer_data['peer'])
 
     def send_message(self, peer_data, set, cryptpscheme):
         set_to_send = {}

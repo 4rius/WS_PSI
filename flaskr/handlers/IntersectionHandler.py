@@ -174,8 +174,8 @@ class IntersectionHandler:
         self.results[device] = cardinality
         end_time = time.time()
         Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_PSI-CA_OPE_F", end_time - start_time, VERSION,
+        Logs.log_activity(thread_data, "CARDINALITY_" + cs.__class__.__name__ + "_F", end_time - start_time, VERSION,
                           self.id,
                           device)
-        Logs.log_result("CARDINALITY_" + (cs.__class__.__name__ + '_OPE'), cardinality, VERSION, self.id, device)
+        Logs.log_result((cs.__class__.__name__ + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
