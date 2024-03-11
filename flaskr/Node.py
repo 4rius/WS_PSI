@@ -353,3 +353,10 @@ class Node:
             t.start()
             return "Intersection with " + device + " - Damgard-Jurik - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
+
+    def launch_test(self, device):
+        if device in self.devices:
+            t = threading.Thread(target=self.intersection_handler.test_launcher, args=(device, self.paillier, self.damgard_jurik))
+            t.start()
+            return "A thread is launching a massive test with " + device + " - Check logs"
+        return "Device not found"

@@ -127,4 +127,8 @@ def create_app(test_config=None):
     def api_metrics():
         return Logs.get_logs(node.id)
 
+    @app.route('/api/test/<device>', methods=['POST'])
+    def api_test(device):
+        return jsonify({'status': node.launch_test(device)})
+
     return app

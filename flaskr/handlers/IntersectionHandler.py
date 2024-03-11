@@ -1,7 +1,7 @@
 import time
 
 from flaskr import Logs
-from flaskr.DbConstants import VERSION
+from flaskr.DbConstants import VERSION, TEST_ROUNDS
 from flaskr.Logs import ThreadData
 from flaskr.implementations.Polynomials import polinomio_raices
 
@@ -44,15 +44,17 @@ class IntersectionHandler:
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
         print(f"Intersection with {device} - {cs.__class__.__name__}_OPE - Sending coeffs: {encrypted_coeffs}")
         if type == "PSI-CA":
-            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' PSI-CA OPE'), 'peer': self.id,
+            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' PSI-CA OPE'),
+                       'peer': self.id,
                        'pubkey': serialized_pubkey}
         else:
             message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' OPE'), 'peer': self.id,
-                   'pubkey': serialized_pubkey}
+                       'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
         end_time = time.time()
         Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_1", end_time - start_time, VERSION,
+        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_1", end_time - start_time,
+                          VERSION,
                           self.id,
                           device)
 
@@ -106,7 +108,8 @@ class IntersectionHandler:
         self.results[device] = result_formatted
         end_time = time.time()
         Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_F", end_time - start_time, VERSION,
+        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_F", end_time - start_time,
+                          VERSION,
                           self.id,
                           device)
         Logs.log_result("INTERSECTION_" + (cs.__class__.__name__ + '_OPE'), result_formatted, VERSION, self.id, device)
@@ -118,7 +121,8 @@ class IntersectionHandler:
         Logs.start_logging(thread_data)
         encrypted_data = cs.encrypt_my_data(self.my_data, self.domain)
         serialized_pubkey = cs.serialize_public_key()
-        encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in encrypted_data.items()}
+        encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
+                          encrypted_data.items()}
         print(f"Intersection with {device} - {cs.__class__.__name__} - Sending data: {encrypted_data}")
         message = {'data': encrypted_data, 'implementation': cs.__class__.__name__, 'peer': self.id,
                    'pubkey': serialized_pubkey}
@@ -179,3 +183,13 @@ class IntersectionHandler:
                           device)
         Logs.log_result((cs.__class__.__name__ + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
+
+    def test_launcher(self, device, cs1, cs2):
+        for i in range(TEST_ROUNDS):
+            self.intersection_first_step(device, cs1)
+            self.intersection_first_step_ope(device, cs1)
+            self.intersection_first_step_ope(device, cs1, "PSI-CA")
+            self.intersection_first_step(device, cs2)
+            self.intersection_first_step_ope(device, cs2)
+            self.intersection_first_step_ope(device, cs2, "PSI-CA")
+
