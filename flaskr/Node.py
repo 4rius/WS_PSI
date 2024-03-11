@@ -26,7 +26,7 @@ class Node:
         self.damgard_jurik = DamgardJurik()
         self.myData = set(
             random.sample(range(DEFL_DOMAIN),
-                          DEFL_SET_SIZE))  # Conjunto de datos del nodo (set de 10 números aleatorios)
+                          DEFL_SET_SIZE))  # Conjunto de datos del nodo
         self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
         self.results = {}  # Resultados de las intersecciones
         self.intersection_handler = IntersectionHandler(self.myData, self.devices, self.results, self.id, self.domain)
