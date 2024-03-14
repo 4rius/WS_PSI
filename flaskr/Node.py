@@ -48,8 +48,8 @@ class Node:
                 peer = peer.split("]:")[0] + "]"
             else:  # Si es una dirección IPv4
                 peer = peer.split(":")[0]
-            self.devices[peer] = {"socket": dealer_socket,
-                                  "last_seen": None}  # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,  # se le enviará un mensaje de bienvenida y se actualizará su timestamp  # Cada peer tiene un socket DEALER para enviar mensajes
+            self.devices[peer] = {"socket": dealer_socket,"last_seen": None}
+            # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,  # se le enviará un mensaje de bienvenida y se actualizará su timestamp  # Cada peer tiene un socket DEALER para enviar mensajes
 
     def start_router_socket(self):
         # Iniciar el socket ROUTER
@@ -330,7 +330,7 @@ class Node:
 
     def launch_test(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.test_launcher, args=device)
+            t = threading.Thread(target=self.scheme_handler.test_launcher, args=(device, ))
             t.start()
             return "A thread is launching a massive test with " + device + " - Check logs"
         return "Device not found"
