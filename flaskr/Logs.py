@@ -28,7 +28,7 @@ class ThreadData:
         self.stop_event = threading.Event()
 
 
-def log_activity(thread_data, activity_code, time, version, id, peer=False):
+def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
     formatted_id = id.replace(".", "-")
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
@@ -37,7 +37,7 @@ def log_activity(thread_data, activity_code, time, version, id, peer=False):
         "version": version,
         "type": "Desktop (Flask): " + get_system_info(),
         "activity_code": activity_code,
-        "time": round(time, 2),
+        "time": round(ttlog, 2),
         "Avg_RAM": get_ram_info(thread_data),
         "Peak_RAM": str(thread_data.peak_ram_usage) + " MB",
         "Avg_instance_RAM": str(thread_data.avg_instance_ram_usage) + " MB",

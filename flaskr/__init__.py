@@ -72,8 +72,8 @@ def create_app(test_config=None):
 
     @app.route('/api/mykeys', methods=['GET'])
     def api_pubkey():
-        return jsonify({'pubkeyN': str(node.pubkey_paillier.n), 'pubkeyG': str(node.pubkey_paillier.g), 'privkeyP': str(node.privkey_paillier.p),
-                        'privkeyQ': str(node.privkey_paillier.q)})
+        return jsonify({'pubkeyN': str(node.scheme_handler.paillier.public_key.n), 'pubkeyG': str(node.scheme_handler.paillier.public_key.g), 'privkeyP': str(node.scheme_handler.paillier.public_key.p),
+                        'privkeyQ': str(node.scheme_handler.paillier.public_key.q)})
 
     @app.route('/api/int_paillier/<device>', methods=['POST'])
     def api_find_intersection(device):
