@@ -3,16 +3,20 @@ import time
 from flaskr import Logs
 from flaskr.DbConstants import VERSION, TEST_ROUNDS
 from flaskr.Logs import ThreadData
+from flaskr.implementations.Damgard_jurik import DamgardJurik
+from flaskr.implementations.Paillier import Paillier
 from flaskr.implementations.Polynomials import polinomio_raices
 
 
-class IntersectionHandler:
+class SchemeHandler:
     def __init__(self, my_data, devices, results, id, domain):
         self.my_data = my_data
         self.devices = devices
         self.results = results
         self.id = id
         self.domain = domain
+        self.paillier = Paillier()
+        self.damgard_jurik = DamgardJurik()
 
     def intersection_first_step_ope(self, device, cs, type="PSI"):
         """
@@ -184,12 +188,23 @@ class IntersectionHandler:
         Logs.log_result((cs.__class__.__name__ + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
 
-    def test_launcher(self, device, cs1, cs2):
+    def test_launcher(self, device):
         for i in range(TEST_ROUNDS):
-            self.intersection_first_step(device, cs1)
-            self.intersection_first_step_ope(device, cs1)
-            self.intersection_first_step_ope(device, cs1, "PSI-CA")
-            self.intersection_first_step(device, cs2)
-            self.intersection_first_step_ope(device, cs2)
-            self.intersection_first_step_ope(device, cs2, "PSI-CA")
+            self.intersection_first_step(device, self.paillier)
+            self.intersection_first_step_ope(device, self.paillier)
+            self.intersection_first_step_ope(device, self.paillier, "PSI-CA")
+            self.intersection_first_step(device, self.damgard_jurik)
+            self.intersection_first_step_ope(device, self.damgard_jurik)
+            self.intersection_first_step_ope(device, self.damgard_jurik, "PSI-CA")
 
+    def genkeys(self, cs):
+        start_time = time.time()
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
+        if cs == "Paillier":
+            self.paillier = Paillier()
+        elif cs == "Damgard-Jurik":
+            self.damgard_jurik = DamgardJurik()
+        end_time = time.time()
+        Logs.stop_logging(thread_data)
+        Logs.log_activity(thread_data, "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
