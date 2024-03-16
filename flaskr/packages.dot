@@ -1,0 +1,14 @@
+digraph "packages" {
+rankdir=BT
+charset="utf-8"
+"flaskr" [color="black", label=<flaskr>, shape="box", style="solid"];
+"flaskr.DbConstants" [color="black", label=<flaskr.DbConstants>, shape="box", style="solid"];
+"flaskr.Logs" [color="black", label=<flaskr.Logs>, shape="box", style="solid"];
+"flaskr.Node" [color="black", label=<flaskr.Node>, shape="box", style="solid"];
+"flaskr.networking" [color="black", label=<flaskr.networking>, shape="box", style="solid"];
+"flaskr.testhomomorphicsubstraction" [color="black", label=<flaskr.testhomomorphicsubstraction>, shape="box", style="solid"];
+"flaskr.tests" [color="black", label=<flaskr.tests>, shape="box", style="solid"];
+"flaskr.tests.testope" [color="black", label=<flaskr.tests.testope>, shape="box", style="solid"];
+"flaskr.tests.testopedj" [color="black", label=<flaskr.tests.testopedj>, shape="box", style="solid"];
+"flaskr.Node" -> "flaskr.DbConstants" [arrowhead="open", arrowtail="none"];
+}
