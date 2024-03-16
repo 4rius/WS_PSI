@@ -62,7 +62,7 @@ def create_app(test_config=None):
 
     @app.route('/api/disconnect', methods=['POST'])
     def api_disconnect():
-        node.join()
+        node.stop()
         return jsonify({'status': 'Disconnected from the network'})
 
     @app.route('/api/connect', methods=['POST'])

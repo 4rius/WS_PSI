@@ -190,19 +190,22 @@ class SchemeHandler:
         print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
 
     def test_launcher(self, device):
+        threads = []
         for i in range(TEST_ROUNDS):
-            t = threading.Thread(target=self.intersection_first_step, args=(device, self.paillier))
-            t.start()
-            t = threading.Thread(target=self.intersection_first_step, args=(device, self.damgard_jurik))
-            t.start()
-            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier))
-            t.start()
-            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik))
-            t.start()
-            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier, "PSI-CA"))
-            t.start()
-            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik, "PSI-CA"))
-            t.start()
+            threads.append(threading.Thread(target=self.intersection_first_step, args=(device, self.paillier)))
+            threads.append(threading.Thread(target=self.intersection_first_step, args=(device, self.damgard_jurik)))
+            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier)))
+            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik)))
+            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier, "PSI-CA")))
+            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik, "PSI-CA")))
+
+        # Iniciar todos los threads
+        for thread in threads:
+            thread.start()
+
+        # Esperar a que todos los threads terminen
+        for thread in threads:
+            thread.join()
 
     def genkeys(self, cs):
         start_time = time.time()

@@ -2,6 +2,7 @@ import json
 import random
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import zmq
 
@@ -24,6 +25,7 @@ class Node:
         self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
         self.results = {}  # Resultados de las intersecciones
         self.scheme_handler = SchemeHandler(self.myData, self.devices, self.results, self.id, self.domain)
+        self.executor = ThreadPoolExecutor(max_workers=10)
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -66,32 +68,31 @@ class Node:
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
             self.handle_message(sender, message, day_time)
-        self.router_socket.close()
-        self.router_socket.unbind(f"tcp://*:{self.port}")
-        self.context.term()
 
     def handle_message(self, sender, message, day_time):
         # Cleaner routing
         message_handlers = {
-            "is pinging you!": self.handle_ping,
             "DISCOVER:": self.handle_discover,
             "DISCOVER_ACK:": self.handle_discover_ack,
             "Added ": self.handle_added
         }
-        if "cryptpscheme" in message and "peer" in message:
+        if message.endswith("is pinging you!"):
+            self.handle_ping(sender, message, day_time)
+        elif "cryptpscheme" in message and "peer" in message:
             self.handle_intersection(message)
         elif message.startswith("{"):
-            t = threading.Thread(target=self.intersection_second_step, args=(message,))
-            t.start()
+            self.executor.submit(self.intersection_second_step, message)
         else:
             for key in message_handlers:
                 if message.startswith(key):
-                    message_handlers[key](sender, message, day_time)
+                    message_handlers[key](message, day_time)
                     return
             self.handle_unknown(message, day_time)
 
     def handle_ping(self, sender, message, day_time):
         peer = message.split(" ")[0]
+        if peer not in self.devices:
+            self.new_peer(peer, day_time)
         self.devices[peer]["last_seen"] = day_time
         self.router_socket.send_multipart([sender, f"{self.id} is up and running!".encode('utf-8')])
 
@@ -118,29 +119,17 @@ class Node:
             peer_data = json.loads(message)
             crypto_scheme = peer_data.pop('cryptpscheme')
             if crypto_scheme == "Paillier":
-                t = threading.Thread(target=self.scheme_handler.intersection_final_step,
-                                     args=(peer_data, self.scheme_handler.paillier))
-                t.start()
+                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data, self.scheme_handler.paillier)
             elif crypto_scheme == "Damgard-Jurik" or crypto_scheme == "DamgardJurik":
-                t = threading.Thread(target=self.scheme_handler.intersection_final_step,
-                                     args=(peer_data, self.scheme_handler.damgard_jurik))
-                t.start()
+                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data, self.scheme_handler.damgard_jurik)
             elif crypto_scheme == "Paillier_OPE" or crypto_scheme == "Paillier OPE":
-                t = threading.Thread(target=self.scheme_handler.intersection_final_step_ope,
-                                     args=(peer_data, self.scheme_handler.paillier))
-                t.start()
+                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data, self.scheme_handler.paillier)
             elif crypto_scheme == "Damgard-Jurik_OPE" or crypto_scheme == "DamgardJurik OPE":
-                t = threading.Thread(target=self.scheme_handler.intersection_final_step_ope,
-                                     args=(peer_data, self.scheme_handler.damgard_jurik))
-                t.start()
+                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data, self.scheme_handler.damgard_jurik)
             elif crypto_scheme == "Paillier PSI-CA OPE":
-                t = threading.Thread(target=self.scheme_handler.final_step_psi_ca_ope,
-                                     args=(peer_data, self.scheme_handler.paillier))
-                t.start()
+                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data, self.scheme_handler.paillier)
             elif crypto_scheme == "Damgard-Jurik PSI-CA OPE" or crypto_scheme == "DamgardJurik PSI-CA OPE":
-                t = threading.Thread(target=self.scheme_handler.final_step_psi_ca_ope,
-                                     args=(peer_data, self.scheme_handler.damgard_jurik))
-                t.start()
+                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data, self.scheme_handler.damgard_jurik)
         except json.JSONDecodeError:
             print("Received message is not a valid JSON.")
 
@@ -189,20 +178,23 @@ class Node:
         for device in self.devices:
             self.devices[device]["socket"].send_string(message)
 
-    def join(self):
+    def stop(self):
+        # Cierra todos los sockets de los dispositivos
+        for device in self.devices.values():
+            device["socket"].close()
+        # Cierra el socket ROUTER
+        self.router_socket.close()
+        # Cierra el executor
+        self.executor.shutdown(wait=True)
+        # Cambia el estado de ejecución a False
         self.running = False
-        for device in self.devices:
-            self.devices[device]["socket"].close()
-        self.devices = {}
 
     def gen_paillier(self):
-        t = threading.Thread(target=self.scheme_handler.genkeys, args=("Paillier",))
-        t.start()
+        self.executor.submit(self.scheme_handler.genkeys, "Paillier")
         return "Generating Paillier keys..."
 
     def gen_dj(self):
-        t = threading.Thread(target=self.scheme_handler.genkeys, args=("Damgard-Jurik",))
-        t.start()
+        self.executor.submit(self.scheme_handler.genkeys, "Damgard-Jurik")
         return "Generating Damgard-Jurik keys..."
 
     def new_peer(self, peer, last_seen):
@@ -300,38 +292,31 @@ class Node:
 
     def dj_intersection_first_step(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.intersection_first_step,
-                                 args=(device, self.scheme_handler.damgard_jurik))
-            t.start()
+            self.executor.submit(self.scheme_handler.intersection_first_step, device, self.scheme_handler.damgard_jurik)
             return "Intersection with " + device + " - Damgard-Jurik - Thread started, check logs"
         return "Device not found"
 
     def paillier_intersection_first_step(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.intersection_first_step,
-                                 args=(device, self.scheme_handler.paillier))
-            t.start()
+            self.executor.submit(self.scheme_handler.intersection_first_step, device, self.scheme_handler.paillier)
             return "Intersection with " + device + " - Paillier - Thread started, check logs"
         return "Device not found"
 
     def paillier_intersection_first_step_ope(self, device, type="PSI"):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.intersection_first_step_ope,
-                                 args=(device, self.scheme_handler.paillier, type))
-            t.start()
+            self.executor.submit(self.scheme_handler.intersection_first_step_ope, device, self.scheme_handler.paillier, type)
             return "Intersection with " + device + " - Paillier - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
 
     def dj_intersection_first_step_ope(self, device, type="PSI"):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.intersection_first_step_ope,
-                                 args=(device, self.scheme_handler.damgard_jurik, type))
-            t.start()
+            self.executor.submit(self.scheme_handler.intersection_first_step_ope, device, self.scheme_handler.damgard_jurik,
+                                 type)
             return "Intersection with " + device + " - Damgard-Jurik - OPE - Thread started, check logs"
         return "Device not found - Have the peer send an ACK first"
 
     def launch_test(self, device):
         if device in self.devices:
-            self.scheme_handler.test_launcher(device)
+            self.executor.submit(self.scheme_handler.test_launcher, device)
             return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"
