@@ -1,3 +1,4 @@
+import threading
 import time
 
 from flaskr import Logs
@@ -190,12 +191,18 @@ class SchemeHandler:
 
     def test_launcher(self, device):
         for i in range(TEST_ROUNDS):
-            self.intersection_first_step(device, self.paillier)
-            self.intersection_first_step_ope(device, self.paillier)
-            self.intersection_first_step_ope(device, self.paillier, "PSI-CA")
-            self.intersection_first_step(device, self.damgard_jurik)
-            self.intersection_first_step_ope(device, self.damgard_jurik)
-            self.intersection_first_step_ope(device, self.damgard_jurik, "PSI-CA")
+            t = threading.Thread(target=self.intersection_first_step, args=(device, self.paillier))
+            t.start()
+            t = threading.Thread(target=self.intersection_first_step, args=(device, self.damgard_jurik))
+            t.start()
+            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier))
+            t.start()
+            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik))
+            t.start()
+            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier, "PSI-CA"))
+            t.start()
+            t = threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik, "PSI-CA"))
+            t.start()
 
     def genkeys(self, cs):
         start_time = time.time()

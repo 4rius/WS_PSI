@@ -27,10 +27,6 @@ class Node:
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
-        print(
-            f"Node {self.id} (You) - Paillier keys generated - Objects: {self.scheme_handler.paillier.private_key} - {self.scheme_handler.paillier.public_key}")
-        print(
-            f"Node {self.id} (You) - Damgard-Jurik keys generated - Objects: {self.scheme_handler.damgard_jurik.private_key_ring} - {self.scheme_handler.damgard_jurik.public_key}")
         print(f"Node {self.id} (You) - My data: {self.myData}")
 
         # Iniciar el socket ROUTER en un hilo
@@ -38,54 +34,60 @@ class Node:
         time.sleep(1)  # Dar tiempo para que el socket ROUTER se inicie
 
         # Conectar con los peers
+        self.connect_to_peers()
+
+    def connect_to_peers(self):
         for peer in self.peers:
             print(f"Node {self.id} (You) connecting to Node {peer}")
-            dealer_socket = self.context.socket(zmq.DEALER)
-            dealer_socket.connect(f"tcp://{peer}")
-            if peer not in self.devices:
-                dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
-            if "[" in peer and "]" in peer:  # Si es una dirección IPv6
-                peer = peer.split("]:")[0] + "]"
-            else:  # Si es una dirección IPv4
-                peer = peer.split(":")[0]
-            self.devices[peer] = {"socket": dealer_socket,"last_seen": None}
-            # Con esta aproximación, si un peer se desconecta y luego se vuelve a conectar,  # se le enviará un mensaje de bienvenida y se actualizará su timestamp  # Cada peer tiene un socket DEALER para enviar mensajes
+            self._connect_to_peer(peer)
+
+    def _connect_to_peer(self, peer):
+        dealer_socket = self.context.socket(zmq.DEALER)
+        dealer_socket.connect(f"tcp://{peer}")
+        dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
+
+        # Update devices dictionary
+        if "[" in peer and "]" in peer:  # IPv6 address
+            address = peer.split("]:")[0] + "]"
+        else:  # IPv4 address
+            address = peer.split(":")[0]
+        self.devices[address] = {"socket": dealer_socket, "last_seen": None}
 
     def start_router_socket(self):
-        # Iniciar el socket ROUTER
         self.router_socket.bind(f"tcp://*:{self.port}")
         print(f"Node {self.id} (You) listening on port {self.port}")
+        threading.Thread(target=self._listen_on_router, daemon=True).start()
+        # daemon=True para que el hilo muera cuando el programa principal muera
 
+    def _listen_on_router(self):
         while self.running:
-            # Recibir mensajes con el identificador del dispositivo
             sender, message = self.router_socket.recv_multipart()
-            try:
-                message = message.decode('utf-8')
-            except UnicodeDecodeError:
-                continue
+            message = message.decode('utf-8')
             print(f"Node {self.id} (You) received: {message}")
             day_time = time.strftime("%H:%M:%S", time.localtime())
-            # Respuestas a los mensajes recibidos
             self.handle_message(sender, message, day_time)
         self.router_socket.close()
         self.router_socket.unbind(f"tcp://*:{self.port}")
         self.context.term()
 
     def handle_message(self, sender, message, day_time):
-        if message.endswith("is pinging you!"):
-            self.handle_ping(sender, message, day_time)
-        elif message.startswith("DISCOVER:"):
-            self.handle_discover(message, day_time)
-        elif message.startswith("DISCOVER_ACK:"):
-            self.handle_discover_ack(message, day_time)
-        elif message.startswith("Added "):
-            self.handle_added(message, day_time)
-        elif "cryptpscheme" in message and "peer" in message:
+        # Cleaner routing
+        message_handlers = {
+            "is pinging you!": self.handle_ping,
+            "DISCOVER:": self.handle_discover,
+            "DISCOVER_ACK:": self.handle_discover_ack,
+            "Added ": self.handle_added
+        }
+        if "cryptpscheme" in message and "peer" in message:
             self.handle_intersection(message)
         elif message.startswith("{"):
             t = threading.Thread(target=self.intersection_second_step, args=(message,))
             t.start()
         else:
+            for key in message_handlers:
+                if message.startswith(key):
+                    message_handlers[key](sender, message, day_time)
+                    return
             self.handle_unknown(message, day_time)
 
     def handle_ping(self, sender, message, day_time):
@@ -330,7 +332,6 @@ class Node:
 
     def launch_test(self, device):
         if device in self.devices:
-            t = threading.Thread(target=self.scheme_handler.test_launcher, args=(device, ))
-            t.start()
-            return "A thread is launching a massive test with " + device + " - Check logs"
+            self.scheme_handler.test_launcher(device)
+            return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"
