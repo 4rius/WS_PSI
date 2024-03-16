@@ -6,9 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import zmq
 
-from flaskr import Logs
-from flaskr.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE, VERSION
-from flaskr.Logs import ThreadData
+from flaskr.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 from flaskr.handlers.SchemeHandler import SchemeHandler
 
 
@@ -119,17 +117,17 @@ class Node:
             peer_data = json.loads(message)
             crypto_scheme = peer_data.pop('cryptpscheme')
             if crypto_scheme == "Paillier":
-                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data, self.scheme_handler.paillier)
+                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data['peer'], self.scheme_handler.paillier, peer_data)
             elif crypto_scheme == "Damgard-Jurik" or crypto_scheme == "DamgardJurik":
-                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data, self.scheme_handler.damgard_jurik)
+                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data['peer'], self.scheme_handler.damgard_jurik, peer_data)
             elif crypto_scheme == "Paillier_OPE" or crypto_scheme == "Paillier OPE":
-                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data, self.scheme_handler.paillier)
+                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data['peer'], self.scheme_handler.paillier, peer_data)
             elif crypto_scheme == "Damgard-Jurik_OPE" or crypto_scheme == "DamgardJurik OPE":
-                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data, self.scheme_handler.damgard_jurik)
+                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data['peer'], self.scheme_handler.damgard_jurik, peer_data)
             elif crypto_scheme == "Paillier PSI-CA OPE":
-                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data, self.scheme_handler.paillier)
+                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data['peer'], self.scheme_handler.paillier, peer_data)
             elif crypto_scheme == "Damgard-Jurik PSI-CA OPE" or crypto_scheme == "DamgardJurik PSI-CA OPE":
-                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data, self.scheme_handler.damgard_jurik)
+                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data['peer'], self.scheme_handler.damgard_jurik, peer_data)
         except json.JSONDecodeError:
             print("Received message is not a valid JSON.")
 
@@ -224,9 +222,6 @@ class Node:
         return "Discovering peers..."
 
     def intersection_second_step(self, message):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
         try:
             peer_data = json.loads(message)
         except json.JSONDecodeError:
@@ -236,46 +231,37 @@ class Node:
         implementation = peer_data['implementation']
 
         if implementation == "Paillier":
-            peer_data, encrypted_set, cryptscheme = self.scheme_handler.handle_intersection(peer_data,
-                                                                                            self.scheme_handler.paillier,
+            peer_data, encrypted_set, cryptscheme = self.scheme_handler.handle_intersection(peer_data['peer'], self.scheme_handler.paillier, peer_data,
                                                                                             peer_data['pubkey'])
             self.send_message(peer_data, encrypted_set, cryptscheme)
         elif implementation == "Damgard-Jurik" or implementation == "DamgardJurik":
-            peer_data, encrypted_set, cryptscheme = self.scheme_handler.handle_intersection(peer_data,
-                                                                                            self.scheme_handler.damgard_jurik,
+            peer_data, encrypted_set, cryptscheme = self.scheme_handler.handle_intersection(peer_data['peer'], self.scheme_handler.damgard_jurik, peer_data,
                                                                                             peer_data['pubkey'])
             self.send_message(peer_data, encrypted_set, cryptscheme)
         elif implementation == "Paillier_OPE" or implementation == "Paillier OPE":
-            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.scheme_handler.handle_ope(peer_data,
+            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.scheme_handler.handle_ope(peer_data['peer'],
+                                                                                                self.scheme_handler.paillier,
+                                                                                                peer_data,
                                                                                                 peer_data['data'],
-                                                                                                peer_data['pubkey'],
-                                                                                                self.scheme_handler.paillier)
+                                                                                                peer_data['pubkey']
+                                                                                                )
             self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
         elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
-            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.scheme_handler.handle_ope(peer_data,
+            peer_data, encrypted_evaluated_coeffs, cryptscheme = self.scheme_handler.handle_ope(peer_data['peer'],
+                                                                                                self.scheme_handler.damgard_jurik,
+                                                                                                peer_data,
                                                                                                 peer_data['data'],
-                                                                                                peer_data['pubkey'],
-                                                                                                self.scheme_handler.damgard_jurik)
+                                                                                                peer_data['pubkey']
+                                                                                                )
             self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
 
         elif implementation == "Paillier PSI-CA OPE":
-            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'],
-                                                                self.scheme_handler.paillier)
+            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['peer'], self.scheme_handler.paillier, peer_data['data'], peer_data['pubkey'])
             self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
 
         elif implementation == "Damgard-Jurik PSI-CA OPE" or implementation == "DamgardJurik PSI-CA OPE":
-            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['data'], peer_data['pubkey'],
-                                                                self.scheme_handler.damgard_jurik)
+            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['peer'], self.scheme_handler.damgard_jurik, peer_data['data'], peer_data['pubkey'])
             self.send_message(peer_data, evaluations, "Damgard-Jurik PSI-CA OPE")
-
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        if implementation.endswith("PSI-CA OPE"):
-            Logs.log_activity(thread_data, "CARDINALITY_" + implementation + "_2", end_time - start_time, VERSION,
-                              self.id, peer_data['peer'])
-        else:
-            Logs.log_activity(thread_data, "INTERSECTION_" + implementation + "_2", end_time - start_time, VERSION,
-                              self.id, peer_data['peer'])
 
     def send_message(self, peer_data, set, cryptpscheme):
         set_to_send = {}

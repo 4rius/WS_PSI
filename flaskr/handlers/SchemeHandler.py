@@ -1,3 +1,4 @@
+import concurrent.futures
 import threading
 import time
 
@@ -7,6 +8,23 @@ from flaskr.Logs import ThreadData
 from flaskr.implementations.Damgard_jurik import DamgardJurik
 from flaskr.implementations.Paillier import Paillier
 from flaskr.implementations.Polynomials import polinomio_raices
+
+
+def log_activity(func):
+    def wrapper(self, *args, **kwargs):
+        start_time = time.time()  # Tiempo de inicio
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
+        result = func(self, *args, **kwargs)  # Ejecución de la función
+        end_time = time.time()  # Tiempo de finalización
+        Logs.stop_logging(thread_data)
+        device = args[0] if len(args) > 0 else None
+        cs = args[1] if len(args) > 1 else None
+        activity_code = func.__name__.upper() + ("_" + cs.__class__.__name__.upper() if cs is not None else "")
+        Logs.log_activity(thread_data, activity_code, end_time - start_time, VERSION, self.id, device)
+        return result
+
+    return wrapper
 
 
 class SchemeHandler:
@@ -19,6 +37,7 @@ class SchemeHandler:
         self.paillier = Paillier()
         self.damgard_jurik = DamgardJurik()
 
+    @log_activity
     def intersection_first_step_ope(self, device, cs, type="PSI"):
         """
         This method performs the first step of the intersection operation using Oblivious Polynomial Evaluation (OPE)
@@ -28,20 +47,14 @@ class SchemeHandler:
         cs (Cryptosystem): The cryptosystem being used for the operation.
 
         The method follows these steps:
-        1. Starts logging the operation.
-        2. Serializes the public key of the cryptosystem.
-        3. Converts the data to integers and adds them to a list.
-        4. Calculates the roots of the polynomial that has the data as coefficients.
-        5. Encrypts the coefficients.
-        6. Gets the ciphertext of the encrypted coefficients.
-        7. Prints the coefficients being sent.
-        8. Sends the coefficients to the device.
-        9. Stops logging the operation.
-        10. Logs the activity.
+        1. Serializes the public key of the cryptosystem.
+        2. Converts the data to integers and adds them to a list.
+        3. Calculates the roots of the polynomial that has the data as coefficients.
+        4. Encrypts the coefficients.
+        5. Gets the ciphertext of the encrypted coefficients.
+        6. Prints the coefficients being sent.
+        7. Sends the coefficients to the device.
         """
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
         serialized_pubkey = cs.serialize_public_key()
         my_data = [int(element) for element in self.my_data]
         coeffs = polinomio_raices(my_data)
@@ -56,14 +69,9 @@ class SchemeHandler:
             message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' OPE'), 'peer': self.id,
                        'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_1", end_time - start_time,
-                          VERSION,
-                          self.id,
-                          device)
 
-    def handle_ope(self, peer_data, coeffs, pubkey, cs):
+    @log_activity
+    def handle_ope(self, device, cs, peer_data, coeffs, pubkey):
         """
         This method handles the Oblivious Polynomial Evaluation (OPE) operation for the device that receives the coefficients.
 
@@ -72,6 +80,7 @@ class SchemeHandler:
         coeffs (list): The coefficients of the polynomial.
         pubkey (str): The public key of the cryptosystem.
         cs (Cryptosystem): The cryptosystem being used for the operation.
+        device (str): The device with which the intersection operation is being performed. Used for logging.
 
         Returns:
         tuple: A tuple containing the peer data, the evaluated coefficients, and the name of the cryptosystem operation.
@@ -82,7 +91,8 @@ class SchemeHandler:
         encrypted_evaluated_coeffs = cs.eval_coefficients(coeffs, pubkey, my_data)
         return peer_data, encrypted_evaluated_coeffs, (cs.__class__.__name__ + " OPE")
 
-    def intersection_final_step_ope(self, peer_data, cs):
+    @log_activity
+    def intersection_final_step_ope(self, device, cs, peer_data):
         """
         This method performs the final step of the intersection operation using Oblivious Polynomial Evaluation (OPE).
 
@@ -102,28 +112,15 @@ class SchemeHandler:
         9. Logs the result.
         10. Prints the final result of the operation.
         """
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
         result = cs.get_encrypted_list_f(peer_data['data'])
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} OPE - Raw results: {result}")
-        device = peer_data['peer']
         result_formatted = [element for element in result if element in self.my_data]
         self.results[device] = result_formatted
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_OPE_F", end_time - start_time,
-                          VERSION,
-                          self.id,
-                          device)
-        Logs.log_result("INTERSECTION_" + (cs.__class__.__name__ + '_OPE'), result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.__class__.__name__} OPE - Result: {result_formatted}")
 
+    @log_activity
     def intersection_first_step(self, device, cs):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
         encrypted_data = cs.encrypt_my_data(self.my_data, self.domain)
         serialized_pubkey = cs.serialize_public_key()
         encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
@@ -132,89 +129,64 @@ class SchemeHandler:
         message = {'data': encrypted_data, 'implementation': cs.__class__.__name__, 'peer': self.id,
                    'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_1", end_time - start_time, VERSION,
-                          self.id,
-                          device)
 
-    def handle_intersection(self, peer_data, cs, pubkey):
+    @log_activity
+    def handle_intersection(self, device, cs, peer_data, pubkey):
         pubkey = cs.reconstruct_public_key(pubkey)
         multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data['data'], pubkey), self.my_data)
         return peer_data, multiplied_set, cs.__class__.__name__
 
-    def intersection_final_step(self, peer_data, cs):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
+    @log_activity
+    def intersection_final_step(self, device, cs, peer_data):
         multiplied_set = cs.recv_multiplied_set(peer_data['data'], cs.public_key)
-        device = peer_data['peer']
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = cs.decrypt(encrypted_value)
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         self.results[device] = multiplied_set
         end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "INTERSECTION_" + cs.__class__.__name__ + "_F", end_time - start_time, VERSION,
-                          self.id,
-                          device)
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
         Logs.log_result("INTERSECTION_" + cs.__class__.__name__, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.__class__.__name__} - Result: {multiplied_set}")
 
-    def handle_psi_ca_ope(self, coeffs, pubkey, cs):
+    @log_activity
+    def handle_psi_ca_ope(self, device, cs, coeffs, pubkey):
         my_data = [int(element) for element in self.my_data]
         pubkey = cs.reconstruct_public_key(pubkey)
         coeffs = cs.get_encrypted_list(coeffs, pubkey)
         result = cs.get_evaluations(coeffs, pubkey, my_data)
         return result
 
-    def final_step_psi_ca_ope(self, peer_data, cs):
-        start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
+    @log_activity
+    def final_step_psi_ca_ope(self, device, cs, peer_data):
         result = cs.get_encrypted_list_f(peer_data['data'])
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} PSI-CA OPE - Raw results: {result}")
-        device = peer_data['peer']
         # When the element is 0, it means it's in the intersection
         cardinality = sum([int(element == 0) for element in result])
         self.results[device] = cardinality
-        end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "CARDINALITY_" + cs.__class__.__name__ + "_F", end_time - start_time, VERSION,
-                          self.id,
-                          device)
         Logs.log_result((cs.__class__.__name__ + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
 
     def test_launcher(self, device):
-        threads = []
-        for i in range(TEST_ROUNDS):
-            threads.append(threading.Thread(target=self.intersection_first_step, args=(device, self.paillier)))
-            threads.append(threading.Thread(target=self.intersection_first_step, args=(device, self.damgard_jurik)))
-            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier)))
-            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik)))
-            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.paillier, "PSI-CA")))
-            threads.append(threading.Thread(target=self.intersection_first_step_ope, args=(device, self.damgard_jurik, "PSI-CA")))
+        cs_list = [self.paillier, self.damgard_jurik]
+        threads = [threading.Thread(target=self.intersection_first_step, args=(device, cs)) for _ in range(TEST_ROUNDS)
+                   for cs in cs_list]
+        threads += [threading.Thread(target=self.intersection_first_step_ope, args=(device, cs)) for _ in
+                    range(TEST_ROUNDS) for cs in cs_list]
+        threads += [threading.Thread(target=self.intersection_first_step_ope, args=(device, cs, "PSI-CA")) for _ in
+                    range(TEST_ROUNDS) for cs in cs_list]
 
-        # Iniciar todos los threads
-        for thread in threads:
-            thread.start()
-
-        # Esperar a que todos los threads terminen
-        for thread in threads:
-            thread.join()
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(lambda t: t.start(), threads)
+            executor.map(lambda t: t.join(), threads)
 
     def genkeys(self, cs):
         start_time = time.time()
-        thread_data = ThreadData()
-        Logs.start_logging(thread_data)
-        if cs == "Paillier":
-            self.paillier = Paillier()
-        elif cs == "Damgard-Jurik":
-            self.damgard_jurik = DamgardJurik()
+        Logs.start_logging(ThreadData())
+        key_instances = {"Paillier": Paillier(), "Damgard-Jurik": DamgardJurik()}
+        if cs in key_instances:
+            setattr(self, cs.lower().replace('-', '_'), key_instances[cs])
         end_time = time.time()
-        Logs.stop_logging(thread_data)
-        Logs.log_activity(thread_data, "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
+        Logs.stop_logging(ThreadData())
+        Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
