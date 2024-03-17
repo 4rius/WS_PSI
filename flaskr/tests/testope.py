@@ -30,6 +30,7 @@ def poly_mul(coefs1, coefs2, zero):
             coefs3[i + j] += coefs1[i] * coefs2[j]
     return coefs3
 
+
 alice_set = [1, 2, 3, 4, 5, 7, 8]
 
 # Generamos un polinomio que tenga como raíces los elementos de alice_set
@@ -45,6 +46,7 @@ def horner_eval_crypt(coefs, x):
     for coef in reversed(coefs[:-1]):
         result = coef._add_encrypted(x * result)
     return result
+
 
 # Ciframos los coeficientes y se los "mandamos" a Bob
 encrypted_coeff = [public_key.encrypt(coef) for coef in coeficientes]

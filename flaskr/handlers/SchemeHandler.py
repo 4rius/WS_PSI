@@ -73,7 +73,8 @@ class SchemeHandler:
     @log_activity
     def handle_ope(self, device, cs, peer_data, coeffs, pubkey):
         """
-        This method handles the Oblivious Polynomial Evaluation (OPE) operation for the device that receives the coefficients.
+        This method handles the Oblivious Polynomial Evaluation (OPE) operation for the device that receives
+        the coefficients
 
         Parameters:
         peer_data (dict): The data received from the peer device.
@@ -143,7 +144,6 @@ class SchemeHandler:
             multiplied_set[element] = cs.decrypt(encrypted_value)
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         self.results[device] = multiplied_set
-        end_time = time.time()
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
         Logs.log_result("INTERSECTION_" + cs.__class__.__name__, multiplied_set, VERSION, self.id, device)

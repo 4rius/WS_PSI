@@ -34,7 +34,8 @@ class DamgardJurik(CryptoSystem):
         return public_key_dict
 
     def reconstruct_public_key(self, public_key_dict):
-        # Si proviene de un dispositivo Android, no traerá ni m, threshold ni delta, por lo que los marcaremos a 1 por defecto, no hacen falta para el cifrado
+        # Si proviene de un dispositivo Android, no traerá ni m, threshold ni delta, por lo que los marcaremos a 1
+        # por defecto, no hacen falta para el cifrado
         if 'm' not in public_key_dict:
             return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), 1, 1, 1)
         return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), int(public_key_dict['m']),
