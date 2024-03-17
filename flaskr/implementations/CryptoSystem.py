@@ -1,5 +1,7 @@
 class CryptoSystem:
 
+    __init__ = None
+
     def encrypt(self, plaintext):
         raise NotImplementedError
 
