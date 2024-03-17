@@ -1,10 +1,11 @@
 """ Damgard Jurik PSI usando Evaluación polinómica - PoC """
 
-from damgard_jurik import keygen, EncryptedNumber, PublicKey
+from damgard_jurik import keygen
 import random
 
 # === Alice's Setup ===
 public_key, private_key_ring = keygen(n_bits=64, s=2, threshold=1, n_shares=1)
+
 
 def poly_from_roots(roots, neg_one=-1, one=1):
     """
@@ -17,6 +18,7 @@ def poly_from_roots(roots, neg_one=-1, one=1):
         coefs = poly_mul(coefs, [neg_one * r, one], zero)
     return coefs
 
+
 def poly_mul(coefs1, coefs2, zero):
     """
     Multiplies two polynomials whose coefficients are given in coefs1 and coefs2.
@@ -28,6 +30,7 @@ def poly_mul(coefs1, coefs2, zero):
             coefs3[i + j] += coefs1[i] * coefs2[j]
     return coefs3
 
+
 alice_set = [1, 2, 3, 4, 5, 7, 8]
 
 # Generamos un polinomio que tenga como raíces los elementos de alice_set
@@ -36,12 +39,14 @@ coeficientes = poly_from_roots(alice_set)
 # Imprimir los coeficientes
 print("Coeficientes:", coeficientes)
 
+
 # Evaluación de un polinomio cifrado usando el método de Horner
 def horner_eval_crypt(coefs, x):
     result = coefs[-1]
     for coef in reversed(coefs[:-1]):
         result = coef + x * result
     return result
+
 
 # Ciframos los coeficientes y se los "mandamos" a Bob
 encrypted_coeff = [public_key.encrypt(coef) for coef in coeficientes]
