@@ -143,9 +143,9 @@ class SchemeHandler:
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = cs.decrypt(encrypted_value)
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
-        self.results[device] = multiplied_set
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
+        self.results[device] = multiplied_set
         Logs.log_result("INTERSECTION_" + cs.__class__.__name__, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.__class__.__name__} - Result: {multiplied_set}")
 

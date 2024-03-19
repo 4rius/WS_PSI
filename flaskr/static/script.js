@@ -39,13 +39,13 @@ function update_devices() {
             }
             $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="int_paillier(\'' + key + '\')">Paillier</button>'
+            '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\')">Paillier</button>'
             +
-            ' <button class="btn waves-effect waves-light" onclick="int_dj(\'' + key + '\')">Damgard-Jurik</button></p>' +
-            ' <button class="btn waves-effect waves-light" onclick="int_paillier_ope(\'' + key + '\')">Paillier - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="int_dj_ope(\'' + key + '\')">Damgard-Jurik - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="ca_paillier(\'' + key + '\')">Cardinality - Paillier</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="ca_dj(\'' + key + '\')">Cardinality - Damgard-Jurik</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\')">Damgard-Jurik</button></p>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\')">Paillier - OPE</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\')">Damgard-Jurik - OPE</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE PSI-CA' + '\')">Cardinality - Paillier</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE PSI-CA' + '\')">Cardinality - Damgard-Jurik</button>' +
             ' <button class="btn waves-effect waves-light" onclick="test(\'' + key + '\')">STRESS TEST</button>'
             );
         });
@@ -148,8 +148,8 @@ function ca_paillier(device) {
     });
 }
 
-function ca_dj(device) {
-    $.post('/api/ca_dj/' + device, function(data){
+function FindIntersection(device, scheme) {
+    $.post(`/api/intersection?device=${device}&scheme=${scheme}`, function(data){
     })
     .done(function(data) {
         const message = data.status;
@@ -161,7 +161,7 @@ function ca_dj(device) {
 }
 
 function test(device) {
-    $.post('/api/test/' + device, function(data){
+    $.post(`/api/test?device=${device}`, function(data){
     })
     .done(function(data) {
         const message = data.status;
@@ -202,8 +202,8 @@ function results() {
     });
 }
 
-function gen_paillier() {
-    $.post('/api/gen_paillier', function(data){
+function genkeys(scheme) {
+    $.post(`/api/genkeys?scheme=${scheme}`, function(data){
         const message = data.status;
         M.toast({html: message});
     });
@@ -238,13 +238,6 @@ function discover_peers() {
                 update_devices();
             }, 2000);
         }
-    });
-}
-
-function gen_dj() {
-    $.post('/api/gen_dj', function(data){
-        const message = data.status;
-        M.toast({html: message});
     });
 }
 

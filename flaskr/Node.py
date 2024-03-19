@@ -11,19 +11,33 @@ from flaskr.handlers.SchemeHandler import SchemeHandler
 
 
 class Node:
+    __instance = None
+
+    @staticmethod
+    def getinstance():
+        """ Static access method. """
+        if Node.__instance is None:
+            raise Exception("Use the appropiate constructor!")
+        return Node.__instance
+
     def __init__(self, id, port, peers):
-        self.running = True  # Saber si el nodo está corriendo por si queremos desconectarnos en algún momento
-        self.id = id  # IP local
-        self.port = port  # Puerto local
-        self.peers = peers  # Lista de peers
-        self.context = zmq.Context()  # Contexto de ZMQ
-        self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
-        self.devices = {}  # Dispositivos conectados
-        self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
-        self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
-        self.results = {}  # Resultados de las intersecciones
-        self.scheme_handler = SchemeHandler(self.myData, self.devices, self.results, self.id, self.domain)
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        """ Virtually private constructor. """
+        if Node.__instance is not None:
+            raise Exception("This class is a singleton!")
+        else:
+            Node.__instance = self
+            self.running = True  # Saber si el nodo está corriendo por si queremos desconectarnos en algún momento
+            self.id = id  # IP local
+            self.port = port  # Puerto local
+            self.peers = peers  # Lista de peers
+            self.context = zmq.Context()  # Contexto de ZMQ
+            self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
+            self.devices = {}  # Dispositivos conectados
+            self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
+            self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
+            self.results = {}  # Resultados de las intersecciones
+            self.scheme_handler = SchemeHandler(self.myData, self.devices, self.results, self.id, self.domain)
+            self.executor = ThreadPoolExecutor(max_workers=10)
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -193,13 +207,14 @@ class Node:
         # Cambia el estado de ejecución a False
         self.running = False
 
-    def gen_paillier(self):
-        self.executor.submit(self.scheme_handler.genkeys, "Paillier")
-        return "Generating Paillier keys..."
-
-    def gen_dj(self):
-        self.executor.submit(self.scheme_handler.genkeys, "Damgard-Jurik")
-        return "Generating Damgard-Jurik keys..."
+    def genkeys(self, scheme):
+        if scheme == "Paillier":
+            self.executor.submit(self.scheme_handler.genkeys, "Paillier")
+            return "Generating Paillier keys..."
+        elif scheme == "Damgard-Jurik":
+            self.executor.submit(self.scheme_handler.genkeys, "Damgard-Jurik")
+            return "Generating Damgard-Jurik keys..."
+        return "Invalid scheme"
 
     def new_peer(self, peer, last_seen):
         dealer_socket = self.context.socket(zmq.DEALER)

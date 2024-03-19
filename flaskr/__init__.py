@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 
 from . import Node, Logs
 from .Node import Node
@@ -29,8 +29,7 @@ def create_app(test_config=None):
 
     # Inicializar el nodo
     # Peers hardcodeados para probar su funcionamiento
-    peers = ["192.168.1.135:5001", "172.19.0.4:5001", "172.19.0.3:5001", "172.19.0.65:5001",
-             "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
+    peers = ["192.168.1.135:5001", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
     # Get the local IP and not the loopback
     local_ip = networking.get_local_ip()
     node = Node(local_ip, 5001, peers)
@@ -76,29 +75,23 @@ def create_app(test_config=None):
                         'privkeyP': str(node.scheme_handler.paillier.public_key.p),
                         'privkeyQ': str(node.scheme_handler.paillier.public_key.q)})
 
-    @app.route('/api/int_paillier/<device>', methods=['POST'])
-    def api_find_intersection(device):
-        return jsonify({'status': node.paillier_intersection_first_step(device)})
-
-    @app.route('/api/int_dj/<device>', methods=['POST'])
-    def api_find_intersection_dj(device):
-        return jsonify({'status': node.dj_intersection_first_step(device)})
-
-    @app.route('/api/int_paillier_ope/<device>', methods=['POST'])
-    def api_find_intersection_ope(device):
-        return jsonify({'status': node.paillier_intersection_first_step_ope(device)})
-
-    @app.route('/api/int_dj_ope/<device>', methods=['POST'])
-    def api_find_intersection_dj_ope(device):
-        return jsonify({'status': node.dj_intersection_first_step_ope(device)})
-
-    @app.route('/api/ca_paillier/<device>', methods=['POST'])
-    def api_ca_paillier(device):
-        return jsonify({'status': node.paillier_intersection_first_step_ope(device, "PSI-CA")})
-
-    @app.route('/api/ca_dj/<device>', methods=['POST'])
-    def api_ca_dj(device):
-        return jsonify({'status': node.dj_intersection_first_step_ope(device, "PSI-CA")})
+    @app.route('/api/intersection', methods=['POST'])
+    def api_ca_dj():
+        device = request.args.get('device')
+        scheme = request.args.get('scheme')
+        if scheme == "Paillier":
+            return jsonify({'status': node.paillier_intersection_first_step(device)})
+        elif scheme == "Damgard-Jurik":
+            return jsonify({'status': node.dj_intersection_first_step(device)})
+        elif scheme == "Paillier OPE":
+            return jsonify({'status': node.paillier_intersection_first_step_ope(device)})
+        elif scheme == "Damgard-Jurik OPE":
+            return jsonify({'status': node.dj_intersection_first_step_ope(device)})
+        elif scheme == "Paillier OPE PSI-CA":
+            return jsonify({'status': node.paillier_intersection_first_step_ope(device, "PSI-CA")})
+        elif scheme == "Damgard-Jurik OPE PSI-CA":
+            return jsonify({'status': node.dj_intersection_first_step_ope(device, "PSI-CA")})
+        return jsonify({'status': 'Invalid implementation'})
 
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():
@@ -112,13 +105,10 @@ def create_app(test_config=None):
     def api_result():
         return jsonify({'result': node.results})
 
-    @app.route('/api/gen_paillier', methods=['POST'])
-    def api_gen_paillier():
-        return jsonify({'status': node.gen_paillier()})
-
-    @app.route('/api/gen_dj', methods=['POST'])
-    def api_gen_dj():
-        return jsonify({'status': node.gen_dj()})
+    @app.route('/api/genkeys', methods=['POST'])
+    def api_genkeys():
+        scheme = request.args.get('scheme')
+        return jsonify({'status': node.genkeys(scheme)})
 
     @app.route('/api/discover_peers', methods=['POST'])
     def api_discover_peers():
@@ -128,8 +118,9 @@ def create_app(test_config=None):
     def api_metrics():
         return Logs.get_logs(node.id)
 
-    @app.route('/api/test/<device>', methods=['POST'])
-    def api_test(device):
+    @app.route('/api/test', methods=['POST'])
+    def api_test():
+        device = request.args.get('device')
         return jsonify({'status': node.launch_test(device)})
 
     return app
