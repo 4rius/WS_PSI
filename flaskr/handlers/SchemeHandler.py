@@ -1,59 +1,44 @@
-import concurrent.futures
-import threading
+import json
 import time
 from concurrent.futures import ThreadPoolExecutor
 
 from flaskr import Logs, Node
-from flaskr.handlers.IntersectionHandler import IntersectionHandler
-from flaskr.helpers.CryptoImplementation import CryptoImplementation
-from flaskr.helpers.DbConstants import VERSION, TEST_ROUNDS
 from flaskr.Logs import ThreadData
 from flaskr.handlers.DamgardJurikHandler import DamgardJurikHandler
+from flaskr.handlers.IntersectionHandler import IntersectionHandler
 from flaskr.handlers.PaillierHandler import PaillierHandler
-from flaskr.helpers.Polynomials import polinomio_raices
+from flaskr.helpers.CryptoImplementation import CryptoImplementation
+from flaskr.helpers.DbConstants import VERSION, TEST_ROUNDS
 
 
 class SchemeHandler:
-    def __init__(self):
+    def __init__(self, id, my_data, domain, devices, results):
         self.CSHandlers = {
             CryptoImplementation("Paillier", "Paillier OPE", "Paillier_OPE",
                                  "Paillier PSI-CA OPE"): PaillierHandler(),
             CryptoImplementation("DamgardJurik", "Damgard-Jurik", "DamgardJurik OPE", "Damgard-Jurik_OPE",
-                                 "DamgardJurik PSI-CA OPE", "Damgard-Jurik PSI-CA OPE"): DamgardJurikHandler()
+                                 "Damgard-Jurik OPE", "DamgardJurik PSI-CA OPE", "Damgard-Jurik PSI-CA OPE"): DamgardJurikHandler()
         }
-        self.intersectionHandler = IntersectionHandler()
-        self.id = Node.getinstance().id
-        self.devices = Node.getinstance().devices
+        self.intersectionHandler = IntersectionHandler(id, my_data, domain, devices, results)
+        self.id = id
+        self.devices = devices
         self.executor = ThreadPoolExecutor(max_workers=10)
 
     def test_launcher(self, device):
-        cs_list = [self.paillier, self.damgard_jurik]
-        threads = [threading.Thread(target=self.intersection_first_step, args=(device, cs)) for _ in range(TEST_ROUNDS)
-                   for cs in cs_list]
-        threads += [threading.Thread(target=self.intersection_first_step_ope, args=(device, cs)) for _ in
-                    range(TEST_ROUNDS) for cs in cs_list]
-        threads += [threading.Thread(target=self.intersection_first_step_ope, args=(device, cs, "PSI-CA")) for _ in
-                    range(TEST_ROUNDS) for cs in cs_list]
-
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(lambda t: t.start(), threads)
-            executor.map(lambda t: t.join(), threads)
+        cs_handlers = self.CSHandlers.values()
+        for _ in range(TEST_ROUNDS):
+            for cs in cs_handlers:
+                self.executor.submit(self.intersectionHandler.intersection_first_step, device, cs)
+                self.executor.submit(self.intersectionHandler.intersection_first_step_ope, device, cs, "PSI")
+                self.executor.submit(self.intersectionHandler.intersection_first_step_ope, device, cs, "PSI-CA")
 
     def genkeys(self, cs):
         start_time = time.time()
         Logs.start_logging(ThreadData())
-        key_instances = {"Paillier": PaillierHandler(), "Damgard-Jurik": DamgardJurikHandler()}
-        if cs in key_instances:
-            setattr(self, cs.lower().replace('-', '_'), key_instances[cs])
+        self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys()
         end_time = time.time()
         Logs.stop_logging(ThreadData())
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
-
-    def handle_message(self, message):
-        if "cryptpscheme" in message and "peer" in message:
-            self.handle_intersection(message)
-        else:
-            self.handle_second_step(message)
 
     def start_intersection(self, device, scheme, type):
         crypto_impl = CryptoImplementation.from_string(scheme)
@@ -63,19 +48,53 @@ class SchemeHandler:
                 self.executor.submit(self.intersectionHandler.intersection_first_step_ope, device, cs, type)
             else:
                 self.executor.submit(self.intersectionHandler.intersection_first_step, device, cs)
-            return "Intersection started"
+            return "Intersection with " + device + " - " + scheme + " - Thread started, check logs"
         return "Invalid scheme: " + scheme
 
-    def send_message(self, peer_data, set, cryptpscheme):
-        set_to_send = {}
-        if cryptpscheme == "Paillier":
-            set_to_send = {element: str(encrypted_value.ciphertext()) for element, encrypted_value in set.items()}
-        elif cryptpscheme == "Damgard-Jurik" or cryptpscheme == "DamgardJurik":
-            set_to_send = {element: str(encrypted_value.value) for element, encrypted_value in set.items()}
-        elif cryptpscheme == "Paillier_OPE" or cryptpscheme == "Paillier OPE" or cryptpscheme == "Paillier PSI-CA OPE":
-            set_to_send = [str(encrypted_value.ciphertext()) for encrypted_value in set]
-        elif (cryptpscheme == "Damgard-Jurik_OPE" or cryptpscheme == "DamgardJurik OPE" or
-              cryptpscheme == "Damgard-Jurik PSI-CA OPE"):
-            set_to_send = [str(encrypted_value.value) for encrypted_value in set]
-        message = {'data': set_to_send, 'peer': self.id, 'cryptpscheme': cryptpscheme}
-        self.devices[peer_data['peer']]["socket"].send_json(message)
+    def handle_message(self, message):
+        if "cryptpscheme" in message and "peer" in message:
+            self.handle_intersection_final_step(message)
+        else:
+            self.handle_intersection_second_step(message)
+
+    def handle_intersection_second_step(self, message):
+        try:
+            message = json.loads(message)
+            if message['peer'] not in self.devices:
+                Node.getinstance().new_peer(message['peer'], time.strftime("%H:%M:%S", time.localtime()))
+            crypto_impl = CryptoImplementation.from_string(message['implementation'])
+            if crypto_impl in self.CSHandlers:
+                cs = self.CSHandlers[crypto_impl]
+                if "PSI-CA" in message['implementation']:
+                    self.executor.submit(self.intersectionHandler.intersection_second_step_psi_ca_ope, message['peer'],
+                                         cs, message['data'], message['pubkey'])
+                elif "OPE" in message['implementation']:
+                    self.executor.submit(self.intersectionHandler.intersection_second_step_ope, message['peer'], cs,
+                                         message['data'], message['pubkey'])
+                else:
+                    self.executor.submit(self.intersectionHandler.intersection_second_step, message['peer'], cs,
+                                         message['data'], message['pubkey'])
+            else:
+                Exception("Invalid scheme: " + message['implementation'])
+        except json.JSONDecodeError:
+            print("Received message is not a valid JSON.")
+
+    def handle_intersection_final_step(self, message):
+        try:
+            message = json.loads(message)
+            crypto_impl = CryptoImplementation.from_string(message['cryptpscheme'])
+            if crypto_impl in self.CSHandlers:
+                cs = self.CSHandlers[crypto_impl]
+                if "PSI-CA" in message['cryptpscheme']:
+                    self.executor.submit(self.intersectionHandler.final_step_psi_ca_ope, message['peer'], cs,
+                                         message['data'])
+                elif "OPE" in message['cryptpscheme']:
+                    self.executor.submit(self.intersectionHandler.intersection_final_step_ope, message['peer'], cs,
+                                         message['data'])
+                else:
+                    self.executor.submit(self.intersectionHandler.intersection_final_step, message['peer'], cs,
+                                         message['data'])
+            else:
+                Exception("Invalid scheme: " + message['cryptpscheme'])
+        except json.JSONDecodeError:
+            print("Received message is not a valid JSON.")

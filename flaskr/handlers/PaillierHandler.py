@@ -12,6 +12,7 @@ class PaillierHandler(CSHandler):
         self.private_key = None
         self.public_key = None
         self.private_key, self.public_key = self.generate_keys()
+        self.imp_name = "Paillier"
 
     # Devuelve los objetos clave pública y privada
     def generate_keys(self):
@@ -126,3 +127,7 @@ class PaillierHandler(CSHandler):
         # Randomize the order of the evaluations
         random.shuffle(evaluations)
         return evaluations
+
+    def serialize_result(self, result, type=None):
+        return [str(encrypted_value.ciphertext()) for encrypted_value in result] if type == "OPE" else \
+            {element: str(encrypted_value.ciphertext()) for element, encrypted_value in result.items()}

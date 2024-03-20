@@ -1,13 +1,11 @@
-import json
 import random
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 import zmq
 
-from flaskr.helpers.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 from flaskr.handlers.SchemeHandler import SchemeHandler
+from flaskr.helpers.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 
 
 class Node:
@@ -36,7 +34,8 @@ class Node:
             self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
             self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
             self.results = {}  # Resultados de las intersecciones
-            self.scheme_handler = SchemeHandler()  # Manejador de esquemas criptográficos
+            self.scheme_handler = SchemeHandler(self.id, self.myData, self.domain, self.devices, self.results)
+            # Manejador de esquemas criptográficos
 
     def start(self):
         print(f"Node {self.id} (You) starting...")
@@ -90,7 +89,9 @@ class Node:
         if message.endswith("is pinging you!"):
             self.handle_ping(sender, message, day_time)
         elif message.startswith("{"):
-            self.scheme_handler.handle_message(message)
+            if "cryptpscheme" in message or "implementation" in message:
+                self.scheme_handler.handle_message(message)
+            # Aquí podría haber otro tipo de JSON
         else:
             for key in message_handlers:
                 if message.startswith(key):
@@ -122,31 +123,6 @@ class Node:
     def handle_added(self, message, day_time):
         peer = message.split(" ")[8]
         self.devices[peer]["last_seen"] = day_time
-
-    def handle_intersection(self, message):
-        try:
-            peer_data = json.loads(message)
-            crypto_scheme = peer_data.pop('cryptpscheme')
-            if crypto_scheme == "Paillier":
-                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data['peer'],
-                                     self.scheme_handler.paillier, peer_data)
-            elif crypto_scheme == "Damgard-Jurik" or crypto_scheme == "DamgardJurik":
-                self.executor.submit(self.scheme_handler.intersection_final_step, peer_data['peer'],
-                                     self.scheme_handler.damgard_jurik, peer_data)
-            elif crypto_scheme == "Paillier_OPE" or crypto_scheme == "Paillier OPE":
-                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data['peer'],
-                                     self.scheme_handler.paillier, peer_data)
-            elif crypto_scheme == "Damgard-Jurik_OPE" or crypto_scheme == "DamgardJurik OPE":
-                self.executor.submit(self.scheme_handler.intersection_final_step_ope, peer_data['peer'],
-                                     self.scheme_handler.damgard_jurik, peer_data)
-            elif crypto_scheme == "Paillier PSI-CA OPE":
-                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data['peer'],
-                                     self.scheme_handler.paillier, peer_data)
-            elif crypto_scheme == "Damgard-Jurik PSI-CA OPE" or crypto_scheme == "DamgardJurik PSI-CA OPE":
-                self.executor.submit(self.scheme_handler.final_step_psi_ca_ope, peer_data['peer'],
-                                     self.scheme_handler.damgard_jurik, peer_data)
-        except json.JSONDecodeError:
-            print("Received message is not a valid JSON.")
 
     def handle_unknown(self, message, day_time):
         print(f"{self.id} (You) received: {message} but don't know what to do with it")
@@ -206,10 +182,12 @@ class Node:
 
     def genkeys(self, scheme):
         if scheme == "Paillier":
-            self.executor.submit(self.scheme_handler.genkeys, "Paillier")
+            t = threading.Thread(target=self.scheme_handler.genkeys, args=("Paillier",))
+            t.start()
             return "Generating Paillier keys..."
         elif scheme == "Damgard-Jurik":
-            self.executor.submit(self.scheme_handler.genkeys, "Damgard-Jurik")
+            t = threading.Thread(target=self.scheme_handler.genkeys, args=("Damgard-Jurik",))
+            t.start()
             return "Generating Damgard-Jurik keys..."
         return "Invalid scheme"
 
@@ -239,66 +217,13 @@ class Node:
                     continue
         return "Discovering peers..."
 
-    def intersection_second_step(self, message):
-        try:
-            peer_data = json.loads(message)
-        except json.JSONDecodeError:
-            print("Received message is not a valid JSON.")
-            return "Received message is not a valid JSON."
-
-        implementation = peer_data['implementation']
-
-        if implementation == "Paillier":
-            peer_data, encrypted_set, cryptscheme = (
-                self.scheme_handler.handle_intersection(peer_data['peer'],
-                                                        self.scheme_handler.paillier,
-                                                        peer_data,
-                                                        peer_data['pubkey']))
-            self.send_message(peer_data, encrypted_set, cryptscheme)
-        elif implementation == "Damgard-Jurik" or implementation == "DamgardJurik":
-            peer_data, encrypted_set, cryptscheme = (
-                self.scheme_handler.handle_intersection(peer_data['peer'],
-                                                        self.scheme_handler.damgard_jurik,
-                                                        peer_data,
-                                                        peer_data['pubkey']))
-            self.send_message(peer_data, encrypted_set, cryptscheme)
-        elif implementation == "Paillier_OPE" or implementation == "Paillier OPE":
-            peer_data, encrypted_evaluated_coeffs, cryptscheme = (
-                self.scheme_handler.handle_ope(peer_data['peer'],
-                                               self.scheme_handler.paillier,
-                                               peer_data,
-                                               peer_data['data'],
-                                               peer_data['pubkey']
-                                               ))
-            self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
-        elif implementation == "Damgard-Jurik_OPE" or implementation == "DamgardJurik OPE":
-            peer_data, encrypted_evaluated_coeffs, cryptscheme = (
-                self.scheme_handler.handle_ope(peer_data['peer'],
-                                               self.scheme_handler.damgard_jurik,
-                                               peer_data,
-                                               peer_data['data'],
-                                               peer_data['pubkey']
-                                               ))
-            self.send_message(peer_data, encrypted_evaluated_coeffs, cryptscheme)
-
-        elif implementation == "Paillier PSI-CA OPE":
-            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['peer'], self.scheme_handler.paillier,
-                                                                peer_data['data'], peer_data['pubkey'])
-            self.send_message(peer_data, evaluations, "Paillier PSI-CA OPE")
-
-        elif implementation == "Damgard-Jurik PSI-CA OPE" or implementation == "DamgardJurik PSI-CA OPE":
-            evaluations = self.scheme_handler.handle_psi_ca_ope(peer_data['peer'], self.scheme_handler.damgard_jurik,
-                                                                peer_data['data'], peer_data['pubkey'])
-            self.send_message(peer_data, evaluations, "Damgard-Jurik PSI-CA OPE")
-
     def start_intersection(self, device, scheme, type=None):
         if device in self.devices:
-            self.scheme_handler.start_intersection(device, scheme, type)
-            return "Intersection with " + device + " - " + scheme + " - Thread started, check logs"
+            return self.scheme_handler.start_intersection(device, scheme, type)
         return "Device not found - Have the peer send an ACK first"
 
     def launch_test(self, device):
         if device in self.devices:
-            self.executor.submit(self.scheme_handler.test_launcher, device)
+            self.scheme_handler.test_launcher(device)
             return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"

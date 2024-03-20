@@ -1,6 +1,6 @@
 import time
 
-from flaskr import Logs, Node
+from flaskr import Logs
 from flaskr.Logs import ThreadData
 from flaskr.handlers.DamgardJurikHandler import DamgardJurikHandler
 from flaskr.handlers.PaillierHandler import PaillierHandler
@@ -18,7 +18,7 @@ def log_activity(func):
         Logs.stop_logging(thread_data)
         device = args[0] if len(args) > 0 else None
         cs = args[1] if len(args) > 1 else None
-        activity_code = func.__name__.upper() + ("_" + cs.__class__.__name__.upper() if cs is not None else "")
+        activity_code = func.__name__.upper() + ("_" + cs.imp_name if cs is not None else "")
         Logs.log_activity(thread_data, activity_code, end_time - start_time, VERSION, self.id, device)
         return result
 
@@ -26,13 +26,13 @@ def log_activity(func):
 
 
 class IntersectionHandler:
-    def __init__(self):
+    def __init__(self, id, my_data, domain, devices, results):
         # Añadimos las variables de instancia de la clase Node para facilitar el acceso a los datos
-        self.id = Node.getinstance().id
-        self.my_data = Node.getinstance().my_data
-        self.domain = Node.getinstance().domain
-        self.devices = Node.getinstance().devices
-        self.results = Node.getinstance().results
+        self.id = id
+        self.my_data = my_data
+        self.domain = domain
+        self.devices = devices
+        self.results = results
         self.paillierHandler = PaillierHandler()
         self.damgardJurikHandler = DamgardJurikHandler()
 
@@ -59,18 +59,14 @@ class IntersectionHandler:
         coeffs = polinomio_raices(my_data)
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
-        print(f"Intersection with {device} - {cs.__class__.__name__}_OPE - Sending coeffs: {encrypted_coeffs}")
+        print(f"Intersection with {device} - {cs.imp_name}_OPE - Sending coeffs: {encrypted_coeffs}")
         if type == "PSI-CA":
-            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' PSI-CA OPE'),
-                       'peer': self.id,
-                       'pubkey': serialized_pubkey}
+            self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
         else:
-            message = {'data': encrypted_coeffs, 'implementation': (cs.__class__.__name__ + ' OPE'), 'peer': self.id,
-                       'pubkey': serialized_pubkey}
-        self.devices[device]["socket"].send_json(message)
+            self.send_message(device, encrypted_coeffs, (cs.imp_name + ' OPE'), serialized_pubkey)
 
     @log_activity
-    def handle_ope(self, device, cs, peer_data, coeffs, pubkey):
+    def intersection_second_step_ope(self, device, cs, coeffs, pubkey):
         """
         This method handles the Oblivious Polynomial Evaluation (OPE) operation for the device that receives
         the coefficients
@@ -89,7 +85,8 @@ class IntersectionHandler:
         pubkey = cs.reconstruct_public_key(pubkey)
         coeffs = cs.get_encrypted_list(coeffs, pubkey)
         encrypted_evaluated_coeffs = cs.eval_coefficients(coeffs, pubkey, my_data)
-        return peer_data, encrypted_evaluated_coeffs, (cs.__class__.__name__ + " OPE")
+        serialized_encrypted_evaluated_coeffs = cs.serialize_result(encrypted_evaluated_coeffs, "OPE")
+        self.send_message(device, serialized_encrypted_evaluated_coeffs, cs.imp_name + ' OPE')
 
     @log_activity
     def intersection_final_step_ope(self, device, cs, peer_data):
@@ -112,12 +109,12 @@ class IntersectionHandler:
         9. Logs the result.
         10. Prints the final result of the operation.
         """
-        result = cs.get_encrypted_list_f(peer_data['data'])
+        result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
-        print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} OPE - Raw results: {result}")
+        print(f"Intersection with {device} - {cs.imp_name} OPE - Raw results: {result}")
         result_formatted = [element for element in result if element in self.my_data]
         self.results[device] = result_formatted
-        print(f"Intersection with {device} - {cs.__class__.__name__} OPE - Result: {result_formatted}")
+        print(f"Intersection with {device} - {cs.imp_name} OPE - Result: {result_formatted}")
 
     @log_activity
     def intersection_first_step(self, device, cs):
@@ -125,44 +122,54 @@ class IntersectionHandler:
         serialized_pubkey = cs.serialize_public_key()
         encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
                           encrypted_data.items()}
-        print(f"Intersection with {device} - {cs.__class__.__name__} - Sending data: {encrypted_data}")
-        message = {'data': encrypted_data, 'implementation': cs.__class__.__name__, 'peer': self.id,
+        print(f"Intersection with {device} - {cs.imp_name} - Sending data: {encrypted_data}")
+        message = {'data': encrypted_data, 'implementation': cs.imp_name, 'peer': self.id,
                    'pubkey': serialized_pubkey}
         self.devices[device]["socket"].send_json(message)
 
     @log_activity
-    def handle_intersection(self, device, cs, peer_data, pubkey):
+    def intersection_second_step(self, device, cs, peer_data, pubkey):
         pubkey = cs.reconstruct_public_key(pubkey)
-        multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data['data'], pubkey), self.my_data)
-        return peer_data, multiplied_set, cs.__class__.__name__
+        multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data, pubkey), self.my_data)
+        serialized_multiplied_set = cs.serialize_result(multiplied_set)
+        self.send_message(device, serialized_multiplied_set, cs.imp_name)
 
     @log_activity
     def intersection_final_step(self, device, cs, peer_data):
-        multiplied_set = cs.recv_multiplied_set(peer_data['data'], cs.public_key)
+        multiplied_set = cs.recv_multiplied_set(peer_data, cs.public_key)
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = cs.decrypt(encrypted_value)
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
         self.results[device] = multiplied_set
-        Logs.log_result("INTERSECTION_" + cs.__class__.__name__, multiplied_set, VERSION, self.id, device)
-        print(f"Intersection with {device} - {cs.__class__.__name__} - Result: {multiplied_set}")
+        Logs.log_result("INTERSECTION_" + cs.imp_name, multiplied_set, VERSION, self.id, device)
+        print(f"Intersection with {device} - {cs.imp_name} - Result: {multiplied_set}")
 
     @log_activity
-    def handle_psi_ca_ope(self, device, cs, coeffs, pubkey):
+    def intersection_second_step_psi_ca_ope(self, device, cs, coeffs, pubkey):
         my_data = [int(element) for element in self.my_data]
         pubkey = cs.reconstruct_public_key(pubkey)
         coeffs = cs.get_encrypted_list(coeffs, pubkey)
         result = cs.get_evaluations(coeffs, pubkey, my_data)
-        return result
+        serialized_result = cs.serialize_result(result, "OPE")
+        self.send_message(device, serialized_result, cs.imp_name + ' PSI-CA OPE')
 
     @log_activity
     def final_step_psi_ca_ope(self, device, cs, peer_data):
-        result = cs.get_encrypted_list_f(peer_data['data'])
+        result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
-        print(f"Intersection with {peer_data['peer']} - {cs.__class__.__name__} PSI-CA OPE - Raw results: {result}")
+        print(f"Intersection with {device} - {cs.imp_name} PSI-CA OPE - Raw results: {result}")
         # When the element is 0, it means it's in the intersection
         cardinality = sum([int(element == 0) for element in result])
         self.results[device] = cardinality
-        Logs.log_result((cs.__class__.__name__ + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
-        print(f"Cardinality calculation with {device} - {cs.__class__.__name__} PSI-CA OPE - Result: {cardinality}")
+        Logs.log_result((cs.imp_name + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
+        print(f"Cardinality calculation with {device} - {cs.imp_name} PSI-CA OPE - Result: {cardinality}")
+
+    def send_message(self, peer, ser_enc_res, implementation, peer_pubkey=None):
+        if peer_pubkey:
+            message = {'data': ser_enc_res, 'implementation': implementation, 'peer': self.id,
+                       'pubkey': peer_pubkey}
+        else:
+            message = {'data': ser_enc_res, 'cryptpscheme': implementation, 'peer': self.id}
+        self.devices[peer]["socket"].send_json(message)

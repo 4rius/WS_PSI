@@ -108,6 +108,12 @@ def stop_logging_cpu_usage(thread_data):
 
 
 def stop_logging_ram_usage(thread_data):
+    if len(thread_data.ram_usage) == 0:
+        thread_data.avg_ram_usage = 0
+        thread_data.peak_ram_usage = 0
+        thread_data.avg_instance_ram_usage = 0
+        thread_data.peak_instance_ram_usage = 0
+        return
     result = sum(thread_data.ram_usage) / len(thread_data.ram_usage)
     thread_data.avg_ram_usage = round(result, 2)
     thread_data.peak_ram_usage = round(max(thread_data.ram_usage), 2)

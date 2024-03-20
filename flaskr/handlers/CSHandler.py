@@ -50,3 +50,6 @@ class CSHandler:
 
     def get_evaluations(self, coeffs, pubkey, my_data):
         raise NotImplementedError
+
+    def serialize_result(self, result, type):
+        raise NotImplementedError

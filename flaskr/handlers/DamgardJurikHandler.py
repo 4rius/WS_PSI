@@ -12,6 +12,7 @@ class DamgardJurikHandler(CSHandler):
         self.private_key_ring = None
         self.public_key = None
         self.public_key, self.private_key_ring = self.generate_keys()
+        self.imp_name = "Damgard-Jurik"
 
     def generate_keys(self):
         public_key, private_key_ring = keygen(n_bits=DEFL_KEYSIZE, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
@@ -99,3 +100,7 @@ class DamgardJurikHandler(CSHandler):
             Epbj = self.horner_encrypted_eval(coefs, element)
             evaluations.append(pubkey.encrypt(0) + rb * Epbj)
         return evaluations
+
+    def serialize_result(self, result, type=None):
+        return [str(element.value) for element in result] if type == "OPE" else \
+            {element: str(encrypted_value.value) for element, encrypted_value in result.items()}

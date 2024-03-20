@@ -107,6 +107,9 @@ def create_app(test_config=None):
 
     @app.route('/api/logs', methods=['GET'])
     def api_metrics():
+        id = request.args.get('id')
+        if id is not None:
+            return Logs.get_logs(id)
         return Logs.get_logs(node.id)
 
     @app.route('/api/test', methods=['POST'])
