@@ -2,11 +2,11 @@ import random
 
 from phe import paillier, EncryptedNumber
 
-from flaskr.DbConstants import DEFL_KEYSIZE
-from flaskr.implementations.CryptoSystem import CryptoSystem
+from flaskr.helpers.DbConstants import DEFL_KEYSIZE
+from flaskr.handlers.CSHandler import CSHandler
 
 
-class Paillier(CryptoSystem):
+class PaillierHandler(CSHandler):
 
     def __init__(self):
         self.private_key = None

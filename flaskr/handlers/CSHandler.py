@@ -1,4 +1,4 @@
-class CryptoSystem:
+class CSHandler:
 
     def encrypt(self, plaintext):
         raise NotImplementedError

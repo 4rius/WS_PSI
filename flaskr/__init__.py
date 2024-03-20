@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 from . import Node, Logs
 from .Node import Node
-from . import networking
+from .helpers import networking
 
 
 def create_app(test_config=None):
@@ -79,19 +79,10 @@ def create_app(test_config=None):
     def api_ca_dj():
         device = request.args.get('device')
         scheme = request.args.get('scheme')
-        if scheme == "Paillier":
-            return jsonify({'status': node.paillier_intersection_first_step(device)})
-        elif scheme == "Damgard-Jurik":
-            return jsonify({'status': node.dj_intersection_first_step(device)})
-        elif scheme == "Paillier OPE":
-            return jsonify({'status': node.paillier_intersection_first_step_ope(device)})
-        elif scheme == "Damgard-Jurik OPE":
-            return jsonify({'status': node.dj_intersection_first_step_ope(device)})
-        elif scheme == "Paillier OPE PSI-CA":
-            return jsonify({'status': node.paillier_intersection_first_step_ope(device, "PSI-CA")})
-        elif scheme == "Damgard-Jurik OPE PSI-CA":
-            return jsonify({'status': node.dj_intersection_first_step_ope(device, "PSI-CA")})
-        return jsonify({'status': 'Invalid implementation'})
+        type = request.args.get('type')
+        if type is None:
+            return jsonify({'status': node.start_intersection(device, scheme)})
+        return jsonify({'status': node.start_intersection(device, scheme, type)})
 
     @app.route('/api/dataset', methods=['GET'])
     def api_dataset():

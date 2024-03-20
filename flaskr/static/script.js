@@ -42,10 +42,10 @@ function update_devices() {
             '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\')">Paillier</button>'
             +
             ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\')">Damgard-Jurik</button></p>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\')">Paillier - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\')">Damgard-Jurik - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE PSI-CA' + '\')">Cardinality - Paillier</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE PSI-CA' + '\')">Cardinality - Damgard-Jurik</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\', \'' + 'PSI' +'\')">Paillier - OPE</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\', \'' + 'PSI' +'\')">Damgard-Jurik - OPE</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE PSI-CA' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Paillier</button>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE PSI-CA' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Damgard-Jurik</button>' +
             ' <button class="btn waves-effect waves-light" onclick="test(\'' + key + '\')">STRESS TEST</button>'
             );
         });
@@ -148,8 +148,8 @@ function ca_paillier(device) {
     });
 }
 
-function FindIntersection(device, scheme) {
-    $.post(`/api/intersection?device=${device}&scheme=${scheme}`, function(data){
+function FindIntersection(device, scheme, type) {
+    $.post(`/api/intersection?device=${device}&scheme=${scheme}&type=${type}`, function(data){
     })
     .done(function(data) {
         const message = data.status;

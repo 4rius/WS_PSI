@@ -2,11 +2,11 @@ import random
 
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
-from flaskr.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
-from flaskr.implementations.CryptoSystem import CryptoSystem
+from flaskr.helpers.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
+from flaskr.handlers.CSHandler import CSHandler
 
 
-class DamgardJurik(CryptoSystem):
+class DamgardJurikHandler(CSHandler):
 
     def __init__(self):
         self.private_key_ring = None
