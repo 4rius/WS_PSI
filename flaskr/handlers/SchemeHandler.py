@@ -52,49 +52,45 @@ class SchemeHandler:
         return "Invalid scheme: " + scheme
 
     def handle_message(self, message):
-        if "cryptpscheme" in message and "peer" in message:
-            self.handle_intersection_final_step(message)
-        else:
-            self.handle_intersection_second_step(message)
+        try:
+            message = json.loads(message)
+            if message['step'] == "2":
+                self.handle_intersection_second_step(message)
+            elif message['step'] == "F":
+                self.handle_intersection_final_step(message)
+        except json.JSONDecodeError:
+            print("Received message is not a valid JSON.")
 
     def handle_intersection_second_step(self, message):
-        try:
-            message = json.loads(message)
-            if message['peer'] not in self.devices:
-                Node.getinstance().new_peer(message['peer'], time.strftime("%H:%M:%S", time.localtime()))
-            crypto_impl = CryptoImplementation.from_string(message['implementation'])
-            if crypto_impl in self.CSHandlers:
-                cs = self.CSHandlers[crypto_impl]
-                if "PSI-CA" in message['implementation']:
-                    self.executor.submit(self.intersectionHandler.intersection_second_step_psi_ca_ope, message['peer'],
-                                         cs, message['data'], message['pubkey'])
-                elif "OPE" in message['implementation']:
-                    self.executor.submit(self.intersectionHandler.intersection_second_step_ope, message['peer'], cs,
-                                         message['data'], message['pubkey'])
-                else:
-                    self.executor.submit(self.intersectionHandler.intersection_second_step, message['peer'], cs,
-                                         message['data'], message['pubkey'])
+        if message['peer'] not in self.devices:
+            Node.getinstance().new_peer(message['peer'], time.strftime("%H:%M:%S", time.localtime()))
+        crypto_impl = CryptoImplementation.from_string(message['implementation'])
+        if crypto_impl in self.CSHandlers:
+            cs = self.CSHandlers[crypto_impl]
+            if "PSI-CA" in message['implementation']:
+                self.executor.submit(self.intersectionHandler.intersection_second_step_psi_ca_ope, message['peer'],
+                                     cs, message['data'], message['pubkey'])
+            elif "OPE" in message['implementation']:
+                self.executor.submit(self.intersectionHandler.intersection_second_step_ope, message['peer'], cs,
+                                     message['data'], message['pubkey'])
             else:
-                Exception("Invalid scheme: " + message['implementation'])
-        except json.JSONDecodeError:
-            print("Received message is not a valid JSON.")
+                self.executor.submit(self.intersectionHandler.intersection_second_step, message['peer'], cs,
+                                     message['data'], message['pubkey'])
+        else:
+            Exception("Invalid scheme: " + message['implementation'])
 
     def handle_intersection_final_step(self, message):
-        try:
-            message = json.loads(message)
-            crypto_impl = CryptoImplementation.from_string(message['cryptpscheme'])
-            if crypto_impl in self.CSHandlers:
-                cs = self.CSHandlers[crypto_impl]
-                if "PSI-CA" in message['cryptpscheme']:
-                    self.executor.submit(self.intersectionHandler.final_step_psi_ca_ope, message['peer'], cs,
-                                         message['data'])
-                elif "OPE" in message['cryptpscheme']:
-                    self.executor.submit(self.intersectionHandler.intersection_final_step_ope, message['peer'], cs,
-                                         message['data'])
-                else:
-                    self.executor.submit(self.intersectionHandler.intersection_final_step, message['peer'], cs,
-                                         message['data'])
+        crypto_impl = CryptoImplementation.from_string(message['implementation'])
+        if crypto_impl in self.CSHandlers:
+            cs = self.CSHandlers[crypto_impl]
+            if "PSI-CA" in message['implementation']:
+                self.executor.submit(self.intersectionHandler.final_step_psi_ca_ope, message['peer'], cs,
+                                     message['data'])
+            elif "OPE" in message['implementation']:
+                self.executor.submit(self.intersectionHandler.intersection_final_step_ope, message['peer'], cs,
+                                     message['data'])
             else:
-                Exception("Invalid scheme: " + message['cryptpscheme'])
-        except json.JSONDecodeError:
-            print("Received message is not a valid JSON.")
+                self.executor.submit(self.intersectionHandler.intersection_final_step, message['peer'], cs,
+                                     message['data'])
+        else:
+            Exception("Invalid scheme: " + message['implementation'])

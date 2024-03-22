@@ -89,9 +89,9 @@ class Node:
         if message.endswith("is pinging you!"):
             self.handle_ping(sender, message, day_time)
         elif message.startswith("{"):
-            if "cryptpscheme" in message or "implementation" in message:
+            if "implementation" in message:
                 self.scheme_handler.handle_message(message)
-            # Aquí podría haber otro tipo de JSON
+            # Aquí podría haber otro tipo de JSON añadiendo las condiciones necesarias
         else:
             for key in message_handlers:
                 if message.startswith(key):

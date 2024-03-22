@@ -123,9 +123,7 @@ class IntersectionHandler:
         encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
                           encrypted_data.items()}
         print(f"Intersection with {device} - {cs.imp_name} - Sending data: {encrypted_data}")
-        message = {'data': encrypted_data, 'implementation': cs.imp_name, 'peer': self.id,
-                   'pubkey': serialized_pubkey}
-        self.devices[device]["socket"].send_json(message)
+        self.send_message(device, encrypted_data, cs.imp_name, serialized_pubkey)
 
     @log_activity
     def intersection_second_step(self, device, cs, peer_data, pubkey):
@@ -169,7 +167,7 @@ class IntersectionHandler:
     def send_message(self, peer, ser_enc_res, implementation, peer_pubkey=None):
         if peer_pubkey:
             message = {'data': ser_enc_res, 'implementation': implementation, 'peer': self.id,
-                       'pubkey': peer_pubkey}
+                       'pubkey': peer_pubkey, 'step': '2'}
         else:
-            message = {'data': ser_enc_res, 'cryptpscheme': implementation, 'peer': self.id}
+            message = {'data': ser_enc_res, 'implementation': implementation, 'peer': self.id, 'step': 'F'}
         self.devices[peer]["socket"].send_json(message)
