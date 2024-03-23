@@ -66,7 +66,7 @@ class Node:
         self.devices[address] = {"socket": dealer_socket, "last_seen": None}
 
     def start_router_socket(self):
-        self.router_socket.bind(f"tcp://*:{self.port}")
+        self.router_socket.bind(f"tcp://{self.id}:{self.port}")
         print(f"Node {self.id} (You) listening on port {self.port}")
         threading.Thread(target=self._listen_on_router, daemon=True).start()
         # daemon=True para que el hilo muera cuando el programa principal muera
