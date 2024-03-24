@@ -2,8 +2,6 @@ import time
 
 from flaskr import Logs
 from flaskr.Logs import ThreadData
-from flaskr.handlers.DamgardJurikHandler import DamgardJurikHandler
-from flaskr.handlers.PaillierHandler import PaillierHandler
 from flaskr.helpers.DbConstants import VERSION
 from flaskr.helpers.Polynomials import polinomio_raices
 
@@ -33,8 +31,6 @@ class IntersectionHandler:
         self.domain = domain
         self.devices = devices
         self.results = results
-        self.paillierHandler = PaillierHandler()
-        self.damgardJurikHandler = DamgardJurikHandler()
 
     @log_activity
     def intersection_first_step_ope(self, device, cs, type="PSI"):

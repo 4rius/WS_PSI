@@ -2,13 +2,38 @@ digraph "packages" {
 rankdir=BT
 charset="utf-8"
 "flaskr" [color="black", label=<flaskr>, shape="box", style="solid"];
-"flaskr.DbConstants" [color="black", label=<flaskr.DbConstants>, shape="box", style="solid"];
 "flaskr.Logs" [color="black", label=<flaskr.Logs>, shape="box", style="solid"];
 "flaskr.Node" [color="black", label=<flaskr.Node>, shape="box", style="solid"];
-"flaskr.networking" [color="black", label=<flaskr.networking>, shape="box", style="solid"];
-"flaskr.testhomomorphicsubstraction" [color="black", label=<flaskr.testhomomorphicsubstraction>, shape="box", style="solid"];
-"flaskr.tests" [color="black", label=<flaskr.tests>, shape="box", style="solid"];
-"flaskr.tests.testope" [color="black", label=<flaskr.tests.testope>, shape="box", style="solid"];
-"flaskr.tests.testopedj" [color="black", label=<flaskr.tests.testopedj>, shape="box", style="solid"];
-"flaskr.Node" -> "flaskr.DbConstants" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers" [color="black", label=<flaskr.handlers>, shape="box", style="solid"];
+"flaskr.handlers.CSHandler" [color="black", label=<flaskr.handlers.CSHandler>, shape="box", style="solid"];
+"flaskr.handlers.DamgardJurikHandler" [color="black", label=<flaskr.handlers.DamgardJurikHandler>, shape="box", style="solid"];
+"flaskr.handlers.IntersectionHandler" [color="black", label=<flaskr.handlers.IntersectionHandler>, shape="box", style="solid"];
+"flaskr.handlers.PaillierHandler" [color="black", label=<flaskr.handlers.PaillierHandler>, shape="box", style="solid"];
+"flaskr.handlers.SchemeHandler" [color="black", label=<flaskr.handlers.SchemeHandler>, shape="box", style="solid"];
+"flaskr.helpers" [color="black", label=<flaskr.helpers>, shape="box", style="solid"];
+"flaskr.helpers.CryptoImplementation" [color="black", label=<flaskr.helpers.CryptoImplementation>, shape="box", style="solid"];
+"flaskr.helpers.DbConstants" [color="black", label=<flaskr.helpers.DbConstants>, shape="box", style="solid"];
+"flaskr.helpers.Polynomials" [color="black", label=<flaskr.helpers.Polynomials>, shape="box", style="solid"];
+"flaskr.helpers.networking" [color="black", label=<flaskr.helpers.networking>, shape="box", style="solid"];
+"flaskr" -> "flaskr.helpers" [arrowhead="open", arrowtail="none"];
+"flaskr.Node" -> "flaskr.handlers.SchemeHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.Node" -> "flaskr.helpers.DbConstants" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.DamgardJurikHandler" -> "flaskr.handlers.CSHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.DamgardJurikHandler" -> "flaskr.helpers.DbConstants" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr.Logs" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr.handlers.DamgardJurikHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr.handlers.PaillierHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr.helpers.DbConstants" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.IntersectionHandler" -> "flaskr.helpers.Polynomials" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.PaillierHandler" -> "flaskr.handlers.CSHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.PaillierHandler" -> "flaskr.helpers.DbConstants" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.Logs" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.Node" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.handlers.DamgardJurikHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.handlers.IntersectionHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.handlers.PaillierHandler" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.helpers.CryptoImplementation" [arrowhead="open", arrowtail="none"];
+"flaskr.handlers.SchemeHandler" -> "flaskr.helpers.DbConstants" [arrowhead="open", arrowtail="none"];
 }
