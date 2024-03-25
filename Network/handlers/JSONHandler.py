@@ -5,22 +5,22 @@ from concurrent.futures import ThreadPoolExecutor
 from Network import Logs
 from Network.Logs import ThreadData
 from Network.handlers.CAOPEHandler import CAOPEHandler
-from Network.handlers.DamgardJurikHandler import DamgardJurikHandler
+from Network.helpers.DamgardJurikHandler import DamgardJurikHelper
 from Network.handlers.DomainPSIHandler import DomainPSIHandler
 from Network.handlers.OPEHandler import OPEHandler
-from Network.handlers.PaillierHandler import PaillierHandler
+from Network.helpers.PaillierHandler import PaillierHelper
 from Network.helpers.CryptoImplementation import CryptoImplementation
-from Network.helpers.DbConstants import VERSION, TEST_ROUNDS
+from Network.collections.DbConstants import VERSION, TEST_ROUNDS
 
 
 class JSONHandler:
     def __init__(self, id, my_data, domain, devices, results, new_peer_function):
         self.CSHandlers = {
             CryptoImplementation("Paillier", "Paillier OPE", "Paillier_OPE",
-                                 "Paillier PSI-CA OPE"): PaillierHandler(),
+                                 "Paillier PSI-CA OPE"): PaillierHelper(),
             CryptoImplementation("DamgardJurik", "Damgard-Jurik", "DamgardJurik OPE",
                                  "Damgard-Jurik_OPE", "Damgard-Jurik OPE", "DamgardJurik PSI-CA OPE",
-                                 "Damgard-Jurik PSI-CA OPE"): DamgardJurikHandler()
+                                 "Damgard-Jurik PSI-CA OPE"): DamgardJurikHelper()
         }
         self.OPEHandler = OPEHandler(id, my_data, domain, devices, results)
         self.CAOPEHandler = CAOPEHandler(id, my_data, domain, devices, results)

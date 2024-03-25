@@ -2,11 +2,11 @@ import random
 
 from phe import paillier, EncryptedNumber
 
-from Network.helpers.DbConstants import DEFL_KEYSIZE
-from Network.handlers.CSHandler import CSHandler
+from Network.collections.DbConstants import DEFL_KEYSIZE
+from Network.helpers.CSHelper import CSHelper
 
 
-class PaillierHandler(CSHandler):
+class PaillierHelper(CSHelper):
 
     def __init__(self):
         self.private_key = None

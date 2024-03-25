@@ -2,7 +2,7 @@ import time
 
 from Network import Logs
 from Network.Logs import ThreadData
-from Network.helpers.DbConstants import VERSION
+from Network.collections.DbConstants import VERSION
 
 
 def log_activity(func):

@@ -2,11 +2,11 @@ import random
 
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
-from Network.helpers.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
-from Network.handlers.CSHandler import CSHandler
+from Network.collections.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
+from Network.helpers.CSHelper import CSHelper
 
 
-class DamgardJurikHandler(CSHandler):
+class DamgardJurikHelper(CSHelper):
 
     def __init__(self):
         self.private_key_ring = None

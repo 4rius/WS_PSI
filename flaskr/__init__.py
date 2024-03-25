@@ -4,7 +4,7 @@ from flask import Flask, render_template, jsonify, request
 
 from Network import Logs
 from Network.Node import Node
-from Network.helpers import networking
+from Network.collections import networking
 
 
 def create_app(test_config=None):

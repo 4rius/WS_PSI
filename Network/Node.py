@@ -5,7 +5,7 @@ import time
 import zmq
 
 from Network.handlers.JSONHandler import JSONHandler
-from Network.helpers.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
+from Network.collections.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 
 
 class Node:

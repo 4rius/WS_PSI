@@ -1,7 +1,7 @@
 from Network import Logs
 from Network.helpers.IntersectionHelper import IntersectionHelper
-from Network.helpers.DbConstants import VERSION
-from Network.helpers.log_activity import log_activity
+from Network.collections.DbConstants import VERSION
+from Network.collections.log_activity import log_activity
 
 
 class DomainPSIHandler(IntersectionHelper):
