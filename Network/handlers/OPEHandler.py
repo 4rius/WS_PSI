@@ -1,11 +1,11 @@
 from Network import Logs
-from Network.handlers.Intersection import Intersection
+from Network.helpers.IntersectionHelper import IntersectionHelper
 from Network.helpers.DbConstants import VERSION
 from Network.helpers.Polynomials import polinomio_raices
 from Network.helpers.log_activity import log_activity
 
 
-class OPEHandler(Intersection):
+class OPEHandler(IntersectionHelper):
     def __init__(self, id, my_data, domain, devices, results):
         super().__init__(id, my_data, domain, devices, results)
 
