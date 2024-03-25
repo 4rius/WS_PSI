@@ -1,6 +1,7 @@
 import random
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import zmq
 
@@ -36,6 +37,7 @@ class Node:
             self.results = {}  # Resultados de las intersecciones
             self.json_handler = JSONHandler(self.id, self.myData, self.domain, self.devices, self.results,
                                             self.new_peer)
+            self.executor = ThreadPoolExecutor(max_workers=10)
             # Manejador de esquemas criptográficos
 
     def start(self):
@@ -75,10 +77,13 @@ class Node:
     def _listen_on_router(self):
         while self.running:
             sender, message = self.router_socket.recv_multipart()
-            message = message.decode('utf-8')
-            print(f"Node {self.id} (You) received: {message}")
-            day_time = time.strftime("%H:%M:%S", time.localtime())
-            self.handle_message(sender, message, day_time)
+            self.executor.submit(self._handle_received, sender, message)
+
+    def _handle_received(self, sender, message):
+        message = message.decode('utf-8')
+        print(f"Node {self.id} (You) received: {message}")
+        day_time = time.strftime("%H:%M:%S", time.localtime())
+        self.handle_message(sender, message, day_time)
 
     def handle_message(self, sender, message, day_time):
         # Cleaner routing

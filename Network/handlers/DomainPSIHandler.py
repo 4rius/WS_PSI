@@ -1,10 +1,10 @@
 from Network import Logs
-from Network.helpers.IntersectionHelper import IntersectionHelper
+from Network.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
 from Network.collections.log_activity import log_activity
 
 
-class DomainPSIHandler(IntersectionHelper):
+class DomainPSIHandler(IntersectionHandler):
     def __init__(self, id, my_data, domain, devices, results):
         super().__init__(id, my_data, domain, devices, results)
 

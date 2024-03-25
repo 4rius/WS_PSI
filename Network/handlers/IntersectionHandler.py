@@ -1,4 +1,4 @@
-class IntersectionHelper:
+class IntersectionHandler:
     def __init__(self, id, my_data, domain, devices, results):
         # Añadimos las variables de instancia de la clase Node para facilitar el acceso a los datos
         self.id = id
