@@ -13,7 +13,7 @@ from Network.helpers.CryptoImplementation import CryptoImplementation
 from Network.helpers.DbConstants import VERSION, TEST_ROUNDS
 
 
-class SchemeHandler:
+class JSONHandler:
     def __init__(self, id, my_data, domain, devices, results, new_peer_function):
         self.CSHandlers = {
             CryptoImplementation("Paillier", "Paillier OPE", "Paillier_OPE",
