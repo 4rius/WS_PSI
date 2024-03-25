@@ -2,8 +2,8 @@ import random
 
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
-from flaskr.helpers.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
-from flaskr.handlers.CSHandler import CSHandler
+from Network.helpers.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
+from Network.handlers.CSHandler import CSHandler
 
 
 class DamgardJurikHandler(CSHandler):

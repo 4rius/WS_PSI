@@ -2,9 +2,9 @@ import os
 
 from flask import Flask, render_template, jsonify, request
 
-from . import Node, Logs
-from .Node import Node
-from .helpers import networking
+from Network import Logs
+from Network.Node import Node
+from Network.helpers import networking
 
 
 def create_app(test_config=None):

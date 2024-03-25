@@ -2,8 +2,8 @@ import random
 
 from phe import paillier, EncryptedNumber
 
-from flaskr.helpers.DbConstants import DEFL_KEYSIZE
-from flaskr.handlers.CSHandler import CSHandler
+from Network.helpers.DbConstants import DEFL_KEYSIZE
+from Network.handlers.CSHandler import CSHandler
 
 
 class PaillierHandler(CSHandler):

@@ -4,8 +4,8 @@ import time
 
 import zmq
 
-from flaskr.handlers.SchemeHandler import SchemeHandler
-from flaskr.helpers.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
+from Network.handlers.SchemeHandler import SchemeHandler
+from Network.helpers.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 
 
 class Node:
@@ -34,7 +34,8 @@ class Node:
             self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
             self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
             self.results = {}  # Resultados de las intersecciones
-            self.scheme_handler = SchemeHandler(self.id, self.myData, self.domain, self.devices, self.results)
+            self.scheme_handler = SchemeHandler(self.id, self.myData, self.domain, self.devices, self.results,
+                                                self.new_peer)
             # Manejador de esquemas criptográficos
 
     def start(self):

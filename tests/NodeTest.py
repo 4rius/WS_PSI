@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import zmq
 
-from flaskr.Node import Node
+from Network.Node import Node
 
 
 class NodeTests(unittest.TestCase):
