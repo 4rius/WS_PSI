@@ -34,8 +34,8 @@ class Node:
             self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
             self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
             self.results = {}  # Resultados de las intersecciones
-            self.scheme_handler = JSONHandler(self.id, self.myData, self.domain, self.devices, self.results,
-                                              self.new_peer)
+            self.json_handler = JSONHandler(self.id, self.myData, self.domain, self.devices, self.results,
+                                            self.new_peer)
             # Manejador de esquemas criptográficos
 
     def start(self):
@@ -91,7 +91,7 @@ class Node:
             self.handle_ping(sender, message, day_time)
         elif message.startswith("{"):
             if "implementation" in message:
-                self.scheme_handler.handle_message(message)
+                self.json_handler.handle_message(message)
             # Aquí podría haber otro tipo de JSON añadiendo las condiciones necesarias
         else:
             for key in message_handlers:
@@ -177,17 +177,17 @@ class Node:
         # Cierra el socket ROUTER
         self.router_socket.close()
         # Cierra el executor
-        self.scheme_handler.executor.shutdown(wait=True)
+        self.json_handler.executor.shutdown(wait=True)
         # Cambia el estado de ejecución a False
         self.running = False
 
     def genkeys(self, scheme):
         if scheme == "Paillier":
-            t = threading.Thread(target=self.scheme_handler.genkeys, args=("Paillier",))
+            t = threading.Thread(target=self.json_handler.genkeys, args=("Paillier",))
             t.start()
             return "Generating Paillier keys..."
         elif scheme == "Damgard-Jurik":
-            t = threading.Thread(target=self.scheme_handler.genkeys, args=("Damgard-Jurik",))
+            t = threading.Thread(target=self.json_handler.genkeys, args=("Damgard-Jurik",))
             t.start()
             return "Generating Damgard-Jurik keys..."
         return "Invalid scheme"
@@ -220,11 +220,11 @@ class Node:
 
     def start_intersection(self, device, scheme, type=None):
         if device in self.devices:
-            return self.scheme_handler.start_intersection(device, scheme, type)
+            return self.json_handler.start_intersection(device, scheme, type)
         return "Device not found - Have the peer send an ACK first"
 
     def launch_test(self, device):
         if device in self.devices:
-            self.scheme_handler.test_launcher(device)
+            self.json_handler.test_launcher(device)
             return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"
