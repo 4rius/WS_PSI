@@ -173,17 +173,10 @@ function test(device) {
 
 }
 
-
-function pubkey(device) {
-    $.get('/api/pubkey/' + device, function(data){
-        alert(data.status);
-    });
-}
-
 function mykeys() {
     $.get('/api/mykeys', function(data){
-        const message = "Clave pública: " + "\nN: " + data.pubkeyN + "\ng: " + data.pubkeyG
-            + "\nClave privada: " + "\nP: " + data.privkeyP + "\nQ: " + data.privkeyQ;
+        const message = "Claves públicas: " + "\nPaillier\nn: " + data.pubkeyN + "\ng: " + data.pubkeyG
+            + "\nDamgard-Jurik\nn: " + data.pubkeyNDJ + "\ns: " + data.pubkeySDJ + "\nm: " + data.pubkeyMDJ;
         window.open().document.write('<pre>' + message + '</pre>');
     });
 }

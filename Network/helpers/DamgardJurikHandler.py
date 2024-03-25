@@ -15,7 +15,8 @@ class DamgardJurikHelper(CSHelper):
         self.imp_name = "Damgard-Jurik"
 
     def generate_keys(self):
-        public_key, private_key_ring = keygen(n_bits=DEFL_KEYSIZE, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
+        # /2 para que genere la misma longitud que Paillier, que divide el tamaño de la clave
+        public_key, private_key_ring = keygen(n_bits=DEFL_KEYSIZE//2, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
         return public_key, private_key_ring
 
     def encrypt(self, number):

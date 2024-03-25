@@ -5,6 +5,7 @@ from flask import Flask, render_template, jsonify, request
 from Network import Logs
 from Network.Node import Node
 from Network.collections import networking
+from Network.helpers.CryptoImplementation import CryptoImplementation
 
 
 def create_app(test_config=None):
@@ -70,10 +71,16 @@ def create_app(test_config=None):
 
     @app.route('/api/mykeys', methods=['GET'])
     def api_pubkey():
-        return jsonify({'pubkeyN': str(node.json_handler.paillier.public_key.n),
-                        'pubkeyG': str(node.json_handler.paillier.public_key.g),
-                        'privkeyP': str(node.json_handler.paillier.public_key.p),
-                        'privkeyQ': str(node.json_handler.paillier.public_key.q)})
+        return (jsonify({'pubkeyN': str(node.json_handler.CSHandlers[CryptoImplementation.from_string("Paillier")].
+                                        public_key.n),
+                         'pubkeyG': str(node.json_handler.CSHandlers[CryptoImplementation.from_string("Paillier")].
+                                        public_key.g),
+                         'pubkeyNDJ': str(node.json_handler.
+                                          CSHandlers[CryptoImplementation.from_string("DamgardJurik")].public_key.n),
+                         'pubkeySDJ': str(node.json_handler.
+                                          CSHandlers[CryptoImplementation.from_string("DamgardJurik")].public_key.s),
+                         'pubkeyMDJ': str(node.json_handler.
+                                          CSHandlers[CryptoImplementation.from_string("DamgardJurik")].public_key.m)}))
 
     @app.route('/api/intersection', methods=['POST'])
     def api_ca_dj():

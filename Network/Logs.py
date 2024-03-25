@@ -29,7 +29,6 @@ class ThreadData:
 
 
 def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
-    formatted_id = id.replace(".", "-")
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
         "id": id,
@@ -51,7 +50,7 @@ def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
     if peer:
         log["peer"] = peer
 
-    firebase.post(f"/logs/{formatted_id}/activities", log)
+    firebase.post(f"/logs/{get_formatted_id(id)}/activities", log)
     print(f"Activity log sent to Firebase")
 
 
@@ -72,8 +71,7 @@ def get_system_info():
 
 
 def get_logs(id):
-    formatted_id = id.replace(".", "-")
-    return firebase.get(f"/logs/{formatted_id}/activities", None)
+    return firebase.get(f"/logs/{get_formatted_id(id)}/activities", None)
 
 
 def start_logging(thread_data):
@@ -156,7 +154,6 @@ def log_instance_cpu_usage(thread_data):
 
 
 def setup_logs(id, set_size, domain):
-    formatted_id = id.replace(".", "-")
     log = {
         "id": id,
         "timestamp": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
@@ -164,12 +161,11 @@ def setup_logs(id, set_size, domain):
         "domain": domain,
         "type": "Desktop (Flask): " + get_system_info()
     }
-    firebase.post(f"/logs/{formatted_id}/setup", log)
+    firebase.post(f"/logs/{get_formatted_id(id)}/setup", log)
     print(f"Log setup sent to Firebase")
 
 
 def log_result(implementation, result, version, id, device):
-    formatted_id = id.replace(".", "-")
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
         "id": id,
@@ -180,6 +176,10 @@ def log_result(implementation, result, version, id, device):
         "version": version,
         "type": "Desktop (Flask): " + get_system_info()
     }
-    firebase.post(f"/logs/{formatted_id}/results", log)
+    firebase.post(f"/logs/{get_formatted_id(id)}/results", log)
     print(f"Result log sent to Firebase")
     return
+
+
+def get_formatted_id(id):
+    return id.replace(".", "-") if "[" not in id else id.replace("[", "").replace("]", "").replace(".", "-")

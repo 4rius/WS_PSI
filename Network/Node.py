@@ -69,6 +69,8 @@ class Node:
         self.devices[address] = {"socket": dealer_socket, "last_seen": None}
 
     def start_router_socket(self):
+        if "[" in self.id and "]" in self.id:
+            self.router_socket.setsockopt(zmq.IPV6, 1)
         self.router_socket.bind(f"tcp://{self.id}:{self.port}")
         print(f"Node {self.id} (You) listening on port {self.port}")
         threading.Thread(target=self._listen_on_router, daemon=True).start()
@@ -188,12 +190,10 @@ class Node:
 
     def genkeys(self, scheme):
         if scheme == "Paillier":
-            t = threading.Thread(target=self.json_handler.genkeys, args=("Paillier",))
-            t.start()
+            self.executor.submit(self.json_handler.genkeys, "Paillier")
             return "Generating Paillier keys..."
         elif scheme == "Damgard-Jurik":
-            t = threading.Thread(target=self.json_handler.genkeys, args=("Damgard-Jurik",))
-            t.start()
+            self.executor.submit(self.json_handler.genkeys, "DamgardJurik")
             return "Generating Damgard-Jurik keys..."
         return "Invalid scheme"
 

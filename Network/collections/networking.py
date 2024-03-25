@@ -1,8 +1,6 @@
 import platform
 import socket
 
-import zmq
-
 
 def get_local_ip():
     system = platform.system()
