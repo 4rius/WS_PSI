@@ -4,12 +4,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 from Network import Logs
 from Network.Logs import ThreadData
-from Network.handlers.CAOPEHandler import CAOPEHandler
-from Network.helpers.DamgardJurikHandler import DamgardJurikHelper
-from Network.handlers.DomainPSIHandler import DomainPSIHandler
-from Network.handlers.OPEHandler import OPEHandler
-from Network.helpers.PaillierHandler import PaillierHelper
-from Network.helpers.CryptoImplementation import CryptoImplementation
+from Crypto.handlers.CAOPEHandler import CAOPEHandler
+from Crypto.helpers.DamgardJurikHandler import DamgardJurikHelper
+from Crypto.handlers.DomainPSIHandler import DomainPSIHandler
+from Crypto.handlers.OPEHandler import OPEHandler
+from Crypto.helpers.PaillierHandler import PaillierHelper
+from Crypto.helpers.CryptoImplementation import CryptoImplementation
 from Network.collections.DbConstants import VERSION, TEST_ROUNDS
 
 

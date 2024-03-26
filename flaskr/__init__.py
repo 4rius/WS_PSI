@@ -5,7 +5,7 @@ from flask import Flask, render_template, jsonify, request
 from Network import Logs
 from Network.Node import Node
 from Network.collections import networking
-from Network.helpers.CryptoImplementation import CryptoImplementation
+from Crypto.helpers.CryptoImplementation import CryptoImplementation
 
 
 def create_app(test_config=None):

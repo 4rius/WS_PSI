@@ -1,5 +1,5 @@
 from Network import Logs
-from Network.handlers.IntersectionHandler import IntersectionHandler
+from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
 from Network.collections.log_activity import log_activity
 

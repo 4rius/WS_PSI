@@ -3,7 +3,7 @@ import random
 from phe import paillier, EncryptedNumber
 
 from Network.collections.DbConstants import DEFL_KEYSIZE
-from Network.helpers.CSHelper import CSHelper
+from Crypto.helpers.CSHelper import CSHelper
 
 
 class PaillierHelper(CSHelper):

@@ -3,7 +3,7 @@ import random
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
 from Network.collections.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
-from Network.helpers.CSHelper import CSHelper
+from Crypto.helpers.CSHelper import CSHelper
 
 
 class DamgardJurikHelper(CSHelper):
