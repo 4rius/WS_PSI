@@ -1,5 +1,9 @@
 class CSHelper:
 
+    def __init__(self):
+        self.imp_name = None
+        self.cs = None
+
     def encrypt(self, plaintext):
         raise NotImplementedError
 

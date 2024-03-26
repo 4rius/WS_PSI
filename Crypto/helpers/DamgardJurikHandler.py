@@ -9,10 +9,9 @@ from Crypto.helpers.CSHelper import CSHelper
 class DamgardJurikHelper(CSHelper):
 
     def __init__(self):
-        self.private_key_ring = None
-        self.public_key = None
-        self.public_key, self.private_key_ring = self.generate_keys()
+        super().__init__()
         self.imp_name = "Damgard-Jurik"
+        self.public_key, self.private_key = self.generate_keys()
 
     def generate_keys(self):
         # /2 para que genere la misma longitud que Paillier, que divide el tamaño de la clave
@@ -23,7 +22,7 @@ class DamgardJurikHelper(CSHelper):
         return self.public_key.encrypt(number)
 
     def decrypt(self, number):
-        return self.private_key_ring.decrypt(number)
+        return self.private_key.decrypt(number)
 
     def serialize_public_key(self):
         public_key_dict = {

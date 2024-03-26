@@ -9,10 +9,9 @@ from Crypto.helpers.CSHelper import CSHelper
 class PaillierHelper(CSHelper):
 
     def __init__(self):
-        self.private_key = None
-        self.public_key = None
-        self.private_key, self.public_key = self.generate_keys()
+        super().__init__()
         self.imp_name = "Paillier"
+        self.private_key, self.public_key = self.generate_keys()
 
     # Devuelve los objetos clave pública y privada
     def generate_keys(self):
