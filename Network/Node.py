@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import zmq
 
-from Crypto.handlers.JSONHandler import JSONHandler
+from Network.JSONHandler import JSONHandler
 from Network.collections.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 
 
