@@ -16,7 +16,7 @@ class Node:
     def getinstance():
         """ Static access method. """
         if Node.__instance is None:
-            raise Exception("Use the appropiate constructor!")
+            return None
         return Node.__instance
 
     def __init__(self, id, port, peers):
@@ -187,6 +187,9 @@ class Node:
         self.json_handler.executor.shutdown(wait=True)
         # Cambia el estado de ejecución a False
         self.running = False
+        # Espera a que el hilo del socket ROUTER termine
+        time.sleep(1)
+        Node.__instance = None
 
     def genkeys(self, scheme):
         if scheme == "Paillier":
@@ -198,10 +201,13 @@ class Node:
         return "Invalid scheme"
 
     def new_peer(self, peer, last_seen):
+        if peer in self.devices:
+            return f"Already knew {peer}"
         dealer_socket = self.context.socket(zmq.DEALER)
         dealer_socket.connect(f"tcp://{peer}:{self.port}")
         self.devices[peer] = {"socket": dealer_socket, "last_seen": last_seen}
         print(f"Added {peer} to my network")
+        return f"Added {peer} to the network"
 
     def discover_peers(self):
         print(f"Node {self.id} (You) - Discovering peers on port {self.port}")
@@ -223,7 +229,7 @@ class Node:
                     continue
         return "Discovering peers..."
 
-    def start_intersection(self, device, scheme, type=None):
+    def start_intersection(self, device, scheme, type):
         if device in self.devices:
             return self.json_handler.start_intersection(device, scheme, type)
         return "Device not found - Have the peer send an ACK first"

@@ -54,9 +54,11 @@ class JSONHandler:
                 self.executor.submit(self.OPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-CA":
                 self.executor.submit(self.CAOPEHandler.intersection_first_step, device, cs)
-            else:
+            elif type == "PSI-Domain":
                 self.executor.submit(self.domainPSIHandler.intersection_first_step, device, cs)
-            return "Intersection with " + device + " - " + scheme + " - Thread started, check logs"
+            else:
+                return "Invalid type: " + type
+            return "Intersection with " + device + " - " + scheme + " - " + type + " - Thread started, check logs"
         return "Invalid scheme: " + scheme
 
     def handle_message(self, message):

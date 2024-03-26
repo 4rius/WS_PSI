@@ -23,3 +23,31 @@ def get_local_ip():
     if ":" in ip:
         return "[" + ip + "]"
     return ip
+
+
+def is_valid_ipv4(peer):
+    try:
+        octets = peer.split(".")
+        if len(octets) != 4:
+            return False
+        for octet in octets:
+            if not 0 <= int(octet) <= 255:
+                return False
+    except ValueError:
+        return False
+
+    return True
+
+
+def is_valid_ipv6(peer):
+    try:
+        hextets = peer.split(":")
+        if len(hextets) != 8:
+            return False
+        for hextet in hextets:
+            if not 0 <= int(hextet, 16) <= 65535:
+                return False
+    except ValueError:
+        return False
+
+    return True

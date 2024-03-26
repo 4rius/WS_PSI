@@ -39,9 +39,9 @@ function update_devices() {
             }
             $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
             ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\')">Paillier</button>'
+            '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\', \'' + 'PSI-Domain' +'\')">Paillier</button>'
             +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\')">Damgard-Jurik</button></p>' +
+            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\', \'' + 'PSI-Domain' +'\')">Damgard-Jurik</button></p>' +
             ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\', \'' + 'OPE' +'\')">Paillier - OPE</button>' +
             ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\', \'' + 'OPE' +'\')">Damgard-Jurik - OPE</button>' +
             ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier PSI-CA OPE' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Paillier</button>' +
