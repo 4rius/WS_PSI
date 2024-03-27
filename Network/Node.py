@@ -32,7 +32,7 @@ class Node:
             self.context = zmq.Context()  # Contexto de ZMQ
             self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
             self.devices = {}  # Dispositivos conectados
-            self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Conjunto de datos del nodo
+            self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Datos propios
             self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
             self.results = {}  # Resultados de las intersecciones
             self.json_handler = JSONHandler(self.id, self.myData, self.domain, self.devices, self.results,
@@ -77,9 +77,6 @@ class Node:
         # daemon=True para que el hilo muera cuando el programa principal muera
 
     def _listen_on_router(self):
-        # RCVTIMEO para que el hilo no se quede bloqueado esperando mensajes, si están llegando, los consume
-        # sin esperar, luego no afecta al rendimiento
-        self.router_socket.setsockopt(zmq.RCVTIMEO, 1000)
         while self.running:
             try:
                 sender, message = self.router_socket.recv_multipart()
@@ -158,7 +155,7 @@ class Node:
                 self.devices[device]["socket"].send_string(f"{self.id} is pinging you!")
 
                 try:
-                    reply = self.devices[device]["socket"].recv_string(zmq.NOBLOCK)
+                    reply = self.devices[device]["socket"].recv_string(zmq.DONTWAIT)
                     print(f"{device} - Received: {reply}")
 
                     if reply.endswith("is up and running!"):
@@ -216,22 +213,23 @@ class Node:
 
     def discover_peers(self):
         print(f"Node {self.id} (You) - Discovering peers on port {self.port}")
+        sockets = []
         # Iterar sobre todas las direcciones IP posibles en la subred
         for i in range(1, 256):
             ip = f"192.168.1.{i}"
             if ip not in self.devices and ip != self.id:
-                try:
-                    # Crear un nuevo socket y tratar de conectar
-                    dealer_socket = self.context.socket(zmq.DEALER)
-                    print(f"Node {self.id} (You) - Trying to connect to " + ip)
-                    dealer_socket.setsockopt(zmq.RCVTIMEO, 1000)  # Tiempo de espera de 1 segundo
-                    dealer_socket.connect(f"tcp://{ip}:{self.port}")
-                    # Enviar un mensaje de descubrimiento
-                    dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
-                    # Matamos aquí el socket para no tener que esperar a que expire el tiempo de espera
-                    dealer_socket.close()
-                except zmq.error.Again:
-                    continue
+                # Crear un nuevo socket y tratar de conectar
+                dealer_socket = self.context.socket(zmq.DEALER)
+                print(f"Node {self.id} (You) - Trying to connect to " + ip)
+                dealer_socket.connect(f"tcp://{ip}:{self.port}")
+                # Enviar un mensaje de descubrimiento
+                dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
+                sockets.append(dealer_socket)
+        # Se cierran todos, los que respondan se añadirán a la lista usando el método apropiado
+        time.sleep(1)
+        for socket in sockets:
+            socket.setsockopt(zmq.LINGER, 0)
+            socket.close()
         return "Discovering peers..."
 
     def start_intersection(self, device, scheme, type):
@@ -244,3 +242,10 @@ class Node:
             self.json_handler.test_launcher(device)
             return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"
+
+    def update_setup(self, domain, set_size):
+        if not domain.isdigit() or not set_size.isdigit() or int(domain) < int(set_size):
+            return "Invalid parameters"
+        self.domain = int(domain)
+        self.myData = set(random.sample(range(self.domain), int(set_size)))
+        return "Setup updated"

@@ -160,6 +160,18 @@ def create_app(test_config=None):
         device = request.args.get('device')
         return jsonify({'status': node.launch_test(device)})
 
+    @app.route('/api/setup', methods=['POST'])
+    @node_wrapper
+    def api_setup(node):
+        domain = request.args.get('domain')
+        set_size = request.args.get('set_size')
+        if domain is None or set_size is None:
+            return jsonify({'status': 'Invalid parameters'})
+        res = node.update_setup(domain, set_size)
+        if res == "Setup updated":
+            Logs.setup_logs(node.id, set_size, domain)
+        return jsonify({'status': res})
+
     @app.route('/api/check_connection', methods=['GET'])
     @node_wrapper
     def api_check_connection(node):

@@ -51,6 +51,6 @@ class CAOPEHandler(IntersectionHandler):
         print(f"Intersection with {device} - {cs.imp_name} PSI-CA OPE - Raw results: {result}")
         # When the element is 0, it means it's in the intersection
         cardinality = sum([int(element == 0) for element in result])
-        self.results[device] = cardinality
+        self.results[device + " " + cs.imp_name + ' PSI-CA_OPE'] = cardinality
         Logs.log_result((cs.imp_name + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.imp_name} PSI-CA OPE - Result: {cardinality}")

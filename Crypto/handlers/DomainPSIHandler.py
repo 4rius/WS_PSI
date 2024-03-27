@@ -32,6 +32,6 @@ class DomainPSIHandler(IntersectionHandler):
         multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
-        self.results[device] = multiplied_set
+        self.results[device + " " + cs.imp_name + " PSI-Domain"] = multiplied_set
         Logs.log_result("INTERSECTION_" + cs.imp_name, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.imp_name} - Result: {multiplied_set}")

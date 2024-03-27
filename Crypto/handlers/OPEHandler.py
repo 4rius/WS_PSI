@@ -86,6 +86,6 @@ class OPEHandler(IntersectionHandler):
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         print(f"Intersection with {device} - {cs.imp_name} OPE - Raw results: {result}")
         result_formatted = [element for element in result if element in self.my_data]
-        self.results[device] = result_formatted
+        self.results[device + " " + cs.imp_name + ' OPE'] = result_formatted
         Logs.log_result(cs.imp_name + '_OPE', result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.imp_name} OPE - Result: {result_formatted}")
