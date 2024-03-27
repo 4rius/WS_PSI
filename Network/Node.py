@@ -77,9 +77,17 @@ class Node:
         # daemon=True para que el hilo muera cuando el programa principal muera
 
     def _listen_on_router(self):
+        # RCVTIMEO para que el hilo no se quede bloqueado esperando mensajes, si están llegando, los consume
+        # sin esperar, luego no afecta al rendimiento
+        self.router_socket.setsockopt(zmq.RCVTIMEO, 1000)
         while self.running:
-            sender, message = self.router_socket.recv_multipart()
-            self.executor.submit(self._handle_received, sender, message)
+            try:
+                sender, message = self.router_socket.recv_multipart()
+                self.executor.submit(self._handle_received, sender, message)
+            except zmq.ZMQError as e:
+                if e.errno == zmq.ETERM:
+                    # Context terminated
+                    break
 
     def _handle_received(self, sender, message):
         message = message.decode('utf-8')
@@ -178,17 +186,14 @@ class Node:
             self.devices[device]["socket"].send_string(message)
 
     def stop(self):
-        # Cierra todos los sockets de los dispositivos
-        for device in self.devices.values():
-            device["socket"].close()
-        # Cierra el socket ROUTER
-        self.router_socket.close()
-        # Cierra el executor
-        self.json_handler.executor.shutdown(wait=True)
-        # Cambia el estado de ejecución a False
         self.running = False
-        # Espera a que el hilo del socket ROUTER termine
-        time.sleep(1)
+        for device in self.devices:
+            self.devices[device]["socket"].setsockopt(zmq.LINGER, 0)
+            self.devices[device]["socket"].close()
+        self.router_socket.setsockopt(zmq.LINGER, 0)
+        self.router_socket.close()
+        # Terminate the ZMQ context
+        self.context.term()
         Node.__instance = None
 
     def genkeys(self, scheme):

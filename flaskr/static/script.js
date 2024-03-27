@@ -3,8 +3,22 @@ $(document).ready(function(){
     update_devices();
     get_port();
     get_id();
-    $('#connect').prop('disabled', true);
+    check_connection();
 });
+
+function check_connection() {
+    $.get('/api/check_connection', function(data){
+        if (data.status === nodeNotConnected) {
+            $('#connect').prop('disabled', false);
+            $('#disconnect').prop('disabled', true);
+        } else {
+            $('#connect').prop('disabled', true);
+            $('#disconnect').prop('disabled', false);
+        }
+    });
+}
+
+let nodeNotConnected = "Node not connected";
 
 function get_id() {
     $.get('/api/id', function(data){
@@ -30,25 +44,30 @@ function update_devices() {
     loader();
     $.getJSON('/api/devices', function(data){
         $('#devices').empty();
-        $.each(data, function(key, value){
-            let displayKey = key;
-            // Check if the key is an IPv6 address
-            if (/:/.test(key)) {
-                // Abbreviate the IPv6 address for display
-                displayKey = key.replace(/:.*:/, '::');
-            }
-            $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
-            ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
-            '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\', \'' + 'PSI-Domain' +'\')">Paillier</button>'
-            +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\', \'' + 'PSI-Domain' +'\')">Damgard-Jurik</button></p>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\', \'' + 'OPE' +'\')">Paillier - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\', \'' + 'OPE' +'\')">Damgard-Jurik - OPE</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier PSI-CA OPE' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Paillier</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik PSI-CA OPE' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Damgard-Jurik</button>' +
-            ' <button class="btn waves-effect waves-light" onclick="test(\'' + key + '\')">STRESS TEST</button>'
-            );
-        });
+        if (data.status === nodeNotConnected) {
+            $('#devicesConnected').html('<h2>El nodo está apagado</h2>');
+        } else {
+            $.each(data, function(key, value){
+                let displayKey = key;
+                // Check if the key is an IPv6 address
+                if (/:/.test(key)) {
+                    // Abbreviate the IPv6 address for display
+                    displayKey = key.replace(/:.*:/, '::');
+                }
+                $('#devicesConnected').html('<h2>Dispositivos registrados</h2>');
+                $('#devices').append('<p id="' + key + '">' + displayKey + ': Last seen: ' + value +
+                ' <button class="btn waves-effect waves-light" onclick="ping(\'' + key + '\')">Ping</button>' +
+                '<button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier' + '\', \'' + 'PSI-Domain' +'\')">Paillier</button>'
+                +
+                ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik' + '\', \'' + 'PSI-Domain' +'\')">Damgard-Jurik</button></p>' +
+                ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier OPE' + '\', \'' + 'OPE' +'\')">Paillier - OPE</button>' +
+                ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik OPE' + '\', \'' + 'OPE' +'\')">Damgard-Jurik - OPE</button>' +
+                ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Paillier PSI-CA OPE' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Paillier</button>' +
+                ' <button class="btn waves-effect waves-light" onclick="FindIntersection(\'' + key + '\', \'' + 'Damgard-Jurik PSI-CA OPE' + '\', \'' + 'PSI-CA' +'\')">Cardinality - Damgard-Jurik</button>' +
+                ' <button class="btn waves-effect waves-light" onclick="test(\'' + key + '\')">Launch test</button>'
+                );
+            });
+        }
     });
 }
 
@@ -75,6 +94,7 @@ function connect() {
         M.toast({html: message});
         update_devices();
         get_port();
+        get_id();
         $('#connect').prop('disabled', true);
         $('#disconnect').prop('disabled', false);
     });
@@ -86,65 +106,9 @@ function disconnect() {
         M.toast({html: message});
         update_devices();
         get_port();
+        get_id();
         $('#connect').prop('disabled', false);
         $('#disconnect').prop('disabled', true);
-    });
-}
-function int_paillier(device) {
-    $.post('/api/int_paillier/' + device, function(data){
-    }).done(function(data){
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
-    });
-}
-
-function int_dj(device) {
-    $.post('/api/int_dj/' + device, function(data){
-    }).done(function(data){
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
-    });
-}
-
-function int_paillier_ope(device) {
-    $.post('/api/int_paillier_ope/' + device, function(data){
-    })
-    .done(function(data) {
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
-    });
-}
-
-function int_dj_ope(device) {
-    $.post('/api/int_dj_ope/' + device, function(data){
-    })
-    .done(function(data) {
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
-    });
-}
-
-function ca_paillier(device) {
-    $.post('/api/ca_paillier/' + device, function(data){
-    })
-    .done(function(data) {
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
     });
 }
 

@@ -160,4 +160,9 @@ def create_app(test_config=None):
         device = request.args.get('device')
         return jsonify({'status': node.launch_test(device)})
 
+    @app.route('/api/check_connection', methods=['GET'])
+    @node_wrapper
+    def api_check_connection(node):
+        return jsonify({'status': "Up and running!"})
+
     return app
