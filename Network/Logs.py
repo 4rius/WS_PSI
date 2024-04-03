@@ -11,6 +11,7 @@ from firebase_admin import credentials, db
 
 from Network.collections.DbConstants import FB_URL
 
+# Path to Firebase credentials, this file is not provided!!!
 cred = credentials.Certificate('./FirebaseCredentials.json')
 default_app = firebase_admin.initialize_app(cred, {
     'databaseURL': FB_URL
