@@ -12,6 +12,3 @@ class PriorityExecutor:
     def submit(self, priority, func, *args, **kwargs):
         # Prioridad negativa para que el menor sea el mayor porque la cola de prioridad es min-heap
         self.queue.put(PrioritizedItem(-priority, self.executor.submit(func, *args, **kwargs)))
-
-    def done(self):
-        return self.queue.empty()
