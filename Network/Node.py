@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import zmq
 
 from Network.JSONHandler import JSONHandler
+from Network.PriorityExecutor import PriorityExecutor
 from Network.collections.DbConstants import DEFL_DOMAIN, DEFL_SET_SIZE
 
 
@@ -37,7 +38,7 @@ class Node:
             self.results = {}  # Resultados de las intersecciones
             self.json_handler = JSONHandler(self.id, self.myData, self.domain, self.devices, self.results,
                                             self.new_peer)
-            self.executor = ThreadPoolExecutor(max_workers=10)
+            self.executor = PriorityExecutor(max_workers=10)
             # Manejador de esquemas criptográficos
 
     def start(self):
@@ -80,7 +81,10 @@ class Node:
         while self.running:
             try:
                 sender, message = self.router_socket.recv_multipart()
-                self.executor.submit(self._handle_received, sender, message)
+                if message.startswith(b'{'):
+                    self.executor.submit(0, self.json_handler.handle_message, message)
+                else:
+                    self.executor.submit(1, self._handle_received, sender, message)
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
                     # Context terminated
@@ -101,10 +105,6 @@ class Node:
         }
         if message.endswith("is pinging you!"):
             self.handle_ping(sender, message, day_time)
-        elif message.startswith("{"):
-            if "implementation" in message:
-                self.json_handler.handle_message(message)
-            # Aquí podría haber otro tipo de JSON añadiendo las condiciones necesarias
         else:
             for key in message_handlers:
                 if message.startswith(key):
