@@ -15,3 +15,4 @@ build/
 *.egg-info/
 .idea/misc.xml
 .idea/WS_PSI.iml
+FirebaseCredentials.json

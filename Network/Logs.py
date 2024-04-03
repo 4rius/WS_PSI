@@ -3,12 +3,19 @@ import os
 import threading
 import time
 
+import firebase_admin
 import psutil
 import platform
 
-from firebase import firebase
+from firebase_admin import credentials, db
 
-firebase = firebase.FirebaseApplication('https://tfg-en-psi-default-rtdb.europe-west1.firebasedatabase.app/', None)
+from Network.collections.DbConstants import FB_URL
+
+cred = credentials.Certificate('./FirebaseCredentials.json')
+default_app = firebase_admin.initialize_app(cred, {
+    'databaseURL': FB_URL
+})
+print(f"Connected to Firebase database: {default_app.project_id}")
 
 
 class ThreadData:
@@ -50,7 +57,9 @@ def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
     if peer:
         log["peer"] = peer
 
-    firebase.post(f"/logs/{get_formatted_id(id)}/activities", log)
+    ref = db.reference(f"/logs/{get_formatted_id(id)}/activities")
+    ref.push(log)
+
     print(f"Activity log sent to Firebase")
 
 
@@ -161,7 +170,8 @@ def setup_logs(id, set_size, domain):
         "domain": domain,
         "type": "Desktop (Flask): " + get_system_info()
     }
-    firebase.post(f"/logs/{get_formatted_id(id)}/setup", log)
+    ref = db.reference(f"/logs/{get_formatted_id(id)}/setup")
+    ref.push(log)
     print(f"Log setup sent to Firebase")
 
 
@@ -176,7 +186,8 @@ def log_result(implementation, result, version, id, device):
         "version": version,
         "type": "Desktop (Flask): " + get_system_info()
     }
-    firebase.post(f"/logs/{get_formatted_id(id)}/results", log)
+    ref = db.reference(f"/logs/{get_formatted_id(id)}/results")
+    ref.push(log)
     print(f"Result log sent to Firebase")
     return
 

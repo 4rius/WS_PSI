@@ -2,5 +2,5 @@ pyzmq~=25.1.2
 flask~=3.0.2
 phe~=1.5.0
 psutil~=5.9.8
-firebase~=4.0.1
+firebase_admin~=6.5.0
 damgard-jurik~=0.0.3
