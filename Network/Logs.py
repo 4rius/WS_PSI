@@ -81,7 +81,8 @@ def get_system_info():
 
 
 def get_logs(id):
-    return firebase.get(f"/logs/{get_formatted_id(id)}/activities", None)
+    ref = db.reference(f"/logs/{get_formatted_id(id)}/activities")
+    return ref.get()
 
 
 def start_logging(thread_data):
