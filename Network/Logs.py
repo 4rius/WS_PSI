@@ -12,11 +12,25 @@ from firebase_admin import credentials, db
 from Network.collections.DbConstants import FB_URL
 
 # Path to Firebase credentials, this file is not provided!!!
-cred = credentials.Certificate('./FirebaseCredentials.json')
-default_app = firebase_admin.initialize_app(cred, {
-    'databaseURL': FB_URL
-})
-print(f"Connected to Firebase database: {default_app.project_id}")
+try:
+    cred = credentials.Certificate('./FirebaseCredentials.json')
+    default_app = firebase_admin.initialize_app(cred, {
+        'databaseURL': FB_URL
+    })
+    print(f"Connected to Firebase database: {default_app.project_id}")
+except FileNotFoundError:
+    default_app = None
+    print("Firebase credentials not found, please provide the file in the root directory")
+    print("The application will not log data to Firebase")
+
+
+def firebase_connected(func):
+    def wrapper(*args, **kwargs):
+        if default_app is None:
+            return
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 class ThreadData:
@@ -36,6 +50,7 @@ class ThreadData:
         self.stop_event = threading.Event()
 
 
+@firebase_connected
 def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
@@ -80,6 +95,7 @@ def get_system_info():
     return f"{platform.platform()} - {platform.machine()}"
 
 
+@firebase_connected
 def get_logs(id):
     ref = db.reference(f"/logs/{get_formatted_id(id)}/activities")
     return ref.get()
@@ -164,6 +180,7 @@ def log_instance_cpu_usage(thread_data):
     return
 
 
+@firebase_connected
 def setup_logs(id, set_size, domain):
     log = {
         "id": id,
@@ -177,6 +194,7 @@ def setup_logs(id, set_size, domain):
     print(f"Log setup sent to Firebase")
 
 
+@firebase_connected
 def log_result(implementation, result, version, id, device):
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
