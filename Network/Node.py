@@ -195,10 +195,10 @@ class Node:
 
     def genkeys(self, scheme):
         if scheme == "Paillier":
-            self.executor.submit(self.json_handler.genkeys, "Paillier")
+            self.executor.submit(1, self.json_handler.genkeys, "Paillier")
             return "Generating Paillier keys..."
         elif scheme == "Damgard-Jurik":
-            self.executor.submit(self.json_handler.genkeys, "DamgardJurik")
+            self.executor.submit(1, self.json_handler.genkeys, "Damgard-Jurik")
             return "Generating Damgard-Jurik keys..."
         return "Invalid scheme"
 

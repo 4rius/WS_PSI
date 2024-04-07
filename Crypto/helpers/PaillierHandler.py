@@ -11,12 +11,12 @@ class PaillierHelper(CSHelper):
     def __init__(self):
         super().__init__()
         self.imp_name = "Paillier"
-        self.private_key, self.public_key = self.generate_keys()
+        self.private_key, self.public_key = None, None
+        self.generate_keys()
 
     # Devuelve los objetos clave pública y privada
     def generate_keys(self):
-        public_key, private_key = paillier.generate_paillier_keypair(n_length=DEFL_KEYSIZE)
-        return private_key, public_key
+        self.public_key, self.private_key = paillier.generate_paillier_keypair(n_length=DEFL_KEYSIZE)
 
     def serialize_public_key(self):
         # Convertir la clave pública en un diccionario con la n
