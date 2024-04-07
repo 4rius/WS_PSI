@@ -2,7 +2,7 @@ import random
 
 from phe import paillier, EncryptedNumber
 
-from Network.collections.DbConstants import DEFL_KEYSIZE
+from Network.collections.DbConstants import DEFL_KEYSIZE_PAILLIER
 from Crypto.helpers.CSHelper import CSHelper
 
 
@@ -15,7 +15,7 @@ class PaillierHelper(CSHelper):
         self.generate_keys()
 
     # Devuelve los objetos clave pública y privada
-    def generate_keys(self, bit_length=DEFL_KEYSIZE):
+    def generate_keys(self, bit_length=DEFL_KEYSIZE_PAILLIER):
         self.public_key, self.private_key = paillier.generate_paillier_keypair(n_length=bit_length)
 
     def serialize_public_key(self):

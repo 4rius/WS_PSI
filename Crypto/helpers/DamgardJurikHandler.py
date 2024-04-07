@@ -2,7 +2,7 @@ import random
 
 from damgard_jurik import keygen, EncryptedNumber, PublicKey
 
-from Network.collections.DbConstants import DEFL_KEYSIZE, DEFL_EXPANSIONFACTOR
+from Network.collections.DbConstants import DEFL_EXPANSIONFACTOR, DEFL_KEYSIZE_DAMGARD
 from Crypto.helpers.CSHelper import CSHelper
 
 
@@ -14,10 +14,8 @@ class DamgardJurikHelper(CSHelper):
         self.public_key, self.private_key = None, None
         self.generate_keys()
 
-    def generate_keys(self, bit_length=DEFL_KEYSIZE):
-        # /2 para que genere la misma longitud que Paillier, que divide el tamaño de la clave,
-        # que trabajemos con los mismos bits
-        self.public_key, self.private_key = keygen(n_bits=bit_length//2, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
+    def generate_keys(self, bit_length=DEFL_KEYSIZE_DAMGARD):
+        self.public_key, self.private_key = keygen(n_bits=bit_length, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
 
     def encrypt(self, number):
         return self.public_key.encrypt(number)
