@@ -111,7 +111,7 @@ def create_app(test_config=None):
         rounds = request.args.get('rounds')
         if device is None or scheme is None or type is None:
             return jsonify({'status': 'Invalid parameters'})
-        if rounds is None:
+        if rounds is None or not rounds.isdigit():
             rounds = 1
         return jsonify({'status': node.start_intersection(device, scheme, type, rounds)})
 
