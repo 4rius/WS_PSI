@@ -108,9 +108,12 @@ def create_app(test_config=None):
         device = request.args.get('device')
         scheme = request.args.get('scheme')
         type = request.args.get('type')
+        rounds = request.args.get('rounds')
         if device is None or scheme is None or type is None:
             return jsonify({'status': 'Invalid parameters'})
-        return jsonify({'status': node.start_intersection(device, scheme, type)})
+        if rounds is None:
+            rounds = 1
+        return jsonify({'status': node.start_intersection(device, scheme, type, rounds)})
 
     @app.route('/api/dataset', methods=['GET'])
     @node_wrapper

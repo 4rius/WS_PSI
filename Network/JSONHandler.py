@@ -46,19 +46,23 @@ class JSONHandler:
         Logs.stop_logging(ThreadData())
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
 
-    def start_intersection(self, device, scheme, type):
+    def start_intersection(self, device, scheme, type, rounds):
         crypto_impl = CryptoImplementation.from_string(scheme)
         if crypto_impl in self.CSHandlers:
             cs = self.CSHandlers[crypto_impl]
             if type == "OPE":
-                self.executor.submit(self.OPEHandler.intersection_first_step, device, cs)
+                for _ in range(int(rounds)):
+                    self.executor.submit(self.OPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-CA":
-                self.executor.submit(self.CAOPEHandler.intersection_first_step, device, cs)
+                for _ in range(int(rounds)):
+                    self.executor.submit(self.CAOPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-Domain":
-                self.executor.submit(self.domainPSIHandler.intersection_first_step, device, cs)
+                for _ in range(int(rounds)):
+                    self.executor.submit(self.domainPSIHandler.intersection_first_step, device, cs)
             else:
                 return "Invalid type: " + type
-            return "Intersection with " + device + " - " + scheme + " - " + type + " - Thread started, check logs"
+            return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + rounds +
+                    " - Thread started, check logs")
         return "Invalid scheme: " + scheme
 
     def handle_message(self, message):

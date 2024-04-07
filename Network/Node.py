@@ -234,9 +234,9 @@ class Node:
             socket.close()
         return "Discovering peers..."
 
-    def start_intersection(self, device, scheme, type):
+    def start_intersection(self, device, scheme, type, rounds=1):
         if device in self.devices:
-            return self.json_handler.start_intersection(device, scheme, type)
+            return self.json_handler.start_intersection(device, scheme, type, rounds)
         return "Device not found - Have the peer send an ACK first"
 
     def launch_test(self, device):
