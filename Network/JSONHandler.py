@@ -38,10 +38,10 @@ class JSONHandler:
                 self.executor.submit(self.OPEHandler.intersection_first_step, device, cs)
                 self.executor.submit(self.CAOPEHandler.intersection_first_step, device, cs)
 
-    def genkeys(self, cs):
+    def genkeys(self, cs, bit_length):
         start_time = time.time()
         Logs.start_logging(ThreadData())
-        self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys()
+        self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length)
         end_time = time.time()
         Logs.stop_logging(ThreadData())
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)

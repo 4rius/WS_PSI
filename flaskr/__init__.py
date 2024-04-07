@@ -131,7 +131,12 @@ def create_app(test_config=None):
     @node_wrapper
     def api_genkeys(node):
         scheme = request.args.get('scheme')
-        return jsonify({'status': node.genkeys(scheme)})
+        bit_length = request.args.get('bit_length')
+        if scheme is None or bit_length is None:
+            return jsonify({'status': 'Invalid parameters'})
+        if not bit_length.isdigit():
+            return jsonify({'status': 'Invalid bit length'})
+        return jsonify({'status': node.genkeys(scheme, int(bit_length))})
 
     @app.route('/api/discover_peers', methods=['POST'])
     @node_wrapper

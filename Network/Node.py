@@ -193,13 +193,15 @@ class Node:
         self.context.term()
         Node.__instance = None
 
-    def genkeys(self, scheme):
+    def genkeys(self, scheme, bit_length):
+        if bit_length < 16:
+            return "Minimum bit length is 16"
         if scheme == "Paillier":
-            self.executor.submit(1, self.json_handler.genkeys, "Paillier")
-            return "Generating Paillier keys..."
+            self.executor.submit(1, self.json_handler.genkeys, "Paillier", bit_length)
+            return "Generating Paillier keys... Bit length: " + str(bit_length)
         elif scheme == "Damgard-Jurik":
-            self.executor.submit(1, self.json_handler.genkeys, "Damgard-Jurik")
-            return "Generating Damgard-Jurik keys..."
+            self.executor.submit(1, self.json_handler.genkeys, "Damgard-Jurik", bit_length)
+            return "Generating Damgard-Jurik keys... Bit length: " + str(bit_length)
         return "Invalid scheme"
 
     def new_peer(self, peer, last_seen):

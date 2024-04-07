@@ -15,8 +15,8 @@ class PaillierHelper(CSHelper):
         self.generate_keys()
 
     # Devuelve los objetos clave pública y privada
-    def generate_keys(self):
-        self.public_key, self.private_key = paillier.generate_paillier_keypair(n_length=DEFL_KEYSIZE)
+    def generate_keys(self, bit_length=DEFL_KEYSIZE):
+        self.public_key, self.private_key = paillier.generate_paillier_keypair(n_length=bit_length)
 
     def serialize_public_key(self):
         # Convertir la clave pública en un diccionario con la n
