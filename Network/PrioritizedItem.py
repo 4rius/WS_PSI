@@ -5,4 +5,4 @@ class PrioritizedItem:
         self.item = item
 
     def __lt__(self, other):
-        return self.priority < other.priority
+        return self.priority > other.priority
