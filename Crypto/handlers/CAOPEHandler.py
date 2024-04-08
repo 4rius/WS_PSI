@@ -32,7 +32,6 @@ class CAOPEHandler(IntersectionHandler):
         coeffs = polinomio_raices(my_data)
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
-        print(f"Intersection with {device} - {cs.imp_name}_OPE - Sending coeffs: {encrypted_coeffs}")
         self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
 
     @log_activity
@@ -48,7 +47,6 @@ class CAOPEHandler(IntersectionHandler):
     def intersection_final_step(self, device, cs, peer_data):
         result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
-        print(f"Intersection with {device} - {cs.imp_name} PSI-CA OPE - Raw results: {result}")
         # When the element is 0, it means it's in the intersection
         cardinality = sum([int(element == 0) for element in result])
         self.results[device + " " + cs.imp_name + ' PSI-CA_OPE'] = cardinality

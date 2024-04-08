@@ -56,12 +56,12 @@ class DamgardJurikHelper(CSHelper):
                 range(domain)}
 
     def recv_multiplied_set(self, serialized_multiplied_set, public_key):
-        print("Recibimos el set A multiplicado por 0 o por 1 dependiendo de si están en el set B")
+        print("Received the multiplied set")
         return {element: EncryptedNumber(int(ciphertext), public_key) for element, ciphertext in
                 serialized_multiplied_set.items()}
 
     def get_multiplied_set(self, enc_set, node_set):
-        print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
+        print("Generating the multiplied set")
         result = {}
         for element, encrypted_value in enc_set.items():
             multiplier = int(int(element) in node_set)
@@ -83,7 +83,7 @@ class DamgardJurikHelper(CSHelper):
         return result
 
     def eval_coefficients(self, coefs, pubkey, my_data):
-        print("Evaluamos el polinomio en los elementos del set B")
+        print("Evaluating the polynomial")
         encrypted_results = []
         for element in my_data:
             rb = random.randint(1, 1000)
@@ -92,7 +92,6 @@ class DamgardJurikHelper(CSHelper):
         return encrypted_results
 
     def get_evaluations(self, coefs, pubkey, my_data):
-        print("Evaluamos el polinomio en los elementos del set B")
         evaluations = []
         for element in my_data:
             rb = random.randint(1, 1000)

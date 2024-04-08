@@ -8,7 +8,7 @@ def polinomio_raices(roots, neg_one=-1, one=1):
     coefs = [neg_one * roots[0], one]
     for r in roots[1:]:
         coefs = multiplicar_polinomios(coefs, [neg_one * r, one], zero)
-    print("Coeficientes del polinomio: " + str(coefs))
+    # print("Coeficientes del polinomio: " + str(coefs))
     return coefs
 
 

@@ -81,9 +81,9 @@ class Node:
             try:
                 sender, message = self.router_socket.recv_multipart()
                 if message.startswith(b'{'):
-                    self.executor.submit(1, self.json_handler.handle_message, message)
+                    self.executor.submit(0, self.json_handler.handle_message, message)
                 else:
-                    self.executor.submit(0, self._handle_received, sender, message)
+                    self.executor.submit(1, self._handle_received, sender, message)
             except zmq.ZMQError as e:
                 if e.errno == zmq.ETERM:
                     # Context terminated

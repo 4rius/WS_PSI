@@ -50,40 +50,17 @@ class PaillierHelper(CSHelper):
         return decrypted_number
 
     def encrypt_my_data(self, my_set, domain):
-        # Propósito de depuración
-        print("Ciframos los elementos del set A")
-        # result = {}
-        # for element in range(domain):
-        #     if element not in my_set:
-        #         print("Elemento no encontrado en el set: " + str(element))
-        #         result[element] = public_key.encrypt(0)
-        #     else:
-        #         print("Elemento encontrado en el set: " + str(element))
-        #         result[element] = public_key.encrypt(1)
-        # return result
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in
                 range(domain)}
 
     def recv_multiplied_set(self, serialized_multiplied_set, public_key):
+        print("Received the multiplied set")
         return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
                 serialized_multiplied_set.items()}
 
     def get_multiplied_set(self, enc_set, node_set):
         # Propósito de depuración
-        print("Multiplicamos por 0 o por 1 los elementos del set A dependiendo de si están en el set B")
-        # result = {}
-        # for element, encrypted_value in enc_set.items():
-        #     if int(element) not in node_set:
-        #         print("Elemento no encontrado en el set: " + str(element))
-        #         result[element] = encrypted_value * 0
-        #         # Print the result's element ciphertext for debugging purposes
-        #         print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 0")
-        #     else:
-        #         print("Elemento encontrado en el set: " + str(element))
-        #         result[element] = encrypted_value * 1
-        #         # Print the result's element ciphertext for debugging purposes
-        #         print("Ciphertext: " + str(result[element].ciphertext()) + "\nMultiplier: 1")
-        # return result
+        print("Generating the multiplied set")
         result = {}
         for element, encrypted_value in enc_set.items():
             multiplier = int(element) in node_set
@@ -108,7 +85,7 @@ class PaillierHelper(CSHelper):
         return result
 
     def eval_coefficients(self, coeffs, pubkey, my_data):
-        print("Evaluamos el polinomio en los elementos del set B")
+        print("Evaluating the polynomial")
         encrypted_results = []
         for element in my_data:
             rb = random.randint(1, 1000)
@@ -117,7 +94,6 @@ class PaillierHelper(CSHelper):
         return encrypted_results
 
     def get_evaluations(self, coeffs, pubkey, my_data):
-        print("Evaluamos el polinomio en los elementos del set B")
         evaluations = []
         for element in my_data:
             rb = random.randint(1, 1000)

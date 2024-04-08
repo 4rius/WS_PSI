@@ -17,6 +17,7 @@ def log_activity(func):
         cs = args[1] if len(args) > 1 else None
         activity_code = func.__name__.upper() + ("_" + cs.imp_name if cs is not None else "")
         Logs.log_activity(thread_data, activity_code, end_time - start_time, VERSION, self.id, device)
+        print(f"Activity {activity_code} took {end_time - start_time}s")
         return result
 
     return wrapper

@@ -32,7 +32,6 @@ class OPEHandler(IntersectionHandler):
         coeffs = polinomio_raices(my_data)
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
-        print(f"Intersection with {device} - {cs.imp_name}_OPE - Sending coeffs: {encrypted_coeffs}")
         if type == "PSI-CA":
             self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
         else:
@@ -84,7 +83,6 @@ class OPEHandler(IntersectionHandler):
         """
         result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
-        print(f"Intersection with {device} - {cs.imp_name} OPE - Raw results: {result}")
         result_formatted = [element for element in result if element in self.my_data]
         self.results[device + " " + cs.imp_name + ' OPE'] = result_formatted
         Logs.log_result(cs.imp_name + '_OPE', result_formatted, VERSION, self.id, device)

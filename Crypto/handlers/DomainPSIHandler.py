@@ -14,7 +14,6 @@ class DomainPSIHandler(IntersectionHandler):
         serialized_pubkey = cs.serialize_public_key()
         encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
                           encrypted_data.items()}
-        print(f"Intersection with {device} - {cs.imp_name} - Sending data: {encrypted_data}")
         self.send_message(device, encrypted_data, cs.imp_name, serialized_pubkey)
 
     @log_activity

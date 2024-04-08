@@ -39,9 +39,9 @@ class JSONHandler:
         cs_handlers = self.CSHandlers.values()
         for _ in range(TEST_ROUNDS):
             for cs in cs_handlers:
-                self.executor.submit(2, self.domainPSIHandler.intersection_first_step, device, cs)
-                self.executor.submit(2, self.OPEHandler.intersection_first_step, device, cs)
-                self.executor.submit(2, self.CAOPEHandler.intersection_first_step, device, cs)
+                self.executor.submit(0, self.domainPSIHandler.intersection_first_step, device, cs)
+                self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
+                self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
 
     def genkeys(self, cs, bit_length):
         start_time = time.time()
@@ -57,13 +57,13 @@ class JSONHandler:
             cs = self.CSHandlers[crypto_impl]
             if type == "OPE":
                 for _ in range(int(rounds)):
-                    self.executor.submit(2, self.OPEHandler.intersection_first_step, device, cs)
+                    self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-CA":
                 for _ in range(int(rounds)):
-                    self.executor.submit(2, self.CAOPEHandler.intersection_first_step, device, cs)
+                    self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-Domain":
                 for _ in range(int(rounds)):
-                    self.executor.submit(2, self.domainPSIHandler.intersection_first_step, device, cs)
+                    self.executor.submit(0, self.domainPSIHandler.intersection_first_step, device, cs)
             else:
                 return "Invalid type: " + type
             return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + rounds +
@@ -103,13 +103,13 @@ class JSONHandler:
         if crypto_impl in self.CSHandlers:
             cs = self.CSHandlers[crypto_impl]
             if "PSI-CA" in message['implementation']:
-                self.executor.submit(0, self.CAOPEHandler.intersection_final_step, message['peer'], cs,
+                self.executor.submit(2, self.CAOPEHandler.intersection_final_step, message['peer'], cs,
                                      message['data'])
             elif "OPE" in message['implementation']:
-                self.executor.submit(0, self.OPEHandler.intersection_final_step, message['peer'], cs,
+                self.executor.submit(2, self.OPEHandler.intersection_final_step, message['peer'], cs,
                                      message['data'])
             else:
-                self.executor.submit(0, self.domainPSIHandler.intersection_final_step, message['peer'], cs,
+                self.executor.submit(2, self.domainPSIHandler.intersection_final_step, message['peer'], cs,
                                      message['data'])
         else:
             Exception("Invalid scheme: " + message['implementation'])
