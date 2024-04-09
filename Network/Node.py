@@ -251,3 +251,9 @@ class Node:
         self.domain = int(domain)
         self.myData = set(random.sample(range(self.domain), int(set_size)))
         return "Setup updated"
+
+    def check_tasks(self):
+        return (str(self.executor.tasks_in_progress) + " tasks running in the node" if
+                self.executor.tasks_in_progress > 0 else "No tasks running in the node",
+                str(self.json_handler.executor.tasks_in_progress) + " tasks running in the handler"
+                if self.json_handler.executor.tasks_in_progress > 0 else "No tasks running in the handler")

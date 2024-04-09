@@ -182,4 +182,15 @@ def create_app(test_config=None):
     def api_check_connection(node):
         return jsonify({'status': "Up and running!"})
 
+    @app.route('/api/tasks', methods=['GET'])
+    @node_wrapper
+    def api_check_tasks(node):
+        return jsonify({'status': node.check_tasks()})
+
+    @app.route('/api/firebase', methods=['GET'])
+    def api_check_firebase():
+        if Logs.default_app is None:
+            return jsonify({'status': 'Firebase not connected - The application will not log data to Firebase'})
+        return jsonify({'status': 'Firebase connected'})
+
     return app
