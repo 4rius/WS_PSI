@@ -66,7 +66,7 @@ class JSONHandler:
                     self.executor.submit(0, self.domainPSIHandler.intersection_first_step, device, cs)
             else:
                 return "Invalid type: " + type
-            return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + rounds +
+            return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + str(rounds) +
                     " - Thread started, check logs")
         return "Invalid scheme: " + scheme
 
