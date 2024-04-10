@@ -27,7 +27,6 @@ class DamgardJurikHelper(CSHelper):
         public_key_dict = {
             'n': str(self.public_key.n),
             's': str(self.public_key.s), 
-            # TODO: Probar a quitar esto para que vaya como en Android
             'm': str(self.public_key.m),
             'threshold': str(self.public_key.threshold),
             'delta': str(self.public_key.delta)
@@ -37,7 +36,6 @@ class DamgardJurikHelper(CSHelper):
     def reconstruct_public_key(self, public_key_dict):
         # Si proviene de un dispositivo Android, no traerá ni m, threshold ni delta, por lo que los marcaremos a 1
         # por defecto, no hacen falta para el cifrado
-        # TODO: Mirar qué está pasando al crearla para que no funcione con otros WS
         if 'm' not in public_key_dict:
             return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), 1, 1, 1)
         return PublicKey(int(public_key_dict['n']), int(public_key_dict['s']), int(public_key_dict['m']),
