@@ -31,7 +31,7 @@ class CSHelper:
     def encrypt_my_data(self, my_set, domain):
         raise NotImplementedError
 
-    def recv_multiplied_set(self, serialized_multiplied_set, public_key):
+    def recv_multiplied_set(self, serialized_multiplied_set):
         raise NotImplementedError
 
     def get_multiplied_set(self, enc_set, node_set):

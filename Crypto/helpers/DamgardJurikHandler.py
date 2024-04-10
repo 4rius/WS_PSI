@@ -55,17 +55,17 @@ class DamgardJurikHelper(CSHelper):
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in
                 range(domain)}
 
-    def recv_multiplied_set(self, serialized_multiplied_set, public_key):
+    def recv_multiplied_set(self, serialized_multiplied_set):
         print("Received the multiplied set")
-        return {element: EncryptedNumber(int(ciphertext), public_key) for element, ciphertext in
+        return {element: EncryptedNumber(int(ciphertext), self.public_key) for element, ciphertext in
                 serialized_multiplied_set.items()}
 
     def get_multiplied_set(self, enc_set, node_set):
         print("Generating the multiplied set")
         result = {}
         for element, encrypted_value in enc_set.items():
-            multiplier = int(int(element) in node_set)
-            result[element] = EncryptedNumber(encrypted_value.value * multiplier, encrypted_value.public_key)
+            multiplier = int(element) in node_set
+            result[element] = encrypted_value * multiplier
         return result
 
     def intersection_enc_size(self, multiplied_set):

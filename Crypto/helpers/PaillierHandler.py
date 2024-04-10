@@ -53,9 +53,9 @@ class PaillierHelper(CSHelper):
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in
                 range(domain)}
 
-    def recv_multiplied_set(self, serialized_multiplied_set, public_key):
+    def recv_multiplied_set(self, serialized_multiplied_set):
         print("Received the multiplied set")
-        return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
+        return {element: EncryptedNumber(self.public_key, int(ciphertext)) for element, ciphertext in
                 serialized_multiplied_set.items()}
 
     def get_multiplied_set(self, enc_set, node_set):
