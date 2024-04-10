@@ -44,11 +44,11 @@ class DamgardJurikHelper(CSHelper):
                          int(public_key_dict['threshold']), int(public_key_dict['delta']))
 
     def get_encrypted_set(self, serialized_encrypted_set, public_key):
-        return {element: EncryptedNumber(ciphertext, public_key) for element, ciphertext in
+        return {element: EncryptedNumber(int(ciphertext), public_key) for element, ciphertext in
                 serialized_encrypted_set.items()}
 
     def get_encrypted_list(self, serialized_encrypted_list, public_key):
-        return [EncryptedNumber(ciphertext, public_key) for ciphertext in serialized_encrypted_list]
+        return [EncryptedNumber(int(ciphertext), public_key) for ciphertext in serialized_encrypted_list]
 
     def get_encrypted_list_f(self, serialized_encrypted_list):
         return [EncryptedNumber(int(ciphertext), self.public_key) for ciphertext in serialized_encrypted_list]
@@ -94,6 +94,7 @@ class DamgardJurikHelper(CSHelper):
         return encrypted_results
 
     def get_evaluations(self, coefs, pubkey, my_data):
+        print("Evaluating the polynomial")
         evaluations = []
         for element in my_data:
             rb = random.randint(1, 1000)
