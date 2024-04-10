@@ -6,6 +6,7 @@ from flask import Flask, render_template, jsonify, request
 from Network import Logs
 from Network.Node import Node
 from Network.collections import networking
+from Network.collections.DbConstants import DEFL_PORT
 from Network.collections.networking import is_valid_ipv4, is_valid_ipv6
 from Crypto.helpers.CryptoImplementation import CryptoImplementation
 
@@ -22,13 +23,14 @@ def node_wrapper(func):
 
 
 def create_app(test_config=None):
-    def create_node():
+    def create_node(port=DEFL_PORT):
         peers = ["192.168.1.135:5001", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
         local_ip = networking.get_local_ip()
 
-        node = Node(local_ip, 5001, peers)
+        node = Node(local_ip, port, peers)
         node.start()
         Logs.setup_logs(node.id, len(node.myData), node.domain)
+
     create_node()
 
     # create and configure the app
@@ -80,10 +82,15 @@ def create_app(test_config=None):
 
     @app.route('/api/connect', methods=['POST'])
     def api_connect():
+        port = request.args.get('port')
         if Node.getinstance() is not None:
             return jsonify({'status': 'Node already connected'})
-        create_node()
-        return jsonify({'status': 'Node connected'})
+        if port is None or not port.isdigit():
+            create_node()
+        else:
+            create_node(port)
+        return jsonify({'status': 'Node connected using port ' + str(port) if port is not None else
+                        'Node connected using port ' + str(DEFL_PORT)})
 
     @app.route('/api/mykeys', methods=['GET'])
     @node_wrapper

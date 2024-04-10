@@ -4,6 +4,9 @@ $(document).ready(function(){
     get_port();
     get_id();
     check_connection();
+    setInterval(check_connection, 10000);
+    setInterval(update_devices, 10000);
+    check_tasks();
 });
 
 function check_connection() {
@@ -196,5 +199,17 @@ function discover_peers() {
             }, 2000);
         }
     });
+}
+
+function check_tasks() {
+    setInterval(function() {
+        $.get('http://127.0.0.1:5000//api/tasks', function(data) {
+            let nodeStatus = data.status[0];
+            let handlerStatus = data.status[1];
+            $('#pending_node').text(nodeStatus);
+            $('#pending_handler').text(handlerStatus);
+        });
+    }, 1000);
+
 }
 
