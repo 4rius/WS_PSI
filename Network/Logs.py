@@ -11,17 +11,42 @@ from firebase_admin import credentials, db
 
 from Network.collections.DbConstants import FB_URL
 
-# Path to Firebase credentials, this file is not provided!!!
-try:
-    cred = credentials.Certificate('./FirebaseCredentials.json')
-    default_app = firebase_admin.initialize_app(cred, {
-        'databaseURL': FB_URL
-    })
-    print(f"Connected to Firebase database: {default_app.project_id}")
-except FileNotFoundError:
-    default_app = None
-    print("Firebase credentials not found, please provide the file in the root directory")
-    print("The application will not log data to Firebase")
+global default_app
+
+
+def connect_firebase():
+    global default_app
+    if default_app is not None:
+        return "Firebase was already connected"
+    # Path to Firebase credentials, this file is not provided!!!
+    try:
+        cred = credentials.Certificate('./FirebaseCredentials.json')
+        default_app = firebase_admin.initialize_app(cred, {
+            'databaseURL': FB_URL
+        })
+        print(f"Connected to Firebase database: {default_app.project_id}")
+        return f"Connected to Firebase database: {default_app.project_id}"
+    except FileNotFoundError:
+        default_app = None
+        print("Firebase credentials not found, please provide the file in the root directory")
+        print("The application will not log data to Firebase")
+        return "Firebase credentials not found, please provide the file in the root directory"
+
+
+def disconnect_firebase():
+    global default_app
+    if default_app is not None:
+        firebase_admin.delete_app(default_app)
+        default_app = None
+        print("Disconnected from Firebase database - No logging to RTDB will be done")
+        return "Disconnected from Firebase database - No logging to RTDB will be done"
+    else:
+        return "Firebase was not connected"
+
+
+# noinspection PyRedeclaration
+default_app = None
+connect_firebase()
 
 
 def firebase_connected(func):
@@ -206,6 +231,8 @@ def log_result(implementation, result, version, id, device):
         "version": version,
         "type": "Desktop (Flask): " + get_system_info()
     }
+    if isinstance(result, list):
+        log["size"] = len(result)
     ref = db.reference(f"/logs/{get_formatted_id(id)}/results")
     ref.push(log)
     print(f"Result log sent to Firebase")

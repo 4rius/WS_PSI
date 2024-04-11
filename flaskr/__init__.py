@@ -2,6 +2,7 @@ import functools
 import os
 
 from flask import Flask, render_template, jsonify, request
+from flask.views import MethodView
 
 from Network import Logs
 from Network.Node import Node
@@ -194,10 +195,21 @@ def create_app(test_config=None):
     def api_check_tasks(node):
         return jsonify({'status': node.check_tasks()})
 
-    @app.route('/api/firebase', methods=['GET'])
-    def api_check_firebase():
-        if Logs.default_app is None:
-            return jsonify({'status': 'Firebase not connected - The application will not log data to Firebase'})
-        return jsonify({'status': 'Firebase connected'})
+    # noinspection PyMethodMayBeStatic
+    # To be able to use appropriate API methods, GET for status and POST for connect/disconnect
+    class FirebaseAPI(MethodView):
+        def get(self):
+            if Logs.default_app is None:
+                return jsonify({'status': 'Firebase not connected - The application will not log data to Firebase'})
+            return jsonify({'status': 'Firebase connected'})
+
+        def post(self):
+            action = request.args.get('action')
+            if action == 'connect':
+                return jsonify({'status': Logs.connect_firebase()})
+            elif action == 'disconnect':
+                return jsonify({'status': Logs.disconnect_firebase()})
+
+    app.add_url_rule('/api/firebase', view_func=FirebaseAPI.as_view('firebase_api'))
 
     return app
