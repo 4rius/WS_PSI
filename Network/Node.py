@@ -253,7 +253,7 @@ class Node:
         return "Setup updated"
 
     def check_tasks(self):
-        return (str(self.executor.tasks_in_progress) + " tasks running in the node" if
-                self.executor.tasks_in_progress > 0 else "No tasks running in the node",
-                str(self.json_handler.executor.tasks_in_progress) + " tasks running in the handler"
-                if self.json_handler.executor.tasks_in_progress > 0 else "No tasks running in the handler")
+        return (str(self.executor.queue.qsize()) + " tasks running in the node" if
+                self.executor.queue.qsize() > 0 else "No tasks running in the node",
+                str(self.json_handler.executor.queue.qsize()) + " tasks running in the handler"
+                if self.json_handler.executor.queue.qsize() > 0 else "No tasks running in the handler")
