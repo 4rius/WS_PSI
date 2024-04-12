@@ -9,7 +9,7 @@ class CAOPEHandler(IntersectionHandler):
     def __init__(self, id, my_data, domain, devices, results):
         super().__init__(id, my_data, domain, devices, results)
 
-    @log_activity
+    @log_activity("CARDINALITY")
     def intersection_first_step(self, device, cs):
         """
         This method performs the first step of the intersection operation using Oblivious Polynomial Evaluation (OPE)
@@ -34,7 +34,7 @@ class CAOPEHandler(IntersectionHandler):
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
         self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
 
-    @log_activity
+    @log_activity("CARDINALITY")
     def intersection_second_step(self, device, cs, coeffs, pubkey):
         my_data = [int(element) for element in self.my_data]
         pubkey = cs.reconstruct_public_key(pubkey)
@@ -43,7 +43,7 @@ class CAOPEHandler(IntersectionHandler):
         serialized_result = cs.serialize_result(result, "OPE")
         self.send_message(device, serialized_result, cs.imp_name + ' PSI-CA OPE')
 
-    @log_activity
+    @log_activity("CARDINALITY")
     def intersection_final_step(self, device, cs, peer_data):
         result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]

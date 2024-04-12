@@ -8,7 +8,7 @@ class DomainPSIHandler(IntersectionHandler):
     def __init__(self, id, my_data, domain, devices, results):
         super().__init__(id, my_data, domain, devices, results)
 
-    @log_activity
+    @log_activity("DOMAIN")
     def intersection_first_step(self, device, cs):
         encrypted_data = cs.encrypt_my_data(self.my_data, self.domain)
         serialized_pubkey = cs.serialize_public_key()
@@ -16,14 +16,14 @@ class DomainPSIHandler(IntersectionHandler):
                           encrypted_data.items()}
         self.send_message(device, encrypted_data, cs.imp_name, serialized_pubkey)
 
-    @log_activity
+    @log_activity("DOMAIN")
     def intersection_second_step(self, device, cs, peer_data, pubkey):
         pubkey = cs.reconstruct_public_key(pubkey)
         multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data, pubkey), self.my_data)
         serialized_multiplied_set = cs.serialize_result(multiplied_set)
         self.send_message(device, serialized_multiplied_set, cs.imp_name)
 
-    @log_activity
+    @log_activity("DOMAIN")
     def intersection_final_step(self, device, cs, peer_data):
         multiplied_set = cs.recv_multiplied_set(peer_data)
         for element, encrypted_value in multiplied_set.items():

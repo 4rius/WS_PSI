@@ -9,7 +9,7 @@ class OPEHandler(IntersectionHandler):
     def __init__(self, id, my_data, domain, devices, results):
         super().__init__(id, my_data, domain, devices, results)
 
-    @log_activity
+    @log_activity("OPE")
     def intersection_first_step(self, device, cs):
         """
         This method performs the first step of the intersection operation using Oblivious Polynomial Evaluation (OPE)
@@ -37,7 +37,7 @@ class OPEHandler(IntersectionHandler):
         else:
             self.send_message(device, encrypted_coeffs, (cs.imp_name + ' OPE'), serialized_pubkey)
 
-    @log_activity
+    @log_activity("OPE")
     def intersection_second_step(self, device, cs, coeffs, pubkey):
         """
         This method handles the Oblivious Polynomial Evaluation (OPE) operation for the device that receives
@@ -60,7 +60,7 @@ class OPEHandler(IntersectionHandler):
         serialized_encrypted_evaluated_coeffs = cs.serialize_result(encrypted_evaluated_coeffs, "OPE")
         self.send_message(device, serialized_encrypted_evaluated_coeffs, cs.imp_name + ' OPE')
 
-    @log_activity
+    @log_activity("OPE")
     def intersection_final_step(self, device, cs, peer_data):
         """
         This method performs the final step of the intersection operation using Oblivious Polynomial Evaluation (OPE).
