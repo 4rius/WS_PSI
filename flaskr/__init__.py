@@ -25,7 +25,7 @@ def node_wrapper(func):
 
 def create_app(test_config=None):
     def create_node(port=DEFL_PORT):
-        peers = ["192.168.1.135:5001", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:5001"]
+        peers = ["192.168.1.135", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]"]
         local_ip = networking.get_local_ip()
 
         node = Node(local_ip, port, peers)
@@ -110,13 +110,14 @@ def create_app(test_config=None):
     @app.route('/api/intersection', methods=['POST'])
     @node_wrapper
     def api_intersection(node):
-        device = request.args.get('device')
-        scheme = request.args.get('scheme')
-        type = request.args.get('type')
-        rounds = request.args.get('rounds')
+        data = request.get_json()
+        device = data.get('device')
+        scheme = data.get('scheme')
+        type = data.get('type')
+        rounds = data.get('rounds')
         if device is None or scheme is None or type is None:
             return jsonify({'status': 'Invalid parameters'})
-        if rounds is None or not rounds.isdigit():
+        if rounds is None or not str(rounds).isdigit():
             rounds = 1
         return jsonify({'status': node.start_intersection(device, scheme, type, rounds)})
 
@@ -151,10 +152,12 @@ def create_app(test_config=None):
     def api_discover_peers(node):
         return jsonify({'status': node.discover_peers()})
 
-    @app.route('/api/add_peer', methods=['POST'])
+    @app.route('/api/add', methods=['PUT'])
     @node_wrapper
     def api_add_peer(node):
         peer = request.args.get('peer')
+        if peer is None:
+            return jsonify({'status': 'Invalid parameters - No peer provided'})
         if is_valid_ipv4(peer) or is_valid_ipv6(peer):
             return jsonify({'status': node.new_peer(peer, "Not seen yet")})
         return jsonify({'status': 'Invalid IPv4 or IPv6 address'})

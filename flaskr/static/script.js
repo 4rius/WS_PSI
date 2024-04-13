@@ -115,17 +115,26 @@ function disconnect() {
     });
 }
 
-function FindIntersection(device, scheme, type) {
-    $.post(`/api/intersection?device=${device}&scheme=${scheme}&type=${type}`, function(data){
-    })
-    .done(function(data) {
-        const message = data.status;
-        M.toast({html: message});
-    })
-    .fail(function() {
-        M.toast({html: "Error returned, likely the node threw an exception. Check the logs for more information."});
+function FindIntersection(device, scheme, type, rounds) {
+    const data = {
+        "device": device,
+        "scheme": scheme,
+        "type": type,
+        "rounds": rounds
+    };
+    $.ajax({
+        url: '/api/intersection',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        success: function(data) {
+            const message = data.status;
+            M.toast({html: message});
+        }
     });
 }
+
 
 function test(device) {
     $.post(`/api/test?device=${device}`, function(data){

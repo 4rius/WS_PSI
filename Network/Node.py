@@ -58,7 +58,7 @@ class Node:
 
     def _connect_to_peer(self, peer):
         dealer_socket = self.context.socket(zmq.DEALER)
-        dealer_socket.connect(f"tcp://{peer}")
+        dealer_socket.connect(f"tcp://{peer}:{self.port}")
         dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
 
         # Update devices dictionary
