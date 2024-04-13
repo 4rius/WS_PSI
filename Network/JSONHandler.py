@@ -73,6 +73,7 @@ class JSONHandler:
     def handle_message(self, message):
         try:
             message = json.loads(message)
+            print(f"Node {self.id} (You) received: {message}")
             if message['peer'] not in self.devices:
                 self.new_peer(message['peer'], time.strftime("%H:%M:%S", time.localtime()))
             if message['step'] == "2":
