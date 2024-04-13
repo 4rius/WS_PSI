@@ -80,7 +80,6 @@ class Node:
         while self.running:
             try:
                 sender, message = self.router_socket.recv_multipart()
-                print(f"Node {self.id} (You) received: {message}")
                 if message.startswith(b'{'):
                     self.executor.submit(0, self.json_handler.handle_message, message)
                 else:
