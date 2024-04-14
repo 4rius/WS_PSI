@@ -4,9 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from numpy import nan
 
-file_to_be_analyzed = 'dj-psi-ca.json'
+file_to_be_analyzed = 'dj-ope-512.json'
 output_folder = file_to_be_analyzed.split('.')[0].upper()
-fp = 'Data/WS-Android-M1Max-S21Ultra/'
+fp = 'Data/Android-WS-S21Ultra-M1Max/'
 folder_path = fp + output_folder
 
 
