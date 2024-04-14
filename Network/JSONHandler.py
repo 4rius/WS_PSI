@@ -51,7 +51,7 @@ class JSONHandler:
         Logs.stop_logging(ThreadData())
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
 
-    def start_intersection(self, device, scheme, type, rounds):
+    def start_intersection(self, device, scheme, type, rounds) -> str:
         crypto_impl = CryptoImplementation.from_string(scheme)
         if crypto_impl in self.CSHandlers:
             cs = self.CSHandlers[crypto_impl]

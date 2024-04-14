@@ -1,6 +1,7 @@
 import random
 import threading
 import time
+from typing import Tuple
 
 import zmq
 
@@ -233,25 +234,25 @@ class Node:
             socket.close()
         return "Discovering peers..."
 
-    def start_intersection(self, device, scheme, type, rounds=1):
+    def start_intersection(self, device, scheme, type, rounds=1) -> str:
         if device in self.devices:
             return self.json_handler.start_intersection(device, scheme, type, rounds)
         return "Device not found - Have the peer send an ACK first"
 
-    def launch_test(self, device):
+    def launch_test(self, device) -> str:
         if device in self.devices:
             self.json_handler.test_launcher(device)
             return "Launching a massive test with " + device + " - Check logs"
         return "Device not found"
 
-    def update_setup(self, domain, set_size):
+    def update_setup(self, domain, set_size) -> str:
         if not domain.isdigit() or not set_size.isdigit() or int(domain) < int(set_size):
             return "Invalid parameters"
         self.domain = int(domain)
         self.myData = set(random.sample(range(self.domain), int(set_size)))
         return "Setup updated"
 
-    def check_tasks(self):
+    def check_tasks(self) -> tuple[str, str]:
         return (str(self.executor.queue.qsize()) + " tasks running in the node" if
                 self.executor.queue.qsize() > 0 else "No tasks running in the node",
                 str(self.json_handler.executor.queue.qsize()) + " tasks running in the handler"
