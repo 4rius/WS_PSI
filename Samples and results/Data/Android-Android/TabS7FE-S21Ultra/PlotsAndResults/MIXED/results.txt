@@ -1,0 +1,343 @@
+Tiempo total: 0 days 00:01:59
+device_type         Android 14 - samsung - SM-T733
+activity_code       CARDINALITY_DamgardJurik_OPE_1
+media_tiempo                               0.30115
+media_ram                                  2659.35
+min_ram                                     2626.0
+max_ram                                     2714.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.8
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             210.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                                193.156582
+min_cpu_time                             33.718849
+max_cpu_time                           1208.516521
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code        CARDINALITY_DamgardJurik_OPE_2
+media_tiempo                                0.45755
+media_ram                                   4921.45
+min_ram                                      4887.0
+max_ram                                      4966.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                 372.719576
+min_cpu_time                             112.968965
+max_cpu_time                             943.093886
+Name: 1, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code       CARDINALITY_DamgardJurik_OPE_F
+media_tiempo                               0.09255
+media_ram                                   2660.6
+min_ram                                     2631.0
+max_ram                                     2717.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                                 66.814082
+min_cpu_time                             15.794272
+max_cpu_time                             374.53916
+Name: 2, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code           CARDINALITY_Paillier_OPE_1
+media_tiempo                                2.3056
+media_ram                                   2666.2
+min_ram                                     2629.0
+max_ram                                     2719.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.2
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             210.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                               1744.674352
+min_cpu_time                           1185.709639
+max_cpu_time                           3753.483145
+Name: 3, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code            CARDINALITY_Paillier_OPE_2
+media_tiempo                                3.68665
+media_ram                                   4933.75
+min_ram                                      4918.0
+max_ram                                      5006.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                2996.993283
+min_cpu_time                            1566.897564
+max_cpu_time                             4201.26494
+Name: 4, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code           CARDINALITY_Paillier_OPE_F
+media_tiempo                                2.8914
+media_ram                                  2664.35
+min_ram                                     2639.0
+max_ram                                     2723.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                               2146.669669
+min_cpu_time                           1275.259136
+max_cpu_time                           2622.899172
+Name: 5, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code          INTERSECTION_DamgardJurik_1
+media_tiempo                                0.9247
+media_ram                                  2647.15
+min_ram                                     2629.0
+max_ram                                     2663.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                                584.365564
+min_cpu_time                            157.386872
+max_cpu_time                           2937.721528
+Name: 6, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_2
+media_tiempo                                 1.0053
+media_ram                                   4930.35
+min_ram                                      4915.0
+max_ram                                      4978.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                 739.406278
+min_cpu_time                             262.402992
+max_cpu_time                            2344.637216
+Name: 7, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code          INTERSECTION_DamgardJurik_F
+media_tiempo                                0.4084
+media_ram                                   2644.4
+min_ram                                     2627.0
+max_ram                                     2661.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                                275.502293
+min_cpu_time                            147.164379
+max_cpu_time                            563.000261
+Name: 8, dtype: object
+device_type          Android 14 - samsung - SM-T733
+activity_code       INTERSECTION_DamgardJurik_OPE_1
+media_tiempo                                0.25475
+media_ram                                    2656.4
+min_ram                                      2627.0
+max_ram                                      2712.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                 142.35
+instance_cpu                                   None
+instance_min_ram                              142.0
+instance_max_ram                              210.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                 170.107402
+min_cpu_time                               32.46974
+max_cpu_time                            1192.396558
+Name: 9, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_2
+media_tiempo                                0.42245
+media_ram                                   4926.35
+min_ram                                      4888.0
+max_ram                                      4974.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                               13794.105991
+min_cpu_time                             321.610423
+max_cpu_time                           27651.116425
+Name: 10, dtype: object
+device_type          Android 14 - samsung - SM-T733
+activity_code       INTERSECTION_DamgardJurik_OPE_F
+media_tiempo                                0.09125
+media_ram                                   2660.25
+min_ram                                      2628.0
+max_ram                                      2713.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                  142.0
+instance_cpu                                   None
+instance_min_ram                              142.0
+instance_max_ram                              142.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                  61.850051
+min_cpu_time                              15.154844
+max_cpu_time                             336.663476
+Name: 11, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code              INTERSECTION_Paillier_1
+media_tiempo                               14.6846
+media_ram                                   2656.8
+min_ram                                     2637.0
+max_ram                                     2723.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             210.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                              11231.689667
+min_cpu_time                            8894.85226
+max_cpu_time                          15068.153648
+Name: 12, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code               INTERSECTION_Paillier_2
+media_tiempo                                 7.4708
+media_ram                                   4921.55
+min_ram                                      4914.0
+max_ram                                      4996.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                7036.443508
+min_cpu_time                            5110.319933
+max_cpu_time                            9610.657905
+Name: 13, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code              INTERSECTION_Paillier_F
+media_tiempo                              25.11095
+media_ram                                   2669.6
+min_ram                                     2641.0
+max_ram                                     2724.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                              19916.541959
+min_cpu_time                          12286.682625
+max_cpu_time                           23248.52046
+Name: 14, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code          INTERSECTION_Paillier_OPE_1
+media_tiempo                                2.2711
+media_ram                                   2660.9
+min_ram                                     2628.0
+max_ram                                     2724.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.1
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             210.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                               1634.949187
+min_cpu_time                            928.811442
+max_cpu_time                           3737.480222
+Name: 15, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_Paillier_OPE_2
+media_tiempo                                 3.8032
+media_ram                                    4933.1
+min_ram                                      4917.0
+max_ram                                      5006.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                   94.0
+instance_cpu                                   None
+instance_min_ram                               94.0
+instance_max_ram                               94.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                14507.80219
+min_cpu_time                            3960.446522
+max_cpu_time                           29738.736157
+Name: 16, dtype: object
+device_type         Android 14 - samsung - SM-T733
+activity_code          INTERSECTION_Paillier_OPE_F
+media_tiempo                                2.8805
+media_ram                                  2659.85
+min_ram                                     2640.0
+max_ram                                     2721.0
+media_cpu                                     None
+min_cpu                                       None
+max_cpu                                       None
+instance_ram                                 142.0
+instance_cpu                                  None
+instance_min_ram                             142.0
+instance_max_ram                             142.0
+instance_min_cpu                              None
+instance_max_cpu                              None
+cpu_time                               2250.598123
+min_cpu_time                           1896.166737
+max_cpu_time                           2819.053696
+Name: 17, dtype: object

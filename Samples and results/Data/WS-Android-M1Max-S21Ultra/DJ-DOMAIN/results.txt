@@ -1,0 +1,58 @@
+Tiempo total: 0 days 00:02:16
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_2
+media_tiempo                               0.269972
+media_ram                                  4854.455
+min_ram                                      4814.0
+max_ram                                      4930.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  100.0
+instance_cpu                                    NaN
+instance_min_ram                              100.0
+instance_max_ram                              100.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                 201.045813
+min_cpu_time                              98.370955
+max_cpu_time                            3791.266979
+Name: 0, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code            INTERSECTION_FINAL_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                  0.41736
+media_ram                                                16279.068519
+min_ram                                                      16217.66
+max_ram                                                      16407.22
+media_cpu                                                   26.267099
+min_cpu                                                          20.2
+max_cpu                                                          46.4
+instance_ram                                                75.078827
+instance_cpu                                               100.830062
+instance_min_ram                                                63.97
+instance_max_ram                                                77.81
+instance_min_cpu                                                29.87
+instance_max_cpu                                                105.6
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 1, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code            INTERSECTION_FIRST_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                  0.67462
+media_ram                                                16270.175439
+min_ram                                                      16214.27
+max_ram                                                      16408.91
+media_cpu                                                   29.415137
+min_cpu                                                          20.6
+max_cpu                                                          63.7
+instance_ram                                                 74.53918
+instance_cpu                                               108.977237
+instance_min_ram                                                53.13
+instance_max_ram                                                 77.3
+instance_min_cpu                                                 87.9
+instance_max_cpu                                                119.7
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 2, dtype: object

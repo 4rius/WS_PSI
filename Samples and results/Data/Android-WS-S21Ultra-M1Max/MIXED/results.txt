@@ -1,0 +1,343 @@
+Tiempo total: 0 days 00:01:48
+device_type         Android 14 - samsung - SM-G998B
+activity_code        CARDINALITY_DamgardJurik_OPE_1
+media_tiempo                                 0.3797
+media_ram                                    5036.3
+min_ram                                      5020.0
+max_ram                                      5055.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              163.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                 215.150023
+min_cpu_time                              63.336695
+max_cpu_time                            1282.690604
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code        CARDINALITY_DamgardJurik_OPE_F
+media_tiempo                                0.12895
+media_ram                                    5040.5
+min_ram                                      5023.0
+max_ram                                      5060.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                  76.283627
+min_cpu_time                                23.9765
+max_cpu_time                             296.670685
+Name: 1, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code            CARDINALITY_Paillier_OPE_1
+media_tiempo                                 2.5669
+media_ram                                    5034.4
+min_ram                                      5019.0
+max_ram                                      5068.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              180.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                1707.841828
+min_cpu_time                            1452.502036
+max_cpu_time                            3560.605321
+Name: 2, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code            CARDINALITY_Paillier_OPE_F
+media_tiempo                                3.28405
+media_ram                                   5035.75
+min_ram                                      5019.0
+max_ram                                      5070.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                 2424.54084
+min_cpu_time                             2005.02257
+max_cpu_time                             3027.22669
+Name: 3, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_1
+media_tiempo                                1.25535
+media_ram                                   5031.35
+min_ram                                      5014.0
+max_ram                                      5063.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              163.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                 756.481755
+min_cpu_time                             302.954832
+max_cpu_time                            3248.169179
+Name: 4, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_F
+media_tiempo                                0.38885
+media_ram                                   5037.35
+min_ram                                      5027.0
+max_ram                                      5068.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                  280.23024
+min_cpu_time                             173.559031
+max_cpu_time                             502.790575
+Name: 5, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_1
+media_tiempo                                 0.3303
+media_ram                                   5035.35
+min_ram                                      5020.0
+max_ram                                      5053.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              163.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                 201.304432
+min_cpu_time                              51.771268
+max_cpu_time                            1419.265109
+Name: 6, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_F
+media_tiempo                                 0.1281
+media_ram                                   5042.65
+min_ram                                      5019.0
+max_ram                                      5060.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                  84.442404
+min_cpu_time                              24.198925
+max_cpu_time                             270.047464
+Name: 7, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code               INTERSECTION_Paillier_1
+media_tiempo                               17.31385
+media_ram                                    5035.8
+min_ram                                      5025.0
+max_ram                                      5068.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              159.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                               12366.849884
+min_cpu_time                           11936.708974
+max_cpu_time                           13971.983396
+Name: 8, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code               INTERSECTION_Paillier_F
+media_tiempo                               24.12865
+media_ram                                   5046.35
+min_ram                                      5030.0
+max_ram                                      5081.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                               21061.161727
+min_cpu_time                           15447.420389
+max_cpu_time                            25094.25665
+Name: 9, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_Paillier_OPE_1
+media_tiempo                                 2.5557
+media_ram                                   5034.15
+min_ram                                      5015.0
+max_ram                                      5063.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                 153.05
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              180.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                1706.965962
+min_cpu_time                            1451.684922
+max_cpu_time                            3441.948211
+Name: 10, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_Paillier_OPE_F
+media_tiempo                                3.32245
+media_ram                                   5036.55
+min_ram                                      5018.0
+max_ram                                      5063.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                  153.0
+instance_cpu                                    NaN
+instance_min_ram                              153.0
+instance_max_ram                              153.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                2410.281201
+min_cpu_time                            2281.430391
+max_cpu_time                            2604.557494
+Name: 11, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code       INTERSECTION_SECOND_STEP_Damgard-Jurik_CARDINA...
+media_tiempo                                                   0.6045
+media_ram                                                   15728.186
+min_ram                                                      15714.61
+max_ram                                                      15751.98
+media_cpu                                                       21.53
+min_cpu                                                          18.5
+max_cpu                                                          24.0
+instance_ram                                                   80.294
+instance_cpu                                                   102.44
+instance_min_ram                                                57.87
+instance_max_ram                                                99.58
+instance_min_cpu                                               101.95
+instance_max_cpu                                                103.1
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 12, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code           INTERSECTION_SECOND_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                    0.376
+media_ram                                                         NaN
+min_ram                                                           NaN
+max_ram                                                           NaN
+media_cpu                                                         NaN
+min_cpu                                                           NaN
+max_cpu                                                           NaN
+instance_ram                                                      NaN
+instance_cpu                                                      NaN
+instance_min_ram                                                  NaN
+instance_max_ram                                                  NaN
+instance_min_cpu                                                  NaN
+instance_max_cpu                                                  NaN
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 13, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code              INTERSECTION_SECOND_STEP_Damgard-Jurik_OPE
+media_tiempo                                                    0.622
+media_ram                                                   15720.484
+min_ram                                                      15715.91
+max_ram                                                      15728.47
+media_cpu                                                       20.72
+min_cpu                                                          19.6
+max_cpu                                                          22.0
+instance_ram                                                   69.844
+instance_cpu                                                   101.66
+instance_min_ram                                                55.65
+instance_max_ram                                                98.83
+instance_min_cpu                                                100.3
+instance_max_cpu                                                102.8
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 14, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code           INTERSECTION_SECOND_STEP_Paillier_CARDINALITY
+media_tiempo                                                   5.8265
+media_ram                                                  15723.7125
+min_ram                                                      15714.62
+max_ram                                                      15842.14
+media_cpu                                                      20.673
+min_cpu                                                         18.52
+max_cpu                                                          35.5
+instance_ram                                                   77.307
+instance_cpu                                                  102.039
+instance_min_ram                                                55.88
+instance_max_ram                                               104.41
+instance_min_cpu                                                99.95
+instance_max_cpu                                                104.4
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 15, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code                INTERSECTION_SECOND_STEP_Paillier_DOMAIN
+media_tiempo                                                   27.319
+media_ram                                                  15720.4835
+min_ram                                                      15710.07
+max_ram                                                      15842.14
+media_cpu                                                     19.4095
+min_cpu                                                         18.61
+max_cpu                                                          30.2
+instance_ram                                                  97.2885
+instance_cpu                                                 102.7145
+instance_min_ram                                                76.14
+instance_max_ram                                                104.7
+instance_min_cpu                                               101.78
+instance_max_cpu                                                104.8
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 16, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code                   INTERSECTION_SECOND_STEP_Paillier_OPE
+media_tiempo                                                   5.9085
+media_ram                                                   15721.701
+min_ram                                                      15715.65
+max_ram                                                      15836.19
+media_cpu                                                     20.9375
+min_cpu                                                         18.94
+max_cpu                                                          37.1
+instance_ram                                                  76.0155
+instance_cpu                                                 102.0845
+instance_min_ram                                                55.85
+instance_max_ram                                                98.39
+instance_min_cpu                                                100.4
+instance_max_cpu                                                104.2
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 17, dtype: object

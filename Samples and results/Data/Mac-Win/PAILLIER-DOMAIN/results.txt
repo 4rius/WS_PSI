@@ -1,0 +1,58 @@
+Tiempo total: 0 days 01:14:27
+device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
+activity_code                        INTERSECTION_FINAL_STEP_Paillier
+media_tiempo                                                  7.45933
+media_ram                                                  8090.22327
+min_ram                                                       7899.06
+max_ram                                                       8970.86
+media_cpu                                                    17.17974
+min_cpu                                                         12.68
+max_cpu                                                          70.1
+instance_ram                                                112.55543
+instance_cpu                                                102.34435
+instance_min_ram                                                86.57
+instance_max_ram                                               119.61
+instance_min_cpu                                                64.34
+instance_max_cpu                                                104.8
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 0, dtype: object
+device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
+activity_code                        INTERSECTION_FIRST_STEP_Paillier
+media_tiempo                                                 36.23721
+media_ram                                                  8089.93916
+min_ram                                                       7900.41
+max_ram                                                       8975.06
+media_cpu                                                    17.13742
+min_cpu                                                         15.92
+max_cpu                                                          69.9
+instance_ram                                                111.57836
+instance_cpu                                                 102.4645
+instance_min_ram                                                63.05
+instance_max_ram                                               117.62
+instance_min_cpu                                               101.85
+instance_max_cpu                                                104.9
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 1, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code                       INTERSECTION_SECOND_STEP_Paillier
+media_tiempo                                                 15.88387
+media_ram                                                 12239.87811
+min_ram                                                      11668.32
+max_ram                                                      17387.18
+media_cpu                                                     5.89196
+min_cpu                                                          4.09
+max_cpu                                                          38.9
+instance_ram                                                  65.7981
+instance_cpu                                                 55.69496
+instance_min_ram                                                53.35
+instance_max_ram                                                77.26
+instance_min_cpu                                                18.77
+instance_max_cpu                                                 97.1
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 2, dtype: object
