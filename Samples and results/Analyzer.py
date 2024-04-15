@@ -176,10 +176,13 @@ def analyze_activities(ftba, fp):
         app_avg_ram = group['App_Avg_RAM'] if 'App_Avg_RAM' in group else None
         app_cpu_time = group['CPU_time'] if 'CPU_time' in group else None
 
-        # Calcular el tiempo en minutos
-        tiempo_en_minutos = (timestamps.max() - timestamps.min()).seconds / 60
         # Crear un array de tiempo en minutos para el eje x
-        tiempo_en_minutos = np.linspace(0, tiempo_en_minutos, len(time_taken))
+        # Pasamos algo tipo T%d/%m/%Y %H:%M:%S que es tiempo_total a minutos
+        tiempo_total = df_activities['timestamp'].max() - df_activities['timestamp'].min()
+        tiempo_total = tiempo_total.total_seconds() / 60
+        tiempo_en_minutos = np.linspace(0, tiempo_total, len(time_taken))
+        # Reverseamos el array para que tengamos la información acorde a la hora real
+        tiempo_en_minutos = tiempo_en_minutos[::-1]
 
         # Se ordenan los datos para que salgan de mayor a menor en el eje y
         time_taken = time_taken.sort_values(ascending=True)
@@ -192,42 +195,42 @@ def analyze_activities(ftba, fp):
 
         # Se dibujan los gráficos
         axs[0].plot(tiempo_en_minutos, time_taken, label=f'Activity {name}')
-        axs[0].set_title('Tiempo de Ejecución')
+        axs[0].set_title('Tiempo de Ejecución (Valor en segundos)')
 
         axs[1].plot(tiempo_en_minutos, ram_usage, label=f'Activity {name}')
-        axs[1].set_title('Consumo de RAM (Promedio)')
+        axs[1].set_title('Consumo de RAM (Promedio, Android y WS)')
         # Ajustar los ticks del eje Y para mostrar solo los valores más relevantes
         axs[1].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if cpu_usage is not None:
             axs[2].plot(tiempo_en_minutos, cpu_usage, label=f'Activity {name}')
-            axs[2].set_title('Uso de CPU (Promedio)')
+            axs[2].set_title('Uso de CPU (Promedio, WS)')
             axs[2].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_cpu_time is not None:
             axs[3].plot(tiempo_en_minutos, app_cpu_time, label=f'Activity {name}')
-            axs[3].set_title('Tiempo de CPU de las actividades (Promedio)')
+            axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android)')
             axs[3].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_avg_ram is not None:
             axs[4].plot(tiempo_en_minutos, app_avg_ram, label=f'Activity {name}')
-            axs[4].set_title('Consumo de RAM de la aplicación (Promedio)')
+            axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android)')
             axs[4].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_cpu_usage is not None:
             axs[5].plot(tiempo_en_minutos, instance_cpu_usage, label=f'Activity {name}')
-            axs[5].set_title('Uso de CPU de la instancia (Promedio)')
+            axs[5].set_title('Uso de CPU de la instancia (Promedio, WS)')
             axs[5].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_ram_usage is not None:
             axs[6].plot(tiempo_en_minutos, instance_ram_usage, label=f'Activity {name}')
-            axs[6].set_title('Consumo de RAM de la instancia (Promedio)')
+            axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS)')
             axs[6].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
     # Añadir etiquetas a los ejes y leyendas
     for ax in axs:
         ax.set_xlabel('Tiempo (minutos)')
-        ax.set_ylabel('Value')
+        ax.set_ylabel('Valor')
         ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
     # Guardar la figura
@@ -236,6 +239,7 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
+    # analyze_activities('paillier-ope.json', 'Data/Android-Android/S21Ultra-TabS7FE/')
     files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
              'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json']
 
