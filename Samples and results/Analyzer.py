@@ -137,6 +137,7 @@ def analyze_activities(ftba, fp):
         with open(os.path.join(folder_path, 'results.txt'), 'a') as f:  # a porque se va a añadir
             f.write(str(row) + '\n')
 
+    cmap = plt.get_cmap('tab20')  # Mapa de colores para las barras
     # Iterar sobre las columnas del DataFrame de resultados
     for column in results.columns:
         if column != 'activity_code' and column != 'device_type':
@@ -146,7 +147,9 @@ def analyze_activities(ftba, fp):
             if not filtered_results.empty:  # Verificar que haya datos después de filtrar NaN
                 # Crear el gráfico
                 plt.figure(figsize=(15, 5))  # Ajustar tamaño del gráfico
-                plt.barh(filtered_results['activity_code'], filtered_results[column], color='lightgreen')
+                # Crear una lista de colores basada en los códigos de actividad
+                colors = [cmap(i) for i in np.linspace(0, 1, len(filtered_results['activity_code'].unique()))]
+                plt.barh(filtered_results['activity_code'], filtered_results[column], color=colors)
                 plt.xlabel(column.replace('_', ' ').upper())
                 plt.ylabel('Activity Code')
                 # Concatenar en el título ambos tipos de dispositivos, cada uno representa una barra distinta
@@ -163,7 +166,7 @@ def analyze_activities(ftba, fp):
                 plt.close()
 
     # Crear una figura y ejes para el gráfico
-    fig, axs = plt.subplots(7, 1, figsize=(12, 30))
+    fig, axs = plt.subplots(7, 1, figsize=(20, 30))
 
     # Iterar sobre cada grupo de actividad
     for name, group in grouped:
@@ -236,6 +239,7 @@ def analyze_activities(ftba, fp):
     # Guardar la figura
     plt.tight_layout()
     plt.savefig(os.path.join(folder_path, 'activity_plots.png'))
+    plt.close()
 
 
 if __name__ == '__main__':
