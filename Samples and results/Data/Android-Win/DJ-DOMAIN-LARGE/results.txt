@@ -1,0 +1,58 @@
+Tiempo total: 0 days 00:24:33
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_1
+media_tiempo                               9.483583
+media_ram                                  4764.748
+min_ram                                      4652.0
+max_ram                                      4955.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                219.918
+instance_cpu                                   None
+instance_min_ram                              167.0
+instance_max_ram                              270.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                6767.705942
+min_cpu_time                            5295.578758
+max_cpu_time                            8891.871306
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_F
+media_tiempo                               5.319527
+media_ram                                  4741.347
+min_ram                                      4653.0
+max_ram                                      4955.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                220.514
+instance_cpu                                   None
+instance_min_ram                              168.0
+instance_max_ram                              268.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                3850.855312
+min_cpu_time                            3008.649789
+max_cpu_time                            5264.367161
+Name: 1, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code           INTERSECTION_SECOND_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                  0.07551
+media_ram                                                         NaN
+min_ram                                                           NaN
+max_ram                                                           NaN
+media_cpu                                                         NaN
+min_cpu                                                           NaN
+max_cpu                                                           NaN
+instance_ram                                                      NaN
+instance_cpu                                                      NaN
+instance_min_ram                                                  NaN
+instance_max_ram                                                  NaN
+instance_min_cpu                                                  NaN
+instance_max_cpu                                                  NaN
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 2, dtype: object

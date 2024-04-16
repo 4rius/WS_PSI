@@ -243,9 +243,11 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    # analyze_activities('paillier-ope.json', 'Data/Android-Android/S21Ultra-TabS7FE/')
+    analyze_activities('paillier-domain.json', 'Data/Win-Mac/')
+    '''
     files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
-             'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json']
+             'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json', 'dj-domain-large.json',
+             'dj-ope-psi-ca-large.json']
 
     folders = ['Data/Android-Android/S21Ultra-TabS7FE/', 'Data/Android-Android/TabS7FE-S21Ultra/',
                'Data/Android-Win/', 'Data/Win-Android/', 'Data/Android-WS-S21Ultra-M1Max/',
@@ -254,3 +256,4 @@ if __name__ == '__main__':
         for folder in folders:
             if os.path.exists(folder + file):
                 analyze_activities(file, folder)
+'''

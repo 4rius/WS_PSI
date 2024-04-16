@@ -1,0 +1,58 @@
+Tiempo total: 0 days 00:13:36
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code            INTERSECTION_FINAL_STEP_Paillier_CARDINALITY
+media_tiempo                                                 1.350721
+media_ram                                                15383.345703
+min_ram                                                      15227.38
+max_ram                                                      16044.43
+media_cpu                                                    4.701106
+min_cpu                                                           1.5
+max_cpu                                                          15.9
+instance_ram                                                83.482859
+instance_cpu                                                34.778942
+instance_min_ram                                                74.08
+instance_max_ram                                                86.62
+instance_min_cpu                                                  8.8
+instance_max_cpu                                                 78.4
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 0, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code            INTERSECTION_FIRST_STEP_Paillier_CARDINALITY
+media_tiempo                                                  2.49083
+media_ram                                                15385.889908
+min_ram                                                      15226.04
+max_ram                                                      16191.23
+media_cpu                                                    4.812092
+min_cpu                                                          2.15
+max_cpu                                                          15.1
+instance_ram                                                83.169622
+instance_cpu                                                36.304888
+instance_min_ram                                                69.34
+instance_max_ram                                                86.48
+instance_min_cpu                                                 11.9
+instance_max_cpu                                                 79.4
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 1, dtype: object
+device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
+activity_code           INTERSECTION_SECOND_STEP_Paillier_CARDINALITY
+media_tiempo                                                   7.4999
+media_ram                                                 7598.864269
+min_ram                                                       7299.48
+max_ram                                                        8086.5
+media_cpu                                                   19.661553
+min_cpu                                                         16.59
+max_cpu                                                          74.8
+instance_ram                                                99.767134
+instance_cpu                                               102.748778
+instance_min_ram                                                72.34
+instance_max_ram                                               110.33
+instance_min_cpu                                                94.93
+instance_max_cpu                                                105.5
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Name: 2, dtype: object

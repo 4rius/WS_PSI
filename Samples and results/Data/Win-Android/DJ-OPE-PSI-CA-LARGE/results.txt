@@ -1,0 +1,115 @@
+Tiempo total: 0 days 00:22:32
+device_type         Android 14 - samsung - SM-G998B
+activity_code        CARDINALITY_DamgardJurik_OPE_2
+media_tiempo                               6.866176
+media_ram                               4713.535925
+min_ram                                      4691.0
+max_ram                                      4787.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                             146.591284
+instance_cpu                                    NaN
+instance_min_ram                              130.0
+instance_max_ram                              167.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                                4950.057781
+min_cpu_time                            3383.114695
+max_cpu_time                            5324.165785
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_2
+media_tiempo                               6.393772
+media_ram                                  4769.132
+min_ram                                      4691.0
+max_ram                                      4868.0
+media_cpu                                       NaN
+min_cpu                                         NaN
+max_cpu                                         NaN
+instance_ram                                135.184
+instance_cpu                                    NaN
+instance_min_ram                              130.0
+instance_max_ram                              143.0
+instance_min_cpu                                NaN
+instance_max_cpu                                NaN
+cpu_time                              226735.388764
+min_cpu_time                            2941.240329
+max_cpu_time                          466299.148564
+Name: 1, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code       INTERSECTION_FINAL_STEP_Damgard-Jurik_CARDINALITY
+media_tiempo                                                   0.3484
+media_ram                                                14732.875809
+min_ram                                                      14327.09
+max_ram                                                      15444.46
+media_cpu                                                    8.998382
+min_cpu                                                           2.0
+max_cpu                                                          40.3
+instance_ram                                                71.532059
+instance_cpu                                                37.698015
+instance_min_ram                                                69.62
+instance_max_ram                                                73.13
+instance_min_cpu                                                12.15
+instance_max_cpu                                                 68.6
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 2, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code               INTERSECTION_FINAL_STEP_Damgard-Jurik_OPE
+media_tiempo                                                  0.47802
+media_ram                                                 14933.09051
+min_ram                                                      13677.79
+max_ram                                                      16843.67
+media_cpu                                                   19.052549
+min_cpu                                                           3.9
+max_cpu                                                         100.0
+instance_ram                                                68.569569
+instance_cpu                                                 36.68102
+instance_min_ram                                                64.85
+instance_max_ram                                                70.79
+instance_min_cpu                                                  2.9
+instance_max_cpu                                                 81.9
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 3, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code       INTERSECTION_FIRST_STEP_Damgard-Jurik_CARDINALITY
+media_tiempo                                                  0.09227
+media_ram                                                         NaN
+min_ram                                                           NaN
+max_ram                                                           NaN
+media_cpu                                                         NaN
+min_cpu                                                           NaN
+max_cpu                                                           NaN
+instance_ram                                                      NaN
+instance_cpu                                                      NaN
+instance_min_ram                                                  NaN
+instance_max_ram                                                  NaN
+instance_min_cpu                                                  NaN
+instance_max_cpu                                                  NaN
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 4, dtype: object
+device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
+activity_code               INTERSECTION_FIRST_STEP_Damgard-Jurik_OPE
+media_tiempo                                                  0.09342
+media_ram                                                         NaN
+min_ram                                                           NaN
+max_ram                                                           NaN
+media_cpu                                                         NaN
+min_cpu                                                           NaN
+max_cpu                                                           NaN
+instance_ram                                                      NaN
+instance_cpu                                                      NaN
+instance_min_ram                                                  NaN
+instance_max_ram                                                  NaN
+instance_min_cpu                                                  NaN
+instance_max_cpu                                                  NaN
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Name: 5, dtype: object
