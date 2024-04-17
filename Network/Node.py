@@ -253,7 +253,9 @@ class Node:
         return "Setup updated"
 
     def check_tasks(self) -> tuple[str, str]:
-        return (str(self.executor.queue.qsize()) + " tasks running in the node" if
-                self.executor.queue.qsize() > 0 else "No tasks running in the node",
-                str(self.json_handler.executor.queue.qsize()) + " tasks running in the handler"
-                if self.json_handler.executor.queue.qsize() > 0 else "No tasks running in the handler")
+        total_node = self.executor.queue.qsize() + self.executor.tasks_in_progress
+        total_handler = self.json_handler.executor.queue.qsize() + self.json_handler.executor.tasks_in_progress
+        return (str(total_node) + " tasks running in the node" if
+                total_node > 0 else "No tasks running in the node",
+                str(total_handler) + " tasks running in the handler"
+                if total_handler > 0 else "No tasks running in the handler")

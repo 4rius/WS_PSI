@@ -9,9 +9,10 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN apk add build-base python3-dev linux-headers net-tools wireless-tools gmp-dev mpfr-dev mpc1-dev
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install waitress
 
 COPY . .
 
 EXPOSE 5000
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["waitress-serve", "--call", "flaskr:create_app"]
