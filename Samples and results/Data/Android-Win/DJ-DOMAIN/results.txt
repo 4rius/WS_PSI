@@ -1,45 +1,45 @@
-Tiempo total: 0 days 00:01:09
-device_type                          Android 14
-activity_code       INTERSECTION_DamgardJurik_1
-media_tiempo                           0.491093
-media_ram                              5187.349
-min_ram                                  5110.0
-max_ram                                  5288.0
-media_cpu                                  None
-min_cpu                                    None
-max_cpu                                    None
-instance_ram                              156.0
-instance_cpu                               None
-instance_min_ram                          156.0
-instance_max_ram                          168.0
-instance_min_cpu                           None
-instance_max_cpu                           None
-cpu_time                              305.41987
-min_cpu_time                         173.829158
-max_cpu_time                        3187.342413
+Tiempo total: 0 days 00:01:00
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_1
+media_tiempo                               0.265433
+media_ram                                  4470.489
+min_ram                                         0.0
+max_ram                                      4601.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                129.594
+instance_cpu                                   None
+instance_min_ram                                0.0
+instance_max_ram                              135.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                 180.159913
+min_cpu_time                              84.841503
+max_cpu_time                             328.907006
 Name: 0, dtype: object
-device_type                          Android 14
-activity_code       INTERSECTION_DamgardJurik_F
-media_tiempo                           0.264711
-media_ram                           5167.013584
-min_ram                                  5104.0
-max_ram                                  5288.0
-media_cpu                                  None
-min_cpu                                    None
-max_cpu                                    None
-instance_ram                              156.0
-instance_cpu                               None
-instance_min_ram                          156.0
-instance_max_ram                          156.0
-instance_min_cpu                           None
-instance_max_cpu                           None
-cpu_time                             167.753322
-min_cpu_time                          89.013766
-max_cpu_time                        1755.962548
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_F
+media_tiempo                               0.271555
+media_ram                                  4464.413
+min_ram                                      4401.0
+max_ram                                      4596.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                  130.0
+instance_cpu                                   None
+instance_min_ram                              130.0
+instance_max_ram                              130.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                  192.37463
+min_cpu_time                             111.686997
+max_cpu_time                             272.530202
 Name: 1, dtype: object
 device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
-activity_code                  INTERSECTION_SECOND_STEP_Damgard-Jurik
-media_tiempo                                                  0.04465
+activity_code           INTERSECTION_SECOND_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                  0.26193
 media_ram                                                         NaN
 min_ram                                                           NaN
 max_ram                                                           NaN

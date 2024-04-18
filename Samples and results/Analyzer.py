@@ -243,7 +243,7 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    analyze_activities('dj-domain.json', 'Data/Android-WS-S21Ultra-M1Max/')
+    analyze_activities('dj-domain.json', 'Data/Android-Win/')
     '''
     files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
              'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json', 'dj-domain-large.json',

@@ -1,45 +1,45 @@
-Tiempo total: 0 days 00:02:56
-device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
-activity_code                   INTERSECTION_FINAL_STEP_Damgard-Jurik
-media_tiempo                                                  0.77795
-media_ram                                                 11972.03342
-min_ram                                                      11846.86
-max_ram                                                       12144.8
-media_cpu                                                    4.133643
-min_cpu                                                           1.0
-max_cpu                                                          22.3
-instance_ram                                                67.516406
-instance_cpu                                                35.007063
-instance_min_ram                                                63.05
-instance_max_ram                                                75.69
-instance_min_cpu                                                  9.1
-instance_max_cpu                                                 61.8
+Tiempo total: 0 days 00:08:21
+device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
+activity_code            INTERSECTION_FINAL_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                 0.578435
+media_ram                                                11913.291127
+min_ram                                                        7381.9
+max_ram                                                      12701.43
+media_cpu                                                    5.978473
+min_cpu                                                          1.23
+max_cpu                                                          29.8
+instance_ram                                                88.213624
+instance_cpu                                                40.431988
+instance_min_ram                                                81.11
+instance_max_ram                                               102.25
+instance_min_cpu                                                 3.05
+instance_max_cpu                                                108.8
 cpu_time                                                         None
 min_cpu_time                                                     None
 max_cpu_time                                                     None
 Name: 0, dtype: object
-device_type         Desktop (Flask): Windows-10-10.0.22621-SP0 - A...
-activity_code                   INTERSECTION_FIRST_STEP_Damgard-Jurik
-media_tiempo                                                  0.28086
-media_ram                                                    11969.61
-min_ram                                                      11969.61
-max_ram                                                      11970.98
-media_cpu                                                         4.7
-min_cpu                                                           4.7
-max_cpu                                                           4.7
-instance_ram                                                    69.49
-instance_cpu                                                     51.6
-instance_min_ram                                                69.49
-instance_max_ram                                                69.65
-instance_min_cpu                                                 51.6
-instance_max_cpu                                                 51.6
+device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
+activity_code            INTERSECTION_FIRST_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                 0.512195
+media_ram                                                 7442.985463
+min_ram                                                       7377.12
+max_ram                                                      12451.78
+media_cpu                                                   25.930223
+min_cpu                                                           4.0
+max_cpu                                                          49.4
+instance_ram                                               100.218007
+instance_cpu                                               107.352075
+instance_min_ram                                                84.04
+instance_max_ram                                               102.42
+instance_min_cpu                                                 44.4
+instance_max_cpu                                                116.7
 cpu_time                                                         None
 min_cpu_time                                                     None
 max_cpu_time                                                     None
 Name: 1, dtype: object
 device_type         Desktop (Flask): macOS-14.2-arm64-arm-64bit - ...
-activity_code                  INTERSECTION_SECOND_STEP_Damgard-Jurik
-media_tiempo                                                  0.00678
+activity_code           INTERSECTION_SECOND_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                  0.10458
 media_ram                                                         NaN
 min_ram                                                           NaN
 max_ram                                                           NaN
