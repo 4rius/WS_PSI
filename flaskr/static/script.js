@@ -171,8 +171,8 @@ function results() {
     });
 }
 
-function genkeys(scheme) {
-    $.post(`/api/genkeys?scheme=${scheme}`, function(data){
+function genkeys(scheme, bitlength) {
+    $.post(`/api/genkeys?scheme=${scheme}&bit_length=${bitlength}`, function(data){
         const message = data.status;
         M.toast({html: message});
     });

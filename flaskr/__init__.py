@@ -141,7 +141,7 @@ def create_app(test_config=None):
     def api_genkeys(node):
         scheme = request.args.get('scheme')
         bit_length = request.args.get('bit_length')
-        if scheme is None or bit_length is None:
+        if scheme is None:
             return jsonify({'status': 'Invalid parameters'})
         if not bit_length.isdigit():
             return jsonify({'status': 'Invalid bit length'})
