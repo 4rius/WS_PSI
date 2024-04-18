@@ -67,7 +67,7 @@ class JSONHandler:
             else:
                 return "Invalid type: " + type
             return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + str(rounds) +
-                    " - Thread started, check logs")
+                    " - Task started, check logs")
         return "Invalid scheme: " + scheme
 
     def handle_message(self, message):
