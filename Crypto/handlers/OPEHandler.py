@@ -1,8 +1,8 @@
-from Network import Logs
+from Logs import Logs
 from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
 from Crypto.numbers.Polynomials import polinomio_raices
-from Network.collections.log_activity import log_activity
+from Logs.log_activity import log_activity
 
 
 class OPEHandler(IntersectionHandler):

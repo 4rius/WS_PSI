@@ -1,7 +1,7 @@
 import time
 
-from Network import Logs
-from Network.Logs import ThreadData
+from Logs import Logs
+from Logs.Logs import ThreadData
 from Network.collections.DbConstants import VERSION
 
 

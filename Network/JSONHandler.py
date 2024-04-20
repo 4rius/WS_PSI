@@ -1,8 +1,8 @@
 import json
 import time
 
-from Network import Logs
-from Network.Logs import ThreadData
+from Logs import Logs
+from Logs.Logs import ThreadData
 from Crypto.handlers.CAOPEHandler import CAOPEHandler
 from Crypto.helpers.DamgardJurikHandler import DamgardJurikHelper
 from Crypto.handlers.DomainPSIHandler import DomainPSIHandler

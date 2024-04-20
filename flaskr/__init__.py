@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, jsonify, request
 from flask.views import MethodView
 
-from Network import Logs
+from Logs import Logs
 from Network.Node import Node
 from Network.collections import networking
 from Network.collections.DbConstants import DEFL_PORT
