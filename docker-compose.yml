@@ -6,23 +6,31 @@ services:
       - "5002:5000"
     networks:
       - container_network
+    environment:
+      - PORT=5000
   node-2:
     image: ws-psi
     ports:
       - "5003:5000"
     networks:
       - container_network
+    environment:
+      - PORT=5000
   node-3:
     image: ws-psi
     ports:
       - "5004:5000"
     networks:
       - container_network
+    environment:
+      - PORT=5000
   node-4:
     image: ws-psi
     ports:
       - "5005:5000"
     networks:
       - container_network
+    environment:
+      - PORT=5000
 networks:
   container_network:
