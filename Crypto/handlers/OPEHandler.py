@@ -68,18 +68,7 @@ class OPEHandler(IntersectionHandler):
         Parameters:
         peer_data (dict): The data received from the peer device we started the operation with.
         cs (Cryptosystem): The cryptosystem being used for the operation.
-
-        The method follows these steps:
-        1. Starts logging the operation.
-        2. Gets the encrypted list from the peer data.
-        3. Decrypts the encrypted values and converts them to integers.
-        4. Prints the raw results of the operation.
-        5. Formats the results by filtering out elements not in the original data.
-        6. Stores the formatted results.
-        7. Stops logging the operation.
-        8. Logs the activity.
-        9. Logs the result.
-        10. Prints the final result of the operation.
+        device (str): The device with which the intersection operation is being performed. Used for logging.
         """
         result = cs.get_encrypted_list_f(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
