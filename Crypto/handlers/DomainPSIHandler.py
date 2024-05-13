@@ -1,3 +1,5 @@
+import sys
+
 from Logs import Logs
 from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
@@ -15,6 +17,9 @@ class DomainPSIHandler(IntersectionHandler):
         encrypted_data = {element: cs.get_ciphertext(encrypted_value) for element, encrypted_value in
                           encrypted_data.items()}
         self.send_message(device, encrypted_data, cs.imp_name, serialized_pubkey)
+        my_data_size = sum(sys.getsizeof(element) for element in self.my_data)
+        ciphertext_size = sum(sys.getsizeof(element) for element in encrypted_data)
+        return my_data_size, ciphertext_size
 
     @log_activity("DOMAIN")
     def intersection_second_step(self, device, cs, peer_data, pubkey):
@@ -22,6 +27,8 @@ class DomainPSIHandler(IntersectionHandler):
         multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data, pubkey), self.my_data)
         serialized_multiplied_set = cs.serialize_result(multiplied_set)
         self.send_message(device, serialized_multiplied_set, cs.imp_name)
+        ciphertext_size = sum(sys.getsizeof(element) for element in serialized_multiplied_set)
+        return None, ciphertext_size
 
     @log_activity("DOMAIN")
     def intersection_final_step(self, device, cs, peer_data):
@@ -34,3 +41,4 @@ class DomainPSIHandler(IntersectionHandler):
         self.results[device + " " + cs.imp_name + " PSI-Domain"] = multiplied_set
         Logs.log_result("INTERSECTION_" + cs.imp_name, multiplied_set, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.imp_name} - Result: {multiplied_set}")
+        return None, None

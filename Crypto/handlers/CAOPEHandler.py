@@ -1,3 +1,5 @@
+import sys
+
 from Logs import Logs
 from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
@@ -33,6 +35,9 @@ class CAOPEHandler(IntersectionHandler):
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
         self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
+        my_data_size = sum(sys.getsizeof(element) for element in my_data)
+        ciphertext_size = sum(sys.getsizeof(element) for element in encrypted_coeffs)
+        return my_data_size, ciphertext_size
 
     @log_activity("CARDINALITY")
     def intersection_second_step(self, device, cs, coeffs, pubkey):
@@ -42,6 +47,8 @@ class CAOPEHandler(IntersectionHandler):
         result = cs.get_evaluations(coeffs, pubkey, my_data)
         serialized_result = cs.serialize_result(result, "OPE")
         self.send_message(device, serialized_result, cs.imp_name + ' PSI-CA OPE')
+        ciphertext_size = sum(sys.getsizeof(element) for element in serialized_result)
+        return None, ciphertext_size
 
     @log_activity("CARDINALITY")
     def intersection_final_step(self, device, cs, peer_data):
@@ -52,3 +59,4 @@ class CAOPEHandler(IntersectionHandler):
         self.results[device + " " + cs.imp_name + ' PSI-CA_OPE'] = cardinality
         Logs.log_result((cs.imp_name + '_PSI-CA_OPE'), cardinality, VERSION, self.id, device)
         print(f"Cardinality calculation with {device} - {cs.imp_name} PSI-CA OPE - Result: {cardinality}")
+        return None, None
