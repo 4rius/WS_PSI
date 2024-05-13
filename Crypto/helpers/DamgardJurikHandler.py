@@ -48,11 +48,10 @@ class DamgardJurikHelper(CSHelper):
         return {element: EncryptedNumber(int(ciphertext), public_key) for element, ciphertext in
                 serialized_encrypted_set.items()}
 
-    def get_encrypted_list(self, serialized_encrypted_list, public_key):
+    def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
+        if public_key is None:
+            public_key = self.public_key
         return [EncryptedNumber(int(ciphertext), public_key) for ciphertext in serialized_encrypted_list]
-
-    def get_encrypted_list_f(self, serialized_encrypted_list):
-        return [EncryptedNumber(int(ciphertext), self.public_key) for ciphertext in serialized_encrypted_list]
 
     def encrypt_my_data(self, my_set, domain):
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in

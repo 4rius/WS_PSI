@@ -45,7 +45,7 @@ class CAOPEHandler(IntersectionHandler):
 
     @log_activity("CARDINALITY")
     def intersection_final_step(self, device, cs, peer_data):
-        result = cs.get_encrypted_list_f(peer_data)
+        result = cs.get_encrypted_list(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         # When the element is 0, it means it's in the intersection
         cardinality = sum([int(element == 0) for element in result])

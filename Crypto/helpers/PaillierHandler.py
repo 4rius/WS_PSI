@@ -33,10 +33,9 @@ class PaillierHelper(CSHelper):
         return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
                 serialized_encrypted_set.items()}
 
-    def get_encrypted_list_f(self, serialized_encrypted_list):
-        return [EncryptedNumber(self.public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
-
-    def get_encrypted_list(self, serialized_encrypted_list, public_key):
+    def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
+        if public_key is None:
+            public_key = self.public_key
         return [EncryptedNumber(public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
 
     # Cifrar los números de los sets con los que arrancamos
