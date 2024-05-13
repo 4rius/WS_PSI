@@ -19,7 +19,7 @@ class BFVHelper(CSHelper):
     def __init__(self):
         super().__init__()
         self.imp_name = "BFV"
-        self.params = BFVParameters(poly_degree=2, plain_modulus=DEFL_DOMAIN, ciph_modulus=8000000000000)
+        self.params = BFVParameters(poly_degree=257, plain_modulus=DEFL_DOMAIN, ciph_modulus=8000000000000)
         self.public_key, self.secret_key, self.relin_key = None, None, None
         self.encoder = None
         self.encryptor = None
