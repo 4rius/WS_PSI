@@ -51,6 +51,7 @@ class JSONHandler:
         self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length)
         end_time = time.time()
         Logs.stop_logging(ThreadData())
+        print("Key generation - " + cs + " - Time: " + str(end_time - start_time) + "s")
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs, end_time - start_time, VERSION, self.id)
 
     def start_intersection(self, device, scheme, type, rounds) -> str:
