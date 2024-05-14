@@ -77,6 +77,8 @@ class OPEHandler(IntersectionHandler):
         result = cs.get_encrypted_list(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         result_formatted = [element for element in result if element in self.my_data]
+        # Descartar posibles duplicados por la naturaleza del cifrado bfv
+        result_formatted = list(dict.fromkeys(result_formatted)) if cs.imp_name == "BFV" else result_formatted
         self.results[device + " " + cs.imp_name + ' OPE'] = result_formatted
         Logs.log_result(cs.imp_name + '_OPE', result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.imp_name} OPE - Result: {result_formatted}")

@@ -59,7 +59,7 @@ class BFVHelper(CSHelper):
         return self.encryptor.encrypt(self.encoder.encode([data, 0]))
 
     def decrypt(self, data):
-        return self.encoder.decode(self.decryptor.decrypt(data))
+        return self.encoder.decode(self.decryptor.decrypt(data))[0]
 
     def serialize_public_key(self):
         public_key_dict = {
