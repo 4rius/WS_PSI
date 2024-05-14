@@ -28,6 +28,9 @@ class Ciphertext:
         self.scaling_factor = scaling_factor
         self.modulus = modulus
 
+    def to_dict(self):
+        return {'c0': self.c0.to_dict(), 'c1': self.c1.to_dict()}
+
     def __str__(self):
         """Represents Ciphertext as a string.
 

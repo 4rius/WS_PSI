@@ -74,14 +74,14 @@ class BFVHelper(CSHelper):
         return custom_pubkey
 
     def get_ciphertext(self, encrypted_number):
-        return str(encrypted_number)
+        return encrypted_number.to_dict()
 
     def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
         enc_list = []
         for element in serialized_encrypted_list:
             parts = element.split('\n + ')
-            c0 = parts[0][4:]
-            c1 = parts[1][4:]
+            c0 = Polynomial(**parts[0][4:])
+            c1 = Polynomial(**parts[1][4:])
             enc_list.append(Ciphertext(c0, c1))
         return enc_list
 
