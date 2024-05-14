@@ -65,7 +65,7 @@ class BFVHelper(CSHelper):
         return public_key_dict
 
     def reconstruct_public_key(self, public_key_dict):
-        pubkey = PublicKey(Polynomial(self.min_degree, public_key_dict["p0"]), Polynomial(self.min_degree, public_key_dict["p1"]))
+        pubkey = PublicKey(public_key_dict["p0"], public_key_dict["p1"])
         relin_key = BFVRelinKey(public_key_dict["base"], public_key_dict["keys"])
         # Devolvemos un tuple para que sea compatible con el resto de las funciones
         custom_pubkey = (pubkey, relin_key)
@@ -75,16 +75,13 @@ class BFVHelper(CSHelper):
         return str(encrypted_number)
 
     def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
+        enc_list = []
         for element in serialized_encrypted_list:
             parts = element.split('\n + ')
-            c0_str = parts[0][4:]
-            c1_str = parts[1][4:]
-
-            # Convertir las cadenas a polinomios
-            c0 = Polynomial(self.min_degree, c0_str)
-            c1 = Polynomial(self.min_degree, c1_str)
-
-            return Ciphertext(c0, c1)
+            c0 = parts[0][4:]
+            c1 = parts[1][4:]
+            enc_list.append(Ciphertext(c0, c1))
+        return enc_list
 
     def eval_coefficients(self, coeffs, public_key, my_data):
         enc_eval = []
