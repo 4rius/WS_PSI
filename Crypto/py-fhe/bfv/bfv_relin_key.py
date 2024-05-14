@@ -25,6 +25,10 @@ class BFVRelinKey:
         self.base = base
         self.keys = keys
 
+    def to_dict(self):
+        serialized_keys = [[poly.to_dict() for poly in key_tuple] for key_tuple in self.keys]
+        return {'base': self.base, 'keys': serialized_keys}
+
     def __str__(self):
         """Represents RelinKey as a string.
 

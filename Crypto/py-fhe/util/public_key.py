@@ -22,9 +22,6 @@ class PublicKey:
         self.p0 = p0
         self.p1 = p1
 
-    def to_dict(self):
-        return {'p0': self.p0.to_dict(), 'p1': self.p1.to_dict()}
-
     def __str__(self):
         """Represents PublicKey as a string.
 

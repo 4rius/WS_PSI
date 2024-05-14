@@ -25,6 +25,11 @@ def find_min_degree():
     raise ValueError("No se encontró un grado válido para el dominio por defecto")
 
 
+def reconstruct_relin_key(relin_key):
+    keys = [[Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys']]
+    return BFVRelinKey(int(relin_key['base']), keys)
+
+
 class BFVHelper(CSHelper):
 
     def __init__(self):
@@ -59,8 +64,7 @@ class BFVHelper(CSHelper):
         public_key_dict = {
             "p0": self.public_key.p0.to_dict(),
             "p1": self.public_key.p1.to_dict(),
-            "base": str(self.relin_key.base),
-            "keys": str(self.relin_key.keys)
+            "relin_key": self.relin_key.to_dict()
         }
         return public_key_dict
 
@@ -68,7 +72,7 @@ class BFVHelper(CSHelper):
         p0 = Polynomial(**public_key_dict["p0"])
         p1 = Polynomial(**public_key_dict["p1"])
         pubkey = PublicKey(p0, p1)
-        relin_key = BFVRelinKey(public_key_dict["base"], public_key_dict["keys"])
+        relin_key = reconstruct_relin_key(public_key_dict["relin_key"])
         # Devolvemos un tuple para que sea compatible con el resto de las funciones
         custom_pubkey = (pubkey, relin_key)
         return custom_pubkey
@@ -79,9 +83,8 @@ class BFVHelper(CSHelper):
     def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
         enc_list = []
         for element in serialized_encrypted_list:
-            parts = element.split('\n + ')
-            c0 = Polynomial(**parts[0][4:])
-            c1 = Polynomial(**parts[1][4:])
+            c0 = Polynomial(**element["c0"])
+            c1 = Polynomial(**element["c1"])
             enc_list.append(Ciphertext(c0, c1))
         return enc_list
 
