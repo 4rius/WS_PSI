@@ -14,27 +14,21 @@ from util.polynomial import Polynomial
 from util.public_key import PublicKey
 
 
+def find_min_degree():
+    # Buscar el grado que cumple la condición (modulus - 1) % order == 0 donde order es el grado * 2
+    for i in range(2, DEFL_DOMAIN // 2 + 1):
+        # Comprobar que i es una potencia de 2
+        if (DEFL_DOMAIN - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
+            print("Grado mínimo encontrado: ", i)
+            return i
+
+    raise ValueError("No se encontró un grado válido para el dominio por defecto")
+
+
 def reconstruct_relin_key(relin_key):
     keys = [[Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys']]
     keys = tuple(keys)
     return BFVRelinKey(int(relin_key['base']), keys)
-
-
-def gen_prime(start, end, q=4):
-    def is_prime(n):
-        if n <= 1 or (n % 2 == 0 and n > 2):
-            return False
-        return all(n % i for i in range(3, int(n ** 0.5) + 1, 2))
-
-    def satisfies_condition(n, q):
-        return (n - 1) % q == 0
-
-    for n in range(start, end):
-        if is_prime(n) and satisfies_condition(n, q):
-            print("Primo encontrado (BFV): ", n)
-            return n
-
-    return None
 
 
 class BFVHelper(CSHelper):
@@ -42,8 +36,8 @@ class BFVHelper(CSHelper):
     def __init__(self):
         super().__init__()
         self.imp_name = "BFV"
-        self.plain_modulus = gen_prime(DEFL_DOMAIN + 1000000, DEFL_DOMAIN + 2000000)
-        self.params = BFVParameters(poly_degree=2, plain_modulus=self.plain_modulus, ciph_modulus=8000000000000)
+        self.min_degree = find_min_degree()
+        self.params = BFVParameters(poly_degree=self.min_degree, plain_modulus=DEFL_DOMAIN, ciph_modulus=8000000000000)
         self.public_key, self.secret_key, self.relin_key = None, None, None
         self.encoder = None
         self.encryptor = None
