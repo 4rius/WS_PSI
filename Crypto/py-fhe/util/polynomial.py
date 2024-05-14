@@ -32,7 +32,7 @@ class Polynomial:
         self.coeffs = coeffs
 
     def to_dict(self):
-        return {'ring_degree': self.ring_degree, 'coeffs': self.coeffs}
+        return {'degree': self.ring_degree, 'coeffs': self.coeffs}
 
     def add(self, poly, coeff_modulus=None):
         """Adds two polynomials in the ring.
