@@ -26,7 +26,7 @@ def find_min_degree():
 
 
 def reconstruct_relin_key(relin_key):
-    keys = [[Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys']]
+    keys = ([Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys'])
     return BFVRelinKey(int(relin_key['base']), keys)
 
 
@@ -115,4 +115,4 @@ class BFVHelper(CSHelper):
         return self.evaluator.add(temp, encryptor.encrypt(self.encoder.encode([x, 0])))
 
     def serialize_result(self, result, type):
-        return [str(c) for c in result]
+        return [ciphertext.to_dict() for ciphertext in result]
