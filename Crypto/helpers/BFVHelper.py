@@ -26,7 +26,8 @@ def find_min_degree():
 
 
 def reconstruct_relin_key(relin_key):
-    keys = ([Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys'])
+    keys = [[Polynomial(**poly_dict) for poly_dict in key_tuple] for key_tuple in relin_key['keys']]
+    keys = tuple(keys)
     return BFVRelinKey(int(relin_key['base']), keys)
 
 
