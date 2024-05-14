@@ -65,7 +65,7 @@ class BFVHelper(CSHelper):
         return public_key_dict
 
     def reconstruct_public_key(self, public_key_dict):
-        pubkey = PublicKey(Polynomial(2, public_key_dict["p0"]), Polynomial(2, public_key_dict["p1"]))
+        pubkey = PublicKey(Polynomial(self.min_degree, public_key_dict["p0"]), Polynomial(self.min_degree, public_key_dict["p1"]))
         relin_key = BFVRelinKey(public_key_dict["base"], public_key_dict["keys"])
         # Devolvemos un tuple para que sea compatible con el resto de las funciones
         custom_pubkey = (pubkey, relin_key)
@@ -81,8 +81,8 @@ class BFVHelper(CSHelper):
             c1_str = parts[1][4:]
 
             # Convertir las cadenas a polinomios
-            c0 = Polynomial(2, c0_str)
-            c1 = Polynomial(2, c1_str)
+            c0 = Polynomial(self.min_degree, c0_str)
+            c1 = Polynomial(self.min_degree, c1_str)
 
             return Ciphertext(c0, c1)
 
