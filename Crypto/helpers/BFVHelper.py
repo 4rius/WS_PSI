@@ -57,15 +57,17 @@ class BFVHelper(CSHelper):
 
     def serialize_public_key(self):
         public_key_dict = {
-            "p0": str(self.public_key.p0),
-            "p1": str(self.public_key.p1),
+            "p0": self.public_key.p0.to_dict(),
+            "p1": self.public_key.p1.to_dict(),
             "base": str(self.relin_key.base),
             "keys": str(self.relin_key.keys)
         }
         return public_key_dict
 
     def reconstruct_public_key(self, public_key_dict):
-        pubkey = PublicKey(public_key_dict["p0"], public_key_dict["p1"])
+        p0 = Polynomial(**public_key_dict["p0"])
+        p1 = Polynomial(**public_key_dict["p1"])
+        pubkey = PublicKey(p0, p1)
         relin_key = BFVRelinKey(public_key_dict["base"], public_key_dict["keys"])
         # Devolvemos un tuple para que sea compatible con el resto de las funciones
         custom_pubkey = (pubkey, relin_key)
