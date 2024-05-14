@@ -25,19 +25,6 @@ def find_min_degree():
     raise ValueError("No se encontró un grado válido para el dominio por defecto")
 
 
-def extract_relin_keys(relin_key):
-    return [str(key) for key in relin_key.keys]
-
-
-def deserialize_poly(key, min_degree):
-    coeffs = [int(coeff_str) for coeff_str in key.split(", ")]
-    return Polynomial(min_degree, coeffs)
-
-
-def redo_keys(keys, min_degree):
-    return [deserialize_poly(key, min_degree) for key in keys]
-
-
 class BFVHelper(CSHelper):
 
     def __init__(self):
@@ -73,13 +60,13 @@ class BFVHelper(CSHelper):
             "p0": str(self.public_key.p0),
             "p1": str(self.public_key.p1),
             "base": str(self.relin_key.base),
-            "keys": extract_relin_keys(self.relin_key)
+            "keys": str(self.relin_key.keys)
         }
         return public_key_dict
 
     def reconstruct_public_key(self, public_key_dict):
-        pubkey = PublicKey(deserialize_poly(public_key_dict["p0"], self.min_degree), deserialize_poly(public_key_dict["p1"], self.min_degree))
-        relin_key = BFVRelinKey(int(public_key_dict["base"]), redo_keys(public_key_dict["keys"], self.min_degree))
+        pubkey = PublicKey(public_key_dict["p0"], public_key_dict["p1"])
+        relin_key = BFVRelinKey(public_key_dict["base"], public_key_dict["keys"])
         # Devolvemos un tuple para que sea compatible con el resto de las funciones
         custom_pubkey = (pubkey, relin_key)
         return custom_pubkey
@@ -93,7 +80,7 @@ class BFVHelper(CSHelper):
             parts = element.split('\n + ')
             c0 = parts[0][4:]
             c1 = parts[1][4:]
-            enc_list.append(Ciphertext(deserialize_poly(c0, self.min_degree), deserialize_poly(c1, self.min_degree)))
+            enc_list.append(Ciphertext(c0, c1))
         return enc_list
 
     def eval_coefficients(self, coeffs, public_key, my_data):
