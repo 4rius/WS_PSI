@@ -98,6 +98,7 @@ def main():
         resultado_encripted.append(temp)
 
     resultado_decoded = [a[0] for a in resultado_encripted]
+    print("Resultado: ", resultado_decoded)
     intersection = []
     for i in elementos_A:
         if i in resultado_decoded:
