@@ -67,7 +67,7 @@ class DamgardJurikHelper(CSHelper):
         result = {}
         for element, encrypted_value in enc_set.items():
             multiplier = int(element) in node_set
-            result[element] = encrypted_value if multiplier == 1 else encrypted_value.public_key.encrypt(multiplier)
+            result[element] = encrypted_value.public_key.encrypt(multiplier)
         return result
 
     def intersection_enc_size(self, multiplied_set):
@@ -100,6 +100,7 @@ class DamgardJurikHelper(CSHelper):
             rb = random.randint(1, 1000)
             Epbj = self.horner_encrypted_eval(coefs, element)
             evaluations.append(pubkey.encrypt(0) + rb * Epbj)
+        random.shuffle(evaluations)
         return evaluations
 
     def serialize_result(self, result, type=None):
