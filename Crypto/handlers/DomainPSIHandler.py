@@ -35,7 +35,7 @@ class DomainPSIHandler(IntersectionHandler):
         multiplied_set = cs.recv_multiplied_set(peer_data)
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = cs.decrypt(encrypted_value)
-        multiplied_set = {element for element, value in multiplied_set.items() if value == 1}
+        multiplied_set = {element for element, value in multiplied_set.items() if value == 2}
         # Make multiplied_set serializable
         multiplied_set = list(multiplied_set)
         self.results[device + " " + cs.imp_name + " PSI-Domain"] = multiplied_set

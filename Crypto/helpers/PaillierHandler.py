@@ -63,7 +63,10 @@ class PaillierHelper(CSHelper):
         result = {}
         for element, encrypted_value in enc_set.items():
             multiplier = int(element) in node_set
-            result[element] = encrypted_value.public_key.encrypt(multiplier)
+            if multiplier is False:
+                result[element] = encrypted_value.public_key.encrypt(0)
+            else:
+                result[element] = encrypted_value * 2
         return result
         # return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
 
