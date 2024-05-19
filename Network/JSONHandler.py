@@ -45,10 +45,13 @@ class JSONHandler:
                 self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
                 self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
 
-    def genkeys(self, cs, bit_length):
+    def genkeys(self, cs, bit_length=None, domain=None):
         start_time = time.time()
         Logs.start_logging(ThreadData())
-        self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length)
+        if domain is not None:
+            self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length, domain=domain)
+        else:
+            self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length)
         end_time = time.time()
         Logs.stop_logging(ThreadData())
         print("Key generation - " + cs + " - Time: " + str(end_time - start_time) + "s")

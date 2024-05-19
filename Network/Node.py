@@ -253,6 +253,7 @@ class Node:
             return "Invalid parameters"
         self.domain = int(domain)
         self.myData = set(random.sample(range(self.domain), int(set_size)))
+        self.json_handler.genkeys("BFV OPE", domain=self.domain)
         return "Setup updated"
 
     def check_tasks(self) -> tuple[str, str]:

@@ -1,7 +1,7 @@
 import random
 
 from Crypto.helpers.CSHelper import CSHelper
-from Network.collections.DbConstants import DEFL_DOMAIN, DEFL_DOMAIN_BFV
+from Network.collections.DbConstants import DEFL_DOMAIN
 from bfv.batch_encoder import BatchEncoder
 from bfv.bfv_decryptor import BFVDecryptor
 from bfv.bfv_encryptor import BFVEncryptor
@@ -14,15 +14,27 @@ from util.polynomial import Polynomial
 from util.public_key import PublicKey
 
 
-def find_min_degree():
+def find_min_degree(modulus):
     # Buscar el grado que cumple la condición (modulus - 1) % order == 0 donde order es el grado * 2
-    for i in range(2, DEFL_DOMAIN_BFV // 2 + 1):
+    for i in range(2, modulus // 2 + 1):
         # Comprobar que i es una potencia de 2
-        if (DEFL_DOMAIN_BFV - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
-            print("Grado mínimo encontrado: ", i)
+        if (modulus - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
+            print("(BFV) Grado mínimo encontrado: ", i)
             return i
 
-    raise ValueError("No se encontró un grado válido para el dominio por defecto")
+
+def find_params(domain):
+    # Buscar el primo más cercano a DEFL_DOMAIN * 2 para no tener falsos positivos en las intersecciones
+    for i in range(domain * 2, domain * 4):
+        # Comprobar que i es primo y que cumple con find_min_degree
+        if all(i % j != 0 for j in range(2, i)):
+            j = find_min_degree(i)
+            if j:
+                print("(BFV) Primo encontrado: ", i)
+                return i, j
+
+    raise ValueError("(BFV) No se encontró una combinación primo-grado válida para el domino seleccionado, "
+                     "revisar dominio.")
 
 
 def reconstruct_relin_key(relin_key):
@@ -36,8 +48,7 @@ class BFVHelper(CSHelper):
     def __init__(self):
         super().__init__()
         self.imp_name = "BFV"
-        self.min_degree = find_min_degree()
-        self.params = BFVParameters(poly_degree=find_min_degree(), plain_modulus=DEFL_DOMAIN_BFV, ciph_modulus=0x3fffffff000001)
+        self.prime, self.min_degree, self.params = None, None, None
         self.public_key, self.secret_key, self.relin_key = None, None, None
         self.encoder = None
         self.encryptor = None
@@ -45,7 +56,10 @@ class BFVHelper(CSHelper):
         self.evaluator = None
         self.generate_keys()
 
-    def generate_keys(self, bit_length=None):
+    def generate_keys(self, bit_length=None, domain=DEFL_DOMAIN):
+        self.prime, self.min_degree = find_params(domain)
+        self.params = BFVParameters(poly_degree=self.min_degree, plain_modulus=self.prime,
+                                    ciph_modulus=0x3fffffff000001)
         key_generator = BFVKeyGenerator(self.params)
         self.public_key = key_generator.public_key
         self.secret_key = key_generator.secret_key
