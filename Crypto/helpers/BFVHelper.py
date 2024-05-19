@@ -16,6 +16,7 @@ from util.public_key import PublicKey
 
 def find_min_degree(modulus):
     # Buscar el grado que cumple la condición (modulus - 1) % order == 0 donde order es el grado * 2
+    # Parte no probada con grados mayores que 2.
     for i in range(2, modulus // 2 + 1):
         # Comprobar que i es una potencia de 2
         if (modulus - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
@@ -70,7 +71,8 @@ class BFVHelper(CSHelper):
         self.evaluator = BFVEvaluator(self.params)
 
     def encrypt(self, data):
-        return self.encryptor.encrypt(self.encoder.encode([data, 0]))
+        padding = [0] * (self.min_degree - 1)
+        return self.encryptor.encrypt(self.encoder.encode([data] + padding))
 
     def decrypt(self, data):
         return self.encoder.decode(self.decryptor.decrypt(data))[0]
@@ -115,20 +117,22 @@ class BFVHelper(CSHelper):
 
     def naive_eval_crypt(self, coeffs, x, relin_key, encryptor):
         result = coeffs[0]
+        padding = [0] * (self.min_degree - 1)
 
         for pos, coef in enumerate(coeffs[1:]):
-            encrypt_x = encryptor.encrypt(self.encoder.encode([x ** (pos + 1), 0]))
+            encrypt_x = encryptor.encrypt(self.encoder.encode([x ** (pos + 1)] + padding))
 
             termino = self.evaluator.multiply(encrypt_x, coef, relin_key)
 
             result = self.evaluator.add(result, termino)
 
-        # Aseguramos que si el elemento no está, se codifique como un número fuera del dominio para evitar falsos positivos
-        rb = random.randint(DEFL_DOMAIN_BFV, self.params.plain_modulus)
+        # Aseguramos que si el elemento no está, se codifique como un número fuera del dominio para evitar falsos
+        # positivos
+        rb = random.randint(DEFL_DOMAIN, self.params.plain_modulus)
 
-        temp = self.evaluator.multiply(result, encryptor.encrypt(self.encoder.encode([rb, 0])), relin_key)
+        temp = self.evaluator.multiply(result, encryptor.encrypt(self.encoder.encode([rb] + padding)), relin_key)
 
-        return self.evaluator.add(temp, encryptor.encrypt(self.encoder.encode([x, 0])))
+        return self.evaluator.add(temp, encryptor.encrypt(self.encoder.encode([x] + padding)))
 
     def serialize_result(self, result, type):
         return [ciphertext.to_dict() for ciphertext in result]
