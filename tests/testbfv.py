@@ -8,7 +8,7 @@ from bfv.bfv_key_generator import BFVKeyGenerator
 from bfv.bfv_parameters import BFVParameters
 from util.polynomial import Polynomial
 
-plain_modulus = 41
+plain_modulus = 89
 
 elementos_A = [2, 1, 4, 7, 9]  # tienen que ser menor que plain_modulus
 
@@ -36,9 +36,9 @@ def naive_eval_crypt(encripted_coeff, x, relin_key, evaluator, encoder, encrypto
 
         result = evaluator.add(result, termino)
 
-    rb = random.randint(1, plain_modulus)
+    rb = random.randint(1, 10)
 
-    temp = evaluator.multiply(result, encryptor.encrypt(encoder.encode([rb, 0])), relin_key)
+    temp = evaluator.multiply(encryptor.encrypt(encoder.encode([rb, 0])), result, relin_key)
 
     return evaluator.add(temp, encryptor.encrypt(encoder.encode([x, 0])))
 
@@ -104,11 +104,18 @@ def main():
         if i in resultado_decoded:
             intersection.append(i)
 
-    print("Intersection: ", intersection)
+    return intersection
 
 
 # Ebi-< Hornel_eval( Ebj)) ->
 
 
 if __name__ == '__main__':
-    main()
+    for i in range(100):
+        res = main()
+        # Intersección real
+        print("Intersección real: ", [a for a in elementos_A if a in elementos_B])
+        if res != [a for a in elementos_A if a in elementos_B]:
+            print("Intersección incorrecta en la iteración: ", i)
+        print("Intersection: " + str(main()))
+        print("#####################")

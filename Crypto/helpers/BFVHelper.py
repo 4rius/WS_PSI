@@ -45,7 +45,6 @@ def find_min_degree(modulus, min_degree=2):
 
 
 def find_params(domain):
-    # Buscar el primo más cercano a DEFL_DOMAIN * 2 para no tener falsos positivos en las intersecciones
     start = domain * 2
     end = domain * 4
 
@@ -82,7 +81,7 @@ class BFVHelper(CSHelper):
     def generate_keys(self, bit_length=None, domain=DEFL_DOMAIN):
         self.prime, self.min_degree = find_params(domain)
         self.params = BFVParameters(poly_degree=self.min_degree, plain_modulus=self.prime,
-                                    ciph_modulus=0x3fffffff000001)
+                                    ciph_modulus=0x3ffffffff000001)
         key_generator = BFVKeyGenerator(self.params)
         self.public_key = key_generator.public_key
         self.secret_key = key_generator.secret_key
@@ -150,7 +149,7 @@ class BFVHelper(CSHelper):
 
         # Aseguramos que si el elemento no está, se codifique como un número fuera del dominio para evitar falsos
         # positivos
-        rb = random.randint(DEFL_DOMAIN, self.params.plain_modulus)
+        rb = random.randint(1, 10)
 
         temp = self.evaluator.multiply(result, encryptor.encrypt(self.encoder.encode([rb] + padding)), relin_key)
 
