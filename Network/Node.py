@@ -253,8 +253,8 @@ class Node:
             return "Invalid parameters"
         self.domain = int(domain)
         self.myData = set(random.sample(range(self.domain), int(set_size)))
-        self.json_handler.genkeys("BFV OPE", domain=self.domain)
-        return "Setup updated"
+        self.executor.submit(1, self.json_handler.genkeys, "BFV OPE", domain=self.domain)
+        return "Setup updated - BFV is generating new keys and parameters in the background"
 
     def check_tasks(self) -> tuple[str, str]:
         total_node = self.executor.queue.qsize() + self.executor.tasks_in_progress

@@ -14,28 +14,50 @@ from util.polynomial import Polynomial
 from util.public_key import PublicKey
 
 
-def find_min_degree(modulus):
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+
+
+def next_prime(start):
+    while not is_prime(start):
+        start += 1
+    return start
+
+
+def find_min_degree(modulus, min_degree=2):
     # Buscar el grado que cumple la condición (modulus - 1) % order == 0 donde order es el grado * 2
-    # Parte no probada con grados mayores que 2.
-    for i in range(2, modulus // 2 + 1):
-        # Comprobar que i es una potencia de 2
+    for i in range(min_degree, modulus // 2 + 1):
         if (modulus - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
             print("(BFV) Grado mínimo encontrado: ", i)
             return i
+    return None
 
 
 def find_params(domain):
     # Buscar el primo más cercano a DEFL_DOMAIN * 2 para no tener falsos positivos en las intersecciones
-    for i in range(domain * 2, domain * 4):
-        # Comprobar que i es primo y que cumple con find_min_degree
-        if all(i % j != 0 for j in range(2, i)):
-            j = find_min_degree(i)
-            if j:
-                print("(BFV) Primo encontrado: ", i)
-                return i, j
+    start = domain * 2
+    end = domain * 4
 
-    raise ValueError("(BFV) No se encontró una combinación primo-grado válida para el domino seleccionado, "
-                     "revisar dominio.")
+    for i in range(start, end):
+        prime = next_prime(i)
+        min_degree = find_min_degree(prime)
+        if min_degree:
+            print("(BFV) Primo encontrado: ", prime)
+            return prime, min_degree
+
+    raise ValueError(
+        "(BFV) No se encontró una combinación primo-grado válida para el dominio seleccionado, revisar dominio.")
 
 
 def reconstruct_relin_key(relin_key):

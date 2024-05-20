@@ -3,7 +3,7 @@ import sys
 from Logs import Logs
 from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
-from Crypto.numbers.Polynomials import polinomio_raices, polinomio_raices_bfv
+from Crypto.numbers.Polynomials import polinomio_raices
 from Logs.log_activity import log_activity
 
 
@@ -31,7 +31,7 @@ class OPEHandler(IntersectionHandler):
         """
         serialized_pubkey = cs.serialize_public_key()
         my_data = [int(element) for element in self.my_data]
-        coeffs = polinomio_raices(my_data) if cs.imp_name != "BFV" else polinomio_raices_bfv(my_data)
+        coeffs = polinomio_raices(my_data, cs=cs.imp_name)
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
         self.send_message(device, encrypted_coeffs, (cs.imp_name + ' OPE'), serialized_pubkey)

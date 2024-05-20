@@ -24,4 +24,3 @@ def log_activity(specific_code):
             return
         return wrapper
     return decorator
-

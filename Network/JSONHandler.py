@@ -27,7 +27,7 @@ class JSONHandler:
             CryptoImplementation("DamgardJurik", "Damgard-Jurik", "DamgardJurik OPE",
                                  "Damgard-Jurik_OPE", "Damgard-Jurik OPE", "DamgardJurik PSI-CA OPE",
                                  "Damgard-Jurik PSI-CA OPE"): DamgardJurikHelper(),
-            CryptoImplementation("BFV_OPE", "BFV OPE"): BFVHelper()
+            CryptoImplementation("BFV", "BFV_OPE", "BFV OPE"): BFVHelper()
         }
         self.OPEHandler = OPEHandler(id, my_data, domain, devices, results)
         self.CAOPEHandler = CAOPEHandler(id, my_data, domain, devices, results)
@@ -64,14 +64,15 @@ class JSONHandler:
             if type == "OPE":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
-            elif type == "PSI-CA":
+            elif type == "PSI-CA" and cs.imp_name != "BFV":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
-            elif type == "PSI-Domain":
+            elif type == "PSI-Domain" and cs.imp_name != "BFV":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.domainPSIHandler.intersection_first_step, device, cs)
             else:
-                return "Invalid type: " + type
+                return "Invalid type: " + type if cs.imp_name != "BFV" else ("BFV does not support PSI-CA nor "
+                                                                             "PSI-Domain... yet")
             return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + str(rounds) +
                     " - Task started, check logs")
         return "Invalid scheme: " + scheme

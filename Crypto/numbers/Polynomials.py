@@ -2,12 +2,14 @@ from Network.collections.DbConstants import DEFL_DOMAIN
 from util.polynomial import Polynomial
 
 
-def polinomio_raices(roots, neg_one=-1, one=1):
+def polinomio_raices(roots, neg_one=-1, one=1, cs=None):
     """
     Interpolates the unique polynomial that encodes the given roots.
     The function also requires the one and the negative one of the underlying ring.
     """
     print("Calculo de polinomio con raices: " + str(roots))
+    if cs is not None and cs == "BFV":
+        return polinomio_raices_bfv(roots)
     zero = one + neg_one
     coefs = [neg_one * roots[0], one]
     for r in roots[1:]:
