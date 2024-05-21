@@ -8,7 +8,7 @@ from bfv.bfv_key_generator import BFVKeyGenerator
 from bfv.bfv_parameters import BFVParameters
 from util.polynomial import Polynomial
 
-plain_modulus = 1009
+plain_modulus = 14293
 domain = 10
 
 elementos_A = {2, 1, 4, 7, 9}  # tienen que ser menor que plain_modulus

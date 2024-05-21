@@ -45,8 +45,8 @@ def find_min_degree(modulus, min_degree=2):
 
 
 def find_params(domain):
-    start = domain * 2
-    end = domain * 4
+    start = domain * 4
+    end = domain * 6
 
     for i in range(start, end):
         prime = next_prime(i)
