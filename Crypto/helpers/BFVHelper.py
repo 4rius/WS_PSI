@@ -155,7 +155,7 @@ class BFVHelper(CSHelper):
 
         return self.evaluator.add(temp, encryptor.encrypt(self.encoder.encode([x] + padding)))
 
-    def serialize_result(self, result, type):
+    def serialize_result(self, result, type=None):
         return [ciphertext.to_dict() for ciphertext in result] if type == "OPE" else \
             {element: ciphertext.to_dict() for element, ciphertext in result.items()}
 
@@ -165,7 +165,12 @@ class BFVHelper(CSHelper):
 
     def get_encrypted_set(self, serialized_encrypted_set, public_key):
         self.tmp_pubkey = public_key
-        return {element: Ciphertext(**ciphertext) for element, ciphertext in serialized_encrypted_set.items()}
+        enc_dict = {}
+        for element, ciphertext in serialized_encrypted_set.items():
+            c0 = Polynomial(**ciphertext["c0"])
+            c1 = Polynomial(**ciphertext["c1"])
+            enc_dict[element] = Ciphertext(c0, c1)
+        return enc_dict
 
     def get_multiplied_set(self, enc_set, node_set):
         result = {}
