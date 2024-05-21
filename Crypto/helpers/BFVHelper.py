@@ -137,6 +137,7 @@ class BFVHelper(CSHelper):
         return enc_eval
 
     def naive_eval_crypt(self, coeffs, x, relin_key, encryptor):
+        # Esta parte es la que hace que se meta tanto ruido que no se pueda desencriptar correctamente la evaluación
         result = coeffs[0]
         padding = [0] * (self.min_degree - 1)
 
@@ -147,8 +148,6 @@ class BFVHelper(CSHelper):
 
             result = self.evaluator.add(result, termino)
 
-        # Aseguramos que si el elemento no está, se codifique como un número fuera del dominio para evitar falsos
-        # positivos
         rb = random.randint(1, 10)
 
         temp = self.evaluator.multiply(result, encryptor.encrypt(self.encoder.encode([rb] + padding)), relin_key)

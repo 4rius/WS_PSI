@@ -30,7 +30,7 @@ def naive_eval_crypt(encripted_coeff, x, relin_key, evaluator, encoder, encrypto
     result = encripted_coeff[0]
 
     for pos, coef in enumerate(encripted_coeff[1:]):
-        encrypt_x = encryptor.encrypt(encoder.encode([x ** (pos + 1), 0]))
+        encrypt_x = encryptor.encrypt(encoder.encode([x ** (pos + 1), 0, 0, 0]))
 
         termino = evaluator.multiply(encrypt_x, coef, relin_key)
 
@@ -38,13 +38,13 @@ def naive_eval_crypt(encripted_coeff, x, relin_key, evaluator, encoder, encrypto
 
     rb = random.randint(1, 10)
 
-    temp = evaluator.multiply(encryptor.encrypt(encoder.encode([rb, 0])), result, relin_key)
+    temp = evaluator.multiply(encryptor.encrypt(encoder.encode([rb, 0, 0, 0])), result, relin_key)
 
-    return evaluator.add(temp, encryptor.encrypt(encoder.encode([x, 0])))
+    return evaluator.add(temp, encryptor.encrypt(encoder.encode([x, 0, 0, 0])))
 
 
 def main():
-    degree = 2
+    degree = 4
 
     ciph_modulus = 8000000000000
 
@@ -75,7 +75,7 @@ def main():
     encripted_coeff = []
 
     for coeff in coeficientes:
-        ciph1 = encryptor.encrypt(encoder.encode([coeff, 0]))
+        ciph1 = encryptor.encrypt(encoder.encode([coeff, 0, 0, 0]))
 
         encripted_coeff.append(ciph1)
 
