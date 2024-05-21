@@ -77,6 +77,7 @@ class BFVHelper(CSHelper):
         self.decryptor = None
         self.evaluator = None
         self.generate_keys()
+        self.tmp_pubkey = None
 
     def generate_keys(self, bit_length=None, domain=DEFL_DOMAIN):
         self.prime, self.min_degree = find_params(domain)
@@ -155,4 +156,29 @@ class BFVHelper(CSHelper):
         return self.evaluator.add(temp, encryptor.encrypt(self.encoder.encode([x] + padding)))
 
     def serialize_result(self, result, type):
-        return [ciphertext.to_dict() for ciphertext in result]
+        return [ciphertext.to_dict() for ciphertext in result] if type == "OPE" else \
+            {element: ciphertext.to_dict() for element, ciphertext in result.items()}
+
+    def encrypt_my_data(self, my_set, domain):
+        return {element: self.encryptor.encrypt(self.encoder.encode([1, 0])) if element in my_set else
+        self.encryptor.encrypt(self.encoder.encode([0, 0])) for element in range(domain)}
+
+    def get_encrypted_set(self, serialized_encrypted_set, public_key):
+        self.tmp_pubkey = public_key
+        return {element: Ciphertext(**ciphertext) for element, ciphertext in serialized_encrypted_set.items()}
+
+    def get_multiplied_set(self, enc_set, node_set):
+        result = {}
+        tmp_encryptor = BFVEncryptor(self.params, self.tmp_pubkey[0])
+        tmp_relin_key = self.tmp_pubkey[1]
+        for element, encrypted_value in enc_set.items():
+            multiplier = int(element) in node_set
+            if multiplier is False:
+                result[element] = tmp_encryptor.encrypt(self.encoder.encode([0, 0]))
+            else:
+                result[element] = self.evaluator.multiply(encrypted_value, tmp_encryptor.encrypt
+                (self.encoder.encode([2, 0])), tmp_relin_key)
+        return result
+
+    def recv_multiplied_set(self, serialized_multiplied_set):
+        return {element: Ciphertext(**ciphertext) for element, ciphertext in serialized_multiplied_set.items()}
