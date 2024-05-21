@@ -32,7 +32,7 @@ class DomainPSIHandler(IntersectionHandler):
 
     @log_activity("DOMAIN")
     def intersection_final_step(self, device, cs, peer_data):
-        multiplied_set = cs.recv_multiplied_set(peer_data)
+        multiplied_set = cs.get_multiplied_set(peer_data)
         for element, encrypted_value in multiplied_set.items():
             multiplied_set[element] = cs.decrypt(encrypted_value)
         multiplied_set = {element for element, value in multiplied_set.items() if value == 2}

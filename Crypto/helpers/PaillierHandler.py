@@ -29,9 +29,11 @@ class PaillierHelper(CSHelper):
         # Reconstruir la clave pública a partir del diccionario
         return paillier.PaillierPublicKey(n=int(public_key_dict['n']))
 
-    def get_encrypted_set(self, serialized_encrypted_set, public_key):
+    def get_encrypted_set(self, serialized_encrypted_set, public_key=None):
         return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
-                serialized_encrypted_set.items()}
+                serialized_encrypted_set.items()} if public_key is not None else \
+            {element: EncryptedNumber(self.public_key, int(ciphertext)) for element, ciphertext
+             in serialized_encrypted_set.items()}
 
     def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
         if public_key is None:
@@ -51,11 +53,6 @@ class PaillierHelper(CSHelper):
     def encrypt_my_data(self, my_set, domain):
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in
                 range(domain)}
-
-    def recv_multiplied_set(self, serialized_multiplied_set):
-        print("Received the multiplied set")
-        return {element: EncryptedNumber(self.public_key, int(ciphertext)) for element, ciphertext in
-                serialized_multiplied_set.items()}
 
     def get_multiplied_set(self, enc_set, node_set):
         # Propósito de depuración

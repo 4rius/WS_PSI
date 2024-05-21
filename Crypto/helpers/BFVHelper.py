@@ -163,8 +163,8 @@ class BFVHelper(CSHelper):
         return {element: self.encryptor.encrypt(self.encoder.encode([1, 0])) if element in my_set else
         self.encryptor.encrypt(self.encoder.encode([0, 0])) for element in range(domain)}
 
-    def get_encrypted_set(self, serialized_encrypted_set, public_key):
-        self.tmp_pubkey = public_key
+    def get_encrypted_set(self, serialized_encrypted_set, public_key=None):
+        self.tmp_pubkey = public_key if public_key is not None else None
         enc_dict = {}
         for element, ciphertext in serialized_encrypted_set.items():
             c0 = Polynomial(**ciphertext["c0"])
@@ -183,7 +183,5 @@ class BFVHelper(CSHelper):
             else:
                 result[element] = self.evaluator.multiply(encrypted_value, tmp_encryptor.encrypt
                 (self.encoder.encode([2, 0])), tmp_relin_key)
+        self.tmp_pubkey = None
         return result
-
-    def recv_multiplied_set(self, serialized_multiplied_set):
-        return {element: Ciphertext(**ciphertext) for element, ciphertext in serialized_multiplied_set.items()}
