@@ -1,3 +1,5 @@
+import sys
+
 from Logs import Logs
 from Crypto.handlers.IntersectionHandler import IntersectionHandler
 from Network.collections.DbConstants import VERSION
@@ -29,13 +31,13 @@ class OPEHandler(IntersectionHandler):
         """
         serialized_pubkey = cs.serialize_public_key()
         my_data = [int(element) for element in self.my_data]
-        coeffs = polinomio_raices(my_data)
+        coeffs = polinomio_raices(my_data, cs=cs.imp_name)
         encrypted_coeffs = [cs.encrypt(coeff) for coeff in coeffs]
         encrypted_coeffs = [cs.get_ciphertext(encrypted_coeff) for encrypted_coeff in encrypted_coeffs]
-        if type == "PSI-CA":
-            self.send_message(device, encrypted_coeffs, (cs.imp_name + ' PSI-CA OPE'), serialized_pubkey)
-        else:
-            self.send_message(device, encrypted_coeffs, (cs.imp_name + ' OPE'), serialized_pubkey)
+        self.send_message(device, encrypted_coeffs, (cs.imp_name + ' OPE'), serialized_pubkey)
+        my_data_size = sum(sys.getsizeof(element) for element in my_data)
+        ciphertext_size = sum(sys.getsizeof(element) for element in encrypted_coeffs)
+        return my_data_size, ciphertext_size
 
     @log_activity("OPE")
     def intersection_second_step(self, device, cs, coeffs, pubkey):
@@ -59,6 +61,8 @@ class OPEHandler(IntersectionHandler):
         encrypted_evaluated_coeffs = cs.eval_coefficients(coeffs, pubkey, my_data)
         serialized_encrypted_evaluated_coeffs = cs.serialize_result(encrypted_evaluated_coeffs, "OPE")
         self.send_message(device, serialized_encrypted_evaluated_coeffs, cs.imp_name + ' OPE')
+        ciphertext_size = sum(sys.getsizeof(element) for element in serialized_encrypted_evaluated_coeffs)
+        return None, ciphertext_size
 
     @log_activity("OPE")
     def intersection_final_step(self, device, cs, peer_data):
@@ -70,9 +74,10 @@ class OPEHandler(IntersectionHandler):
         cs (Cryptosystem): The cryptosystem being used for the operation.
         device (str): The device with which the intersection operation is being performed. Used for logging.
         """
-        result = cs.get_encrypted_list_f(peer_data)
+        result = cs.get_encrypted_list(peer_data)
         result = [int(cs.decrypt(encrypted_value)) for encrypted_value in result]
         result_formatted = [element for element in result if element in self.my_data]
         self.results[device + " " + cs.imp_name + ' OPE'] = result_formatted
         Logs.log_result(cs.imp_name + '_OPE', result_formatted, VERSION, self.id, device)
         print(f"Intersection with {device} - {cs.imp_name} OPE - Result: {result_formatted}")
+        return None, None

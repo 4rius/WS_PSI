@@ -1,6 +1,7 @@
 import json
 import time
 
+from Crypto.helpers.BFVHelper import BFVHelper
 from Logs import Logs
 from Logs.Logs import ThreadData
 from Crypto.handlers.CAOPEHandler import CAOPEHandler
@@ -25,7 +26,8 @@ class JSONHandler:
                                  "Paillier PSI-CA OPE"): PaillierHelper(),
             CryptoImplementation("DamgardJurik", "Damgard-Jurik", "DamgardJurik OPE",
                                  "Damgard-Jurik_OPE", "Damgard-Jurik OPE", "DamgardJurik PSI-CA OPE",
-                                 "Damgard-Jurik PSI-CA OPE"): DamgardJurikHelper()
+                                 "Damgard-Jurik PSI-CA OPE"): DamgardJurikHelper(),
+            CryptoImplementation("BFV", "BFV_OPE", "BFV OPE"): BFVHelper()
         }
         self.OPEHandler = OPEHandler(id, my_data, domain, devices, results)
         self.CAOPEHandler = CAOPEHandler(id, my_data, domain, devices, results)
@@ -43,12 +45,16 @@ class JSONHandler:
                 self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
                 self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
 
-    def genkeys(self, cs, bit_length):
+    def genkeys(self, cs, bit_length=None, domain=None):
         start_time = time.time()
         Logs.start_logging(ThreadData())
-        self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length)
+        if domain is not None:
+            self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length, domain=domain)
+        else:
+            self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length)
         end_time = time.time()
         Logs.stop_logging(ThreadData())
+        print("Key generation - " + cs + " - Time: " + str(end_time - start_time) + "s")
         Logs.log_activity(ThreadData(), "GENKEYS_" + cs + str(bit_length), end_time - start_time, VERSION, self.id)
 
     def start_intersection(self, device, scheme, type, rounds) -> str:
@@ -58,14 +64,14 @@ class JSONHandler:
             if type == "OPE":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.OPEHandler.intersection_first_step, device, cs)
-            elif type == "PSI-CA":
+            elif type == "PSI-CA" and cs.imp_name != "BFV":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.CAOPEHandler.intersection_first_step, device, cs)
             elif type == "PSI-Domain":
                 for _ in range(int(rounds)):
                     self.executor.submit(0, self.domainPSIHandler.intersection_first_step, device, cs)
             else:
-                return "Invalid type: " + type
+                return "Invalid type: " + type if cs.imp_name != "BFV" else "BFV does not support PSI-CA... yet"
             return ("Intersection with " + device + " - " + scheme + " - " + type + " - Rounds: " + str(rounds) +
                     " - Task started, check logs")
         return "Invalid scheme: " + scheme

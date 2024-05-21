@@ -76,7 +76,8 @@ class ThreadData:
 
 
 @firebase_connected
-def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
+def log_activity(thread_data, activity_code, ttlog, version, id, peer=False,
+                 my_data_size=None, ciphertext_size=None):
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     log = {
         "id": id,
@@ -97,6 +98,9 @@ def log_activity(thread_data, activity_code, ttlog, version, id, peer=False):
     }
     if peer:
         log["peer"] = peer
+    if my_data_size is not None:
+        log["Cleartext_size"] = str(my_data_size) + " bytes"
+        log["Ciphertext_size"] = str(ciphertext_size) + " bytes"
 
     ref = db.reference(f"/logs/{get_formatted_id(id)}/activities")
     ref.push(log)

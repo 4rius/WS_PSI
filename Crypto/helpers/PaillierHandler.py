@@ -29,14 +29,15 @@ class PaillierHelper(CSHelper):
         # Reconstruir la clave pública a partir del diccionario
         return paillier.PaillierPublicKey(n=int(public_key_dict['n']))
 
-    def get_encrypted_set(self, serialized_encrypted_set, public_key):
+    def get_encrypted_set(self, serialized_encrypted_set, public_key=None):
         return {element: EncryptedNumber(public_key, int(ciphertext)) for element, ciphertext in
-                serialized_encrypted_set.items()}
+                serialized_encrypted_set.items()} if public_key is not None else \
+            {element: EncryptedNumber(self.public_key, int(ciphertext)) for element, ciphertext
+             in serialized_encrypted_set.items()}
 
-    def get_encrypted_list_f(self, serialized_encrypted_list):
-        return [EncryptedNumber(self.public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
-
-    def get_encrypted_list(self, serialized_encrypted_list, public_key):
+    def get_encrypted_list(self, serialized_encrypted_list, public_key=None):
+        if public_key is None:
+            public_key = self.public_key
         return [EncryptedNumber(public_key, int(ciphertext)) for ciphertext in serialized_encrypted_list]
 
     # Cifrar los números de los sets con los que arrancamos
@@ -53,18 +54,16 @@ class PaillierHelper(CSHelper):
         return {element: self.public_key.encrypt(1) if element in my_set else self.public_key.encrypt(0) for element in
                 range(domain)}
 
-    def recv_multiplied_set(self, serialized_multiplied_set):
-        print("Received the multiplied set")
-        return {element: EncryptedNumber(self.public_key, int(ciphertext)) for element, ciphertext in
-                serialized_multiplied_set.items()}
-
     def get_multiplied_set(self, enc_set, node_set):
         # Propósito de depuración
         print("Generating the multiplied set")
         result = {}
         for element, encrypted_value in enc_set.items():
             multiplier = int(element) in node_set
-            result[element] = encrypted_value * multiplier
+            if multiplier is False:
+                result[element] = encrypted_value.public_key.encrypt(0)
+            else:
+                result[element] = encrypted_value * 2
         return result
         # return {element: encrypted_value * int(element in node_set) for element, encrypted_value in enc_set.items()}
 

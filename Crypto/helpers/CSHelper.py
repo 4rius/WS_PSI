@@ -25,13 +25,7 @@ class CSHelper:
     def get_encrypted_list(self, serialized_encrypted_list, public_key):  # From the peer
         raise NotImplementedError
 
-    def get_encrypted_list_f(self, serialized_encrypted_list):
-        raise NotImplementedError
-
     def encrypt_my_data(self, my_set, domain):
-        raise NotImplementedError
-
-    def recv_multiplied_set(self, serialized_multiplied_set):
         raise NotImplementedError
 
     def get_multiplied_set(self, enc_set, node_set):
