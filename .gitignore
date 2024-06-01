@@ -1,5 +1,7 @@
 .env
 env/
+.WS-PSI-ENV
+WS-PSI-ENV/
 
 *.pyc
 __pycache__/

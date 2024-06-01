@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "1327128f-8330-4132-8cb4-3cf8a46280c8",
+		"_postman_id": "5237412d-82b1-496d-9038-2e6890e74ce1",
 		"name": "PSI Suite",
-		"description": "The collection of API endpoints available on the Flask Python app.",
+		"description": "WS_PSI - PSI Suite\n\nThe collection of the avaliable API endpoints.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "25834704"
 	},
@@ -400,19 +400,18 @@
 					{
 						"key": "",
 						"value": "",
-						"type": "text",
 						"disabled": true
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/ping/{{Device}}",
+					"raw": "{{base_url}}/api/ping/192.168.1.163",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"api",
 						"ping",
-						"{{Device}}"
+						"192.168.1.163"
 					]
 				},
 				"description": "This endpoint allows you to send an HTTP POST request to ping a specific device. The request should be sent to /api/ping/_DeviceIP_. Upon successful execution, the server will respond with a status code of 200 and a JSON object in the response body with a \"status\" key."
@@ -486,7 +485,7 @@
 						"intersection"
 					]
 				},
-				"description": "This endpoint is used to make an HTTP POST request [/api/intersection](http://127.0.0.1:5000//api/intersection) in order to retrieve launch the intersection process between this node and a peer The request should include a JSON payload in the raw request body type with keys \"device\", \"scheme\", \"type\", and \"rounds\". The last execution of this request returned a JSON response with a status code of 200 and a content type of application/json. The response body included a key \"status\" with a corresponding value."
+				"description": "This endpoint is used to make an HTTP POST request [/api/intersection](http://127.0.0.1:5000//api/intersection) in order to launch the intersection process between this node and a peer The request should include a JSON payload in the raw request body type with keys \"device\", \"scheme\", \"type\", and \"rounds\". The last execution of this request returned a JSON response with a status code of 200 and a content type of application/json. The response body included a key \"status\" with a corresponding value."
 			},
 			"response": []
 		},
@@ -531,7 +530,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/api/genkeys?scheme=Paillier&bit_length=4096",
+					"raw": "{{base_url}}/api/genkeys?scheme=Damgard-Jurik&bit_length=1024",
 					"host": [
 						"{{base_url}}"
 					],
@@ -542,12 +541,12 @@
 					"query": [
 						{
 							"key": "scheme",
-							"value": "Paillier",
+							"value": "Damgard-Jurik",
 							"description": "The available schemes that are configured in the program"
 						},
 						{
 							"key": "bit_length",
-							"value": "4096",
+							"value": "1024",
 							"description": "The desired bit length for the new keys"
 						}
 					]
@@ -870,7 +869,7 @@
 				"method": "PUT",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/api/add?peer={{Device}}",
+					"raw": "{{base_url}}/api/add?peer=192.168.1.49",
 					"host": [
 						"{{base_url}}"
 					],
@@ -881,7 +880,7 @@
 					"query": [
 						{
 							"key": "peer",
-							"value": "{{Device}}"
+							"value": "192.168.1.49"
 						}
 					]
 				},

@@ -1,9 +1,68 @@
 # WS_PSI
 Servicio web de Flask que levanata un nodo y expone una API REST y una interfaz gráfica con el objetivo de probar diferentes criptosistemas y protocolos para calcular PSI (Private Set Intersection) o conjuntos de intersecciones privados.
 
-## Pasos a seguir
+## Arrancar el servicio web
 
+Se considera que el sistema cuenta con Python 3.9 o superior instalado, así como `git` y `pip`.\
 Arrancar el sistema es muy sencillo, se pueden seguir estos pasos:
 
 1. Clonar el repositorio: `git clone https://github.com/4rius/WS_PSI.git`. También se puede clonar utilizando el soporte gráfico de GitHub Desktop.
-2. Instalar las dependencias
+2. Navegar a la carpeta del proyecto: `cd WS_PSI`.
+3. GMP es necesario para poder instalar todas las dependencias.
+   1. En Linux (Debian), se puede instalar con el siguiente comando: `sudo apt-get install libgmp-dev`.
+   2. En Windows, se puede descargar desde [aquí](https://gmplib.org/download/gmp/gmp-6.2.1.zip) y seguir las instrucciones de instalación.
+   3. En macOS, se puede instalar con el siguiente comando: `brew install gmp`.
+4. Instalar las dependencias, por conveniencia se puede utilizar un entorno virtual de Python:
+    1. Crear un entorno virtual: `python -m venv WS-PSI-ENV` en Windows o `python3 -m venv WS-PSI-ENV` en Linux.
+    2. Activar el entorno virtual: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows.
+    3. Instalar las dependencias: `pip install -r requirements.txt`. Y las dependencias en modo editable para `py-fhe`: `cd Crypto/py-fhe && pip install -e .`\
+Por conveniencia, existe un archivo `setup.sh` que realiza todos estos pasos (para macOS y Linux). Para ejecutarlo, se debe dar permisos de ejecución: `chmod +x setup.sh` y ejecutarlo: `./setup.sh`.\
+Para Windows, existe un archivo `setup.bat` que realiza todos estos pasos. Para ejecutarlo, simplemente se debe hacer doble click sobre el archivo.
+5. Si no estamos en el entorno virtual, activarlo: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
+6. Arrancar el servidor:
+   1. Usando el servidor de desarrollo por defecto de Flask: `flask --app flaskr:create_app run`.\
+![flaskdefault.png](docs/flaskdefault.png)
+   2. Usando un servidor `waitress` (recomendado): `waitress-serve --host 127.0.0.1 --port 8080 --call flaskr:create_app`
+      1. Para instalar `waitress`, se puede hacer con el comando: `pip install waitress`.\
+![waitressdefault.png](docs/waitressdefault.png) \
+Se recomienda usar `waitress` para evaluar las implementaciones, ya que es más rápido y seguro que el servidor de desarrollo de Flask. Simula mejor lo que sería el rendimiento del sistema en producción.
+
+**Servidor por defecto**\
+La API REST quedará expuesta en la dirección `http://127.0.0.1:5000/api` y la interfaz gráfica en `http://127.0.0.1:5000/`. \
+Se puede modificar el puerto y la dirección de la API en el arranque del servidor. Ejemplo: `flask --app flaskr:create_app run --port=8000`. La dirección cambiaría con `--host=OTRA_DIRECCION` aunque puede que no se pueda asignar.\
+**Servidor `waitress`**\
+La API REST quedará expuesta en la dirección `http://127.0.0.1:8080/api` y la interfaz gráfica en `http://127.0.0.1:8080/`. \
+Se puede modificar el puerto y la dirección de la API en el arranque del servidor. Ejemplo: `waitress-serve --host 127.0.0.1 --port 8000 --call flaskr:create_app`\
+
+El nodo por defecto empezará a escuchar en el puerto 5001, pero se puede cambiar mediante la API. Siempre correrá en la IP local para que otros usuarios de la red local puedan conectarse a él. Este comportamiento es *modificable* por si se quisiera exponer a internet, pero **no está parametrizado**.
+
+## Autenticación mediante archivo de credenciales
+
+Para poder mandar registros a la Realtime Database es necesario un archivo de credenciales.\
+Para obtenerlo, se debe seguir los siguientes pasos:
+1. Acceder a la consola de Firebase: [Firebase Console](https://console.firebase.google.com/).
+2. Crear un nuevo proyecto o seleccionar uno existente.
+3. Ir a la sección de configuración del proyecto.
+4. Descargar el archivo de credenciales en formato JSON desde la sección de *Cuentas de servicio*.\
+![serviceaccFB.png](docs/serviceaccFB.png)\
+5. Guardar el archivo en la carpeta raíz con el nombre `firebase-credentials.json`. *Este archivo proporciona acceso de administrador al proyecto.* **No se debe subir a ningún repositorio público**. Se debe añadir al `.gitignore` para evitar subirlo por error. \
+![authlocation.png](docs/authlocation.png)
+6. Volver a arrancar el servidor. En vez de indicar que no se ha encontrado el archivo de credenciales, se mostrará un mensaje de que se ha conectado a la base de datos correctamente y se enviará el primer log con la configuración del dispositivo.\
+![authFB.png](docs/authFB.png)
+7. Si la Realtime Database está configurada correctamente, se enviarán registros sin problema. Solo es necesario activarla para que funcione.
+
+## API REST
+
+Se incluye en este repositorio una colección de Postman con las peticiones a la API REST.\
+Para importarla, se debe seguir los siguientes pasos:
+1. Descargar el archivo `PSI Suite.postman_collection.json` desde la carpeta `docs`.
+2. Abrir Postman.
+3. Ir a la sección de colecciones.
+4. Importar la colección descargada.
+5. Seleccionar el archivo descargado.
+6. La colección se importará correctamente.\
+![PostmanAPI.png](docs/PostmanAPI.png)
+
+En el apartado de `Variables` se pueden modificar las variables de entorno para que se ajusten a la configuración del servidor. Por defecto traen la URL y el puerto del servidor de desarrollo de Flask, así como un dispositivo para probar las peticiones. \
+Cada petición tiene una descripción detallada de lo que hace y qué espera recibir para funcionar correctamente. \
+![PostmanDocs.png](docs/PostmanDocs.png)

@@ -39,7 +39,6 @@ def find_min_degree(modulus, min_degree=2):
     # Buscar el grado que cumple la condición (modulus - 1) % order == 0 donde order es el grado * 2
     for i in range(min_degree, modulus // 2 + 1):
         if (modulus - 1) % (i * 2) == 0 and (i & (i - 1)) == 0:
-            print("(BFV) Grado mínimo encontrado: ", i)
             return i
     return None
 
@@ -52,11 +51,11 @@ def find_params(domain):
         prime = next_prime(i)
         min_degree = find_min_degree(prime)
         if min_degree:
-            print("(BFV) Primo encontrado: ", prime)
+            print("(BFV) Suitable prime and degree found: Prime: ", prime, " - Degree: ", min_degree)
             return prime, min_degree
 
     raise ValueError(
-        "(BFV) No se encontró una combinación primo-grado válida para el dominio seleccionado, revisar dominio.")
+        "(BFV) No suitable prime and degree found in the range: ", start, " - ", end)
 
 
 def reconstruct_relin_key(relin_key):
