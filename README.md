@@ -1,25 +1,27 @@
-# WS_PSI
+# PSI Suite - Python Web Service
 Servicio web de Flask que levanata un nodo y expone una API REST y una interfaz gráfica con el objetivo de probar diferentes criptosistemas y protocolos para calcular PSI (Private Set Intersection) o conjuntos de intersecciones privados.
+
+## Requisitos
+* **Python 3.9** o superior.
+* git
+* pip
+
+El sistema ha demostrado funcionar en sistemas ARM y x86. Se ha probado su funcionamiento en Windows y en macOS.
 
 ## Arrancar el servicio web
 
-Se considera que el sistema cuenta con Python 3.9 o superior instalado, así como `git` y `pip`.\
-Arrancar el sistema es muy sencillo, se pueden seguir estos pasos:
+Para arrancar el servicio se pueden seguir estos pasos:
 
 1. Clonar el repositorio: `git clone https://github.com/4rius/WS_PSI.git`. También se puede clonar utilizando el soporte gráfico de GitHub Desktop.
 2. Navegar a la carpeta del proyecto: `cd WS_PSI`.
-3. GMP es necesario para poder instalar todas las dependencias.
-   1. En Linux (Debian), se puede instalar con el siguiente comando: `sudo apt-get install libgmp-dev`.
-   2. En Windows, se puede descargar desde [aquí](https://gmplib.org/download/gmp/gmp-6.2.1.zip) y seguir las instrucciones de instalación.
-   3. En macOS, se puede instalar con el siguiente comando: `brew install gmp`.
-4. Instalar las dependencias, por conveniencia se puede utilizar un entorno virtual de Python:
+3. Instalar las dependencias, por conveniencia se puede utilizar un entorno virtual de Python:
     1. Crear un entorno virtual: `python -m venv WS-PSI-ENV` en Windows o `python3 -m venv WS-PSI-ENV` en Linux.
     2. Activar el entorno virtual: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows.
     3. Instalar las dependencias: `pip install -r requirements.txt`. Y las dependencias en modo editable para `py-fhe`: `cd Crypto/py-fhe && pip install -e .`\
 Por conveniencia, existe un archivo `setup.sh` que realiza todos estos pasos (para macOS y Linux). Para ejecutarlo, se debe dar permisos de ejecución: `chmod +x setup.sh` y ejecutarlo: `./setup.sh`.\
 Para Windows, existe un archivo `setup.bat` que realiza todos estos pasos. Para ejecutarlo, simplemente se debe hacer doble click sobre el archivo.
-5. Si no estamos en el entorno virtual, activarlo: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
-6. Arrancar el servidor:
+4. Si no estamos en el entorno virtual, activarlo: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
+5. Arrancar el servidor:
    1. Usando el servidor de desarrollo por defecto de Flask: `flask --app flaskr:create_app run`.\
 ![flaskdefault.png](docs/flaskdefault.png)
    2. Usando un servidor `waitress` (recomendado): `waitress-serve --host 127.0.0.1 --port 8080 --call flaskr:create_app`
