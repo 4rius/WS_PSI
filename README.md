@@ -15,12 +15,12 @@ Para arrancar el servicio se pueden seguir estos pasos:
 1. Clonar el repositorio: `git clone https://github.com/4rius/WS_PSI.git`. También se puede clonar utilizando el soporte gráfico de GitHub Desktop.
 2. Navegar a la carpeta del proyecto: `cd WS_PSI`.
 3. Instalar las dependencias, por conveniencia se puede utilizar un entorno virtual de Python:
-    1. Crear un entorno virtual: `python -m venv WS-PSI-ENV` en Windows o `python3 -m venv WS-PSI-ENV` en Linux.
+    1. Crear un entorno virtual: `python -m venv WS-PSI-ENV` en Windows o `python3 -m venv WS-PSI-ENV` en Linux. En sistemas UNIX se recomienda comprobar que `python3` es una versión 3.9 o superior, esto se puede hacer con `python3 --version`. Si no fuera así, se puede instalar y evitar actualizar variables haciendo `python3.9 -m venv WS-PSI-ENV`.
     2. Activar el entorno virtual: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows.
-    3. Instalar las dependencias: `pip install -r requirements.txt`. Y las dependencias en modo editable para `py-fhe`: `cd Crypto/py-fhe && pip install -e .`\
+    3. Instalar las dependencias: `pip install -r requirements.txt`. Y las dependencias para BFV `py-fhe`: `cd Crypto/py-fhe && pip install .` \
 Por conveniencia, existe un archivo `setup.sh` que realiza todos estos pasos (para macOS y Linux). Para ejecutarlo, se debe dar permisos de ejecución: `chmod +x setup.sh` y ejecutarlo: `./setup.sh`.\
-Para Windows, existe un archivo `setup.bat` que realiza todos estos pasos. Para ejecutarlo, simplemente se debe hacer doble click sobre el archivo.
-4. Si no estamos en el entorno virtual, activarlo: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
+Para Windows, existe un archivo `setup.bat`. Para ejecutarlo, simplemente se debe hacer doble click sobre el archivo.
+4. Si no estamos en el entorno virtual (al terminar el script), se debe activar: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
 5. Arrancar el servidor:
    1. Usando el servidor de desarrollo por defecto de Flask: `flask --app flaskr:create_app run`.\
 ![flaskdefault.png](docs/flaskdefault.png)
