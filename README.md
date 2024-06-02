@@ -49,9 +49,11 @@ Para obtenerlo, se debe seguir los siguientes pasos:
 ![serviceaccFB.png](docs/serviceaccFB.png)\
 5. Guardar el archivo en la carpeta raíz con el nombre `firebase-credentials.json`. *Este archivo proporciona acceso de administrador al proyecto.* **No se debe subir a ningún repositorio público**. Se debe añadir al `.gitignore` para evitar subirlo por error. \
 ![authlocation.png](docs/authlocation.png)
-6. Volver a arrancar el servidor. En vez de indicar que no se ha encontrado el archivo de credenciales, se mostrará un mensaje de que se ha conectado a la base de datos correctamente y se enviará el primer log con la configuración del dispositivo.\
+6. Actualizar el valor del parámetro `FB_URL` en el archivo `Network/collections/DbConstants.py` con la URL de la Realtime Database.\
+![FB_URL.png](docs/FB_URL.png)
+7. Volver a arrancar el servidor. En vez de indicar que no se ha encontrado el archivo de credenciales, se mostrará un mensaje de que se ha conectado a la base de datos correctamente y se enviará el primer log con la configuración del dispositivo.\
 ![authFB.png](docs/authFB.png)
-7. Si la Realtime Database está configurada correctamente, se enviarán registros sin problema. Solo es necesario activarla para que funcione.
+8. Si la Realtime Database está configurada correctamente, se enviarán registros sin problema. Solo es necesario activarla para que funcione.
 
 ## API REST
 
