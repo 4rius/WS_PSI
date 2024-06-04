@@ -31,7 +31,6 @@ class Node:
             self.peers = peers  # Lista de peers
             self.context = zmq.Context()  # Contexto de ZMQ
             self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
-            self.router_socket.setsockopt(zmq.IPV6, 1)  # Soporte para IPv6
             self.router_socket.set_hwm(2000) # High Water Mark
             self.devices = {}  # Dispositivos conectados
             self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Datos propios
