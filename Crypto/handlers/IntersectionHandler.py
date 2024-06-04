@@ -1,3 +1,6 @@
+from Network import Node
+
+
 class IntersectionHandler:
     def __init__(self, id, my_data, domain, devices, results):
         # Añadimos las variables de instancia de la clase Node para facilitar el acceso a los datos
@@ -13,7 +16,7 @@ class IntersectionHandler:
                        'pubkey': peer_pubkey, 'step': '2'}
         else:
             message = {'data': ser_enc_res, 'implementation': implementation, 'peer': self.id, 'step': 'F'}
-        self.devices[peer]["socket"].send_json(message)
+        Node.Node.getinstance().send_message(peer, message)
 
     def intersection_first_step(self, device, cs):
         raise NotImplementedError

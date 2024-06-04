@@ -1,7 +1,6 @@
 import random
 import threading
 import time
-from typing import Tuple
 
 import zmq
 
@@ -32,6 +31,8 @@ class Node:
             self.peers = peers  # Lista de peers
             self.context = zmq.Context()  # Contexto de ZMQ
             self.router_socket = self.context.socket(zmq.ROUTER)  # Socket ROUTER
+            self.router_socket.setsockopt(zmq.IPV6, 1)  # Soporte para IPv6
+            self.router_socket.set_hwm(2000) # High Water Mark
             self.devices = {}  # Dispositivos conectados
             self.myData = set(random.sample(range(DEFL_DOMAIN), DEFL_SET_SIZE))  # Datos propios
             self.domain = DEFL_DOMAIN  # Dominio de los números aleatorios sobre los que se trabaja
@@ -59,6 +60,7 @@ class Node:
 
     def _connect_to_peer(self, peer):
         dealer_socket = self.context.socket(zmq.DEALER)
+        dealer_socket.set_hwm(2000)
         dealer_socket.connect(f"tcp://{peer}:{self.port}")
         dealer_socket.send_string(f"DISCOVER: Node {self.id} is looking for peers")
 
@@ -211,6 +213,7 @@ class Node:
         if peer in self.devices:
             return f"Already knew {peer}"
         dealer_socket = self.context.socket(zmq.DEALER)
+        dealer_socket.set_hwm(2000)
         dealer_socket.connect(f"tcp://{peer}:{self.port}")
         self.devices[peer] = {"socket": dealer_socket, "last_seen": last_seen}
         print(f"Added {peer} to my network")
@@ -263,3 +266,11 @@ class Node:
                 total_node > 0 else "No tasks running in the node",
                 str(total_handler) + " tasks running in the handler"
                 if total_handler > 0 else "No tasks running in the handler")
+
+    def send_message(self, peer, message):
+        try:
+            self.devices[peer]["socket"].send_json(message, zmq.NOBLOCK)
+            print(f"Message sent to {peer}")
+        except zmq.Again:
+            print(f"Warning: HWM full - Message not sent to {peer} - Device is not consuming messages - Discarding it "
+                  f"for the memory's sake")
