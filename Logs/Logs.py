@@ -101,6 +101,8 @@ def log_activity(thread_data, activity_code, ttlog, version, id, peer=False,
     if my_data_size is not None:
         log["Cleartext_size"] = str(my_data_size) + " bytes"
         log["Ciphertext_size"] = str(ciphertext_size) + " bytes"
+    if ciphertext_size is not None:
+        log["Ciphertext_size"] = str(ciphertext_size) + " bytes"
 
     ref = db.reference(f"/logs/{get_formatted_id(id)}/activities")
     ref.push(log)
