@@ -1,2 +1,0 @@
-256 dj
-1024 paillier

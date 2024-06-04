@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 import numpy as np
 import pandas as pd
@@ -139,7 +140,7 @@ def analyze_activities(ftba, fp):
 
     cmap = plt.get_cmap('tab20')  # Mapa de colores para las barras
     # Iterar sobre las columnas del DataFrame de resultados
-    for column in results.columns:
+    for i, column in enumerate(results.columns):
         if column != 'activity_code' and column != 'device_type':
             # Filtrar NaN antes de nada, para poder seguir teniendo gráficas de los que tengamos datos
             filtered_results = results.dropna(subset=[column])
@@ -153,8 +154,9 @@ def analyze_activities(ftba, fp):
                 plt.xlabel(column.replace('_', ' ').upper())
                 plt.ylabel('Activity Code')
                 # Concatenar en el título ambos tipos de dispositivos, cada uno representa una barra distinta
+                device_types = filtered_results['device_type'].unique()  # Get unique device types
                 plt.title(
-                    column.replace('_', ' ').upper() + ' per Activity Code - ' + ' - '.join(results['device_type']))
+                    column.replace('_', ' ').upper() + ' per Activity Code - ' + ' - '.join(device_types))
 
                 # Mostrar los resultados al lado de la barra
                 for i, value in enumerate(filtered_results[column]):
@@ -168,9 +170,22 @@ def analyze_activities(ftba, fp):
     # Crear una figura y ejes para el gráfico
     fig, axs = plt.subplots(7, 1, figsize=(20, 30))
 
+    # Definir una función para extraer el valor numérico de la cadena con unidades
+    def extract_numeric_value(text):
+        text = str(text)
+        match = re.search(r'[\d.]+', text)
+        if match:
+            return float(match.group())
+        return None
+
+    def sort_and_extract_numeric(data):
+        if data is not None:
+            data_numeric = data.apply(lambda x: extract_numeric_value(x))
+            return data_numeric.sort_values(ascending=True)
+        return None
+
     # Iterar sobre cada grupo de actividad
     for name, group in grouped:
-        timestamps = group['timestamp']
         time_taken = group['time']
         ram_usage = group['Avg_RAM']
         cpu_usage = group['Avg_CPU'] if 'Avg_CPU' in group else None
@@ -187,53 +202,61 @@ def analyze_activities(ftba, fp):
         # Reverseamos el array para que tengamos la información acorde a la hora real
         tiempo_en_minutos = tiempo_en_minutos[::-1]
 
-        # Se ordenan los datos para que salgan de mayor a menor en el eje y
-        time_taken = time_taken.sort_values(ascending=True)
-        ram_usage = ram_usage.sort_values(ascending=True)
-        cpu_usage = cpu_usage.sort_values(ascending=True) if cpu_usage is not None else None
-        instance_ram_usage = instance_ram_usage.sort_values(ascending=True) if instance_ram_usage is not None else None
-        instance_cpu_usage = instance_cpu_usage.sort_values(ascending=True) if instance_cpu_usage is not None else None
-        app_avg_ram = app_avg_ram.sort_values(ascending=True) if app_avg_ram is not None else None
-        app_cpu_time = app_cpu_time.sort_values(ascending=True) if app_cpu_time is not None else None
+        # Se ordenan los datos y se extraen los valores numéricos
+        time_taken_sorted = sort_and_extract_numeric(time_taken)
+        ram_usage_sorted = sort_and_extract_numeric(ram_usage)
+        cpu_usage_sorted = sort_and_extract_numeric(cpu_usage)
+        instance_ram_usage_sorted = sort_and_extract_numeric(instance_ram_usage)
+        instance_cpu_usage_sorted = sort_and_extract_numeric(instance_cpu_usage)
+        app_avg_ram_sorted = sort_and_extract_numeric(app_avg_ram)
+        app_cpu_time_sorted = sort_and_extract_numeric(app_cpu_time)
 
         # Se dibujan los gráficos
-        axs[0].plot(tiempo_en_minutos, time_taken, label=f'Activity {name}')
-        axs[0].set_title('Tiempo de Ejecución (Valor en segundos)')
+        axs[0].plot(tiempo_en_minutos, time_taken_sorted, label=f'Activity {name}')
+        axs[0].set_title('Tiempo de Ejecución - Unidades en segundos')
 
-        axs[1].plot(tiempo_en_minutos, ram_usage, label=f'Activity {name}')
-        axs[1].set_title('Consumo de RAM (Promedio, Android y WS)')
+        axs[1].plot(tiempo_en_minutos, ram_usage_sorted, label=f'Activity {name}')
+        axs[1].set_title('Consumo de RAM (Promedio, Android y WS - Unidades en MB)')
         # Ajustar los ticks del eje Y para mostrar solo los valores más relevantes
         axs[1].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if cpu_usage is not None:
-            axs[2].plot(tiempo_en_minutos, cpu_usage, label=f'Activity {name}')
-            axs[2].set_title('Uso de CPU (Promedio, WS)')
+        if cpu_usage_sorted is not None:
+            axs[2].plot(tiempo_en_minutos, cpu_usage_sorted, label=f'Activity {name}')
+            axs[2].set_title('Uso de CPU (Promedio, WS - Unidades en % de uso)')
             axs[2].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if app_cpu_time is not None:
-            axs[3].plot(tiempo_en_minutos, app_cpu_time, label=f'Activity {name}')
-            axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android)')
+        if app_cpu_time_sorted is not None:
+            axs[3].plot(tiempo_en_minutos, app_cpu_time_sorted, label=f'Activity {name}')
+            axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android) - Unidades en ms')
             axs[3].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if app_avg_ram is not None:
-            axs[4].plot(tiempo_en_minutos, app_avg_ram, label=f'Activity {name}')
-            axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android)')
+        if app_avg_ram_sorted is not None:
+            axs[4].plot(tiempo_en_minutos, app_avg_ram_sorted, label=f'Activity {name}')
+            axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android) - Unidades en MB')
             axs[4].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if instance_cpu_usage is not None:
-            axs[5].plot(tiempo_en_minutos, instance_cpu_usage, label=f'Activity {name}')
-            axs[5].set_title('Uso de CPU de la instancia (Promedio, WS)')
+        if instance_cpu_usage_sorted is not None:
+            axs[5].plot(tiempo_en_minutos, instance_cpu_usage_sorted, label=f'Activity {name}')
+            axs[5].set_title('Uso de CPU de la instancia (Promedio, WS) - Unidades en % de uso')
             axs[5].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if instance_ram_usage is not None:
-            axs[6].plot(tiempo_en_minutos, instance_ram_usage, label=f'Activity {name}')
-            axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS)')
+        if instance_ram_usage_sorted is not None:
+            axs[6].plot(tiempo_en_minutos, instance_ram_usage_sorted, label=f'Activity {name}')
+            axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS) - Unidades en MB')
             axs[6].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
     # Añadir etiquetas a los ejes y leyendas
     for ax in axs:
-        ax.set_xlabel('Tiempo (minutos)')
-        ax.set_ylabel('Valor')
+        ax.set_xlabel('Tiempo - Minutos')
+        # Poner las Y según su unidad
+        if 'RAM' in ax.get_title():
+            ax.set_ylabel('RAM - MB')
+        elif 'CPU' in ax.get_title():
+            ax.set_ylabel('CPU - %')
+        elif 'Tiempo de Ejecución' in ax.get_title():
+            ax.set_ylabel('Tiempo - Segundos')
+        elif 'Tiempo de CPU' in ax.get_title():
+            ax.set_ylabel('Tiempo - ms')
         ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
     # Guardar la figura
@@ -243,7 +266,7 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    analyze_activities('dj-domain-large.json', 'Data/Mac-Mac/')
+    analyze_activities('dj-ope-2048-mac-s21.json', 'Data/Variable keylengths/')
     '''
     files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
              'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json', 'dj-domain-large.json',
