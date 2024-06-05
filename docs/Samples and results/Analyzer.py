@@ -178,14 +178,9 @@ def analyze_activities(ftba, fp):
             return float(match.group())
         return None
 
-    def sort_and_extract_numeric(data):
-        if data is not None:
-            data_numeric = data.apply(lambda x: extract_numeric_value(x))
-            return data_numeric.sort_values(ascending=True)
-        return None
-
     # Iterar sobre cada grupo de actividad
     for name, group in grouped:
+        timestamps = group['timestamp']
         time_taken = group['time']
         ram_usage = group['Avg_RAM']
         cpu_usage = group['Avg_CPU'] if 'Avg_CPU' in group else None
@@ -194,61 +189,57 @@ def analyze_activities(ftba, fp):
         app_avg_ram = group['App_Avg_RAM'] if 'App_Avg_RAM' in group else None
         app_cpu_time = group['CPU_time'] if 'CPU_time' in group else None
 
-        # Crear un array de tiempo en minutos para el eje x
-        # Pasamos algo tipo T%d/%m/%Y %H:%M:%S que es tiempo_total a minutos
-        tiempo_total = df_activities['timestamp'].max() - df_activities['timestamp'].min()
-        tiempo_total = tiempo_total.total_seconds() / 60
-        tiempo_en_minutos = np.linspace(0, tiempo_total, len(time_taken))
-        # Reverseamos el array para que tengamos la información acorde a la hora real
-        tiempo_en_minutos = tiempo_en_minutos[::-1]
+        # Convertir los timestamps a minutos desde el inicio
+        min_timestamp = df_activities['timestamp'].min()
+        tiempo_en_minutos = (timestamps - min_timestamp).dt.total_seconds() / 60
 
-        # Se ordenan los datos y se extraen los valores numéricos
-        time_taken_sorted = sort_and_extract_numeric(time_taken)
-        ram_usage_sorted = sort_and_extract_numeric(ram_usage)
-        cpu_usage_sorted = sort_and_extract_numeric(cpu_usage)
-        instance_ram_usage_sorted = sort_and_extract_numeric(instance_ram_usage)
-        instance_cpu_usage_sorted = sort_and_extract_numeric(instance_cpu_usage)
-        app_avg_ram_sorted = sort_and_extract_numeric(app_avg_ram)
-        app_cpu_time_sorted = sort_and_extract_numeric(app_cpu_time)
+        # Extraer los valores numéricos sin ordenar
+        time_taken_values = time_taken.apply(extract_numeric_value)
+        ram_usage_values = ram_usage.apply(extract_numeric_value)
+        cpu_usage_values = cpu_usage.apply(extract_numeric_value) if cpu_usage is not None else None
+        instance_ram_usage_values = instance_ram_usage.apply(
+            extract_numeric_value) if instance_ram_usage is not None else None
+        instance_cpu_usage_values = instance_cpu_usage.apply(
+            extract_numeric_value) if instance_cpu_usage is not None else None
+        app_avg_ram_values = app_avg_ram.apply(extract_numeric_value) if app_avg_ram is not None else None
+        app_cpu_time_values = app_cpu_time.apply(extract_numeric_value) if app_cpu_time is not None else None
 
-        # Se dibujan los gráficos
-        axs[0].plot(tiempo_en_minutos, time_taken_sorted, label=f'Activity {name}')
+        # Dibujar los gráficos como diagramas de puntos
+        axs[0].plot(tiempo_en_minutos, time_taken_values, label=f'Activity {name}')
         axs[0].set_title('Tiempo de Ejecución - Unidades en segundos')
 
-        axs[1].plot(tiempo_en_minutos, ram_usage_sorted, label=f'Activity {name}')
+        axs[1].plot(tiempo_en_minutos, ram_usage_values, label=f'Activity {name}')
         axs[1].set_title('Consumo de RAM (Promedio, Android y WS - Unidades en MB)')
-        # Ajustar los ticks del eje Y para mostrar solo los valores más relevantes
         axs[1].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if cpu_usage_sorted is not None:
-            axs[2].plot(tiempo_en_minutos, cpu_usage_sorted, label=f'Activity {name}')
+        if cpu_usage_values is not None:
+            axs[2].plot(tiempo_en_minutos, cpu_usage_values, label=f'Activity {name}')
             axs[2].set_title('Uso de CPU (Promedio, WS - Unidades en % de uso)')
             axs[2].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if app_cpu_time_sorted is not None:
-            axs[3].plot(tiempo_en_minutos, app_cpu_time_sorted, label=f'Activity {name}')
+        if app_cpu_time_values is not None:
+            axs[3].plot(tiempo_en_minutos, app_cpu_time_values, label=f'Activity {name}')
             axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android) - Unidades en ms')
             axs[3].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if app_avg_ram_sorted is not None:
-            axs[4].plot(tiempo_en_minutos, app_avg_ram_sorted, label=f'Activity {name}')
+        if app_avg_ram_values is not None:
+            axs[4].plot(tiempo_en_minutos, app_avg_ram_values, label=f'Activity {name}')
             axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android) - Unidades en MB')
             axs[4].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if instance_cpu_usage_sorted is not None:
-            axs[5].plot(tiempo_en_minutos, instance_cpu_usage_sorted, label=f'Activity {name}')
+        if instance_cpu_usage_values is not None:
+            axs[5].plot(tiempo_en_minutos, instance_cpu_usage_values, label=f'Activity {name}')
             axs[5].set_title('Uso de CPU de la instancia (Promedio, WS) - Unidades en % de uso')
             axs[5].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
-        if instance_ram_usage_sorted is not None:
-            axs[6].plot(tiempo_en_minutos, instance_ram_usage_sorted, label=f'Activity {name}')
+        if instance_ram_usage_values is not None:
+            axs[6].plot(tiempo_en_minutos, instance_ram_usage_values, label=f'Activity {name}')
             axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS) - Unidades en MB')
             axs[6].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
     # Añadir etiquetas a los ejes y leyendas
     for ax in axs:
         ax.set_xlabel('Tiempo - Minutos')
-        # Poner las Y según su unidad
         if 'RAM' in ax.get_title():
             ax.set_ylabel('RAM - MB')
         elif 'CPU' in ax.get_title():
@@ -266,7 +257,7 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    analyze_activities('dj-ope-2048-mac-s21.json', 'Data/Variable keylengths/')
+    analyze_activities('dj-domain-2048-mac-s21.json', 'Data/Variable keylengths/')
     '''
     files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
              'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json', 'dj-domain-large.json',
