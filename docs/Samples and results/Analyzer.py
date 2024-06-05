@@ -163,12 +163,20 @@ def analyze_activities(ftba, fp):
                 # Crear una lista de colores basada en los códigos de actividad
                 colors = [cmap(i) for i in np.linspace(0, 1, len(filtered_results['activity_code'].unique()))]
                 plt.barh(filtered_results['activity_code'], filtered_results[column], color=colors)
-                plt.xlabel(column.replace('_', ' ').upper())
-                plt.ylabel('Activity Code')
+                xlabel = ''
+                if column == 'media_tiempo':
+                    xlabel = 'Tiempo medio - Segundos'
+                elif column.__contains__('ram'):
+                    xlabel = 'Consumo de RAM - MB'
+                elif column.__contains__('cpu'):
+                    xlabel = 'Uso de CPU - %'
+                if column == 'cpu_time' or column == 'min_cpu_time' or column == 'max_cpu_time':
+                    xlabel = 'Tiempo medio de CPU - ms'
+                plt.xlabel(xlabel)
+                plt.ylabel('Código de actividad')
                 # Concatenar en el título ambos tipos de dispositivos, cada uno representa una barra distinta
                 device_types = filtered_results['device_type'].unique()  # Get unique device types
-                plt.title(
-                    column.replace('_', ' ').upper() + ' per Activity Code - ' + ' - '.join(device_types))
+                plt.title(column.replace('_', ' ').upper() + ' - Dispositivos: ' + ' - '.join(device_types))
 
                 # Mostrar los resultados al lado de la barra
                 for i, value in enumerate(filtered_results[column]):
