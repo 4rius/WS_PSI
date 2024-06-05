@@ -30,11 +30,23 @@ def analyze_activities(ftba, fp):
                 # Agregar una columna para el identificador actual
                 df['id'] = identificador
 
+                # Convertir la columna de timestamp a datetime
+                df['timestamp'] = pd.to_datetime(df['timestamp'], format="%d/%m/%Y %H:%M:%S", errors='coerce')
+                # Coerce para que ponga NaT si no puede convertir
+
+                # Debug: Verificar datos antes de concatenar
+                if df['timestamp'].isna().any():
+                    print(f"Advertencia: Identificador {identificador} tiene valores NaT antes de concatenar.")
+                else:
+                    print(f"Identificador {identificador} no tiene valores NaT antes de concatenar.")
+
                 # Concatenar el DataFrame actual con el DataFrame que contiene todas las actividades
                 df_activities = pd.concat([df_activities, df], ignore_index=True)
 
-    # Convierte las columnas de tiempo a formato datetime
-    df_activities['timestamp'] = pd.to_datetime(df['timestamp'], format="%d/%m/%Y %H:%M:%S")
+                if df_activities['timestamp'].isna().any():
+                    print("Advertencia: Hay valores NaT en 'timestamp' después de concatenar.")
+                else:
+                    print("No hay valores NaT en 'timestamp' después de concatenar.")
 
     # Calcula el tiempo total
     tiempo_total = df_activities['timestamp'].max() - df_activities['timestamp'].min()
@@ -180,6 +192,7 @@ def analyze_activities(ftba, fp):
 
     # Iterar sobre cada grupo de actividad
     for name, group in grouped:
+        print(f"Procesando grupo: {name}")
         timestamps = group['timestamp']
         time_taken = group['time']
         ram_usage = group['Avg_RAM']
