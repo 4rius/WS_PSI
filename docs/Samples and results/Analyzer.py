@@ -226,35 +226,35 @@ def analyze_activities(ftba, fp):
         app_cpu_time_values = app_cpu_time.apply(extract_numeric_value) if app_cpu_time is not None else None
 
         # Dibujar los gráficos como diagramas de puntos
-        axs[0].plot(tiempo_en_minutos, time_taken_values, label=f'Activity {name}')
+        axs[0].scatter(tiempo_en_minutos, time_taken_values, label=f'Activity {name}')
         axs[0].set_title('Tiempo de Ejecución - Unidades en segundos')
 
-        axs[1].plot(tiempo_en_minutos, ram_usage_values, label=f'Activity {name}')
+        axs[1].scatter(tiempo_en_minutos, ram_usage_values, label=f'Activity {name}')
         axs[1].set_title('Consumo de RAM (Promedio, Android y WS - Unidades en MB)')
         axs[1].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if cpu_usage_values is not None:
-            axs[2].plot(tiempo_en_minutos, cpu_usage_values, label=f'Activity {name}')
+            axs[2].scatter(tiempo_en_minutos, cpu_usage_values, label=f'Activity {name}')
             axs[2].set_title('Uso de CPU (Promedio, WS - Unidades en % de uso)')
             axs[2].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_cpu_time_values is not None:
-            axs[3].plot(tiempo_en_minutos, app_cpu_time_values, label=f'Activity {name}')
+            axs[3].scatter(tiempo_en_minutos, app_cpu_time_values, label=f'Activity {name}')
             axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android) - Unidades en ms')
             axs[3].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_avg_ram_values is not None:
-            axs[4].plot(tiempo_en_minutos, app_avg_ram_values, label=f'Activity {name}')
+            axs[4].scatter(tiempo_en_minutos, app_avg_ram_values, label=f'Activity {name}')
             axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android) - Unidades en MB')
             axs[4].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_cpu_usage_values is not None:
-            axs[5].plot(tiempo_en_minutos, instance_cpu_usage_values, label=f'Activity {name}')
+            axs[5].scatter(tiempo_en_minutos, instance_cpu_usage_values, label=f'Activity {name}')
             axs[5].set_title('Uso de CPU de la instancia (Promedio, WS) - Unidades en % de uso')
             axs[5].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_ram_usage_values is not None:
-            axs[6].plot(tiempo_en_minutos, instance_ram_usage_values, label=f'Activity {name}')
+            axs[6].scatter(tiempo_en_minutos, instance_ram_usage_values, label=f'Activity {name}')
             axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS) - Unidades en MB')
             axs[6].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
@@ -278,17 +278,18 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    analyze_activities('dj-domain-2048-mac-s21.json', 'Data/Variable keylengths/')
-    '''
-    files = ['paillier-domain.json', 'paillier-ope.json', 'paillier-psi-ca.json', 'dj-ope.json', 'dj-domain.json',
-             'dj-psi-ca.json', 'mixed.json', 'dj-ope-512.json', 'paillier-ope-4096.json', 'dj-domain-large.json',
-             'dj-ope-psi-ca-large.json']
+    # analyze_activities('domain-500.json', 'Data/Variable Keylengths/')
+    # Directorio base
+    base_dir = 'Data'
 
-    folders = ['Data/Android-Android/S21Ultra-TabS7FE/', 'Data/Android-Android/TabS7FE-S21Ultra/',
-               'Data/Android-Win/', 'Data/Win-Android/', 'Data/Android-WS-S21Ultra-M1Max/',
-               'Data/WS-Android-M1Max-S21Ultra/', 'Data/Win-Mac/', 'Data/Mac-Win/']  # Mac-Mac is pending
-    for file in files:
-        for folder in folders:
-            if os.path.exists(folder + file):
-                analyze_activities(file, folder)
-'''
+    # Recorrer recursivamente el directorio base
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            # Comprobar que es un archivo JSON
+            if not file.endswith('.json'):
+                print(f'Archivo {file} no es un archivo JSON, se omitirá.')
+                continue
+            folder = root + '/'
+            print('##############################################')
+            print(f'Analizando archivo: {file} de la carpeta: {folder}')
+            analyze_activities(file, folder)
