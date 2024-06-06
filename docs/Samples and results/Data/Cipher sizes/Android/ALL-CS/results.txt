@@ -1,0 +1,61 @@
+Tiempo total: 0 days 00:34:32
+device_type         Android 14 - samsung - SM-G998B
+activity_code           INTERSECTION_DamgardJurik_1
+media_tiempo                               77.89665
+media_ram                               5657.683333
+min_ram                                      5551.0
+max_ram                                      5751.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                             255.970833
+instance_cpu                                   None
+instance_min_ram                              132.0
+instance_max_ram                              343.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                59302.99407
+min_cpu_time                           48315.005102
+max_cpu_time                           62844.209295
+Ciphertext_size                          1861629.95
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_1
+media_tiempo                               7.589608
+media_ram                                  5567.844
+min_ram                                      5548.0
+max_ram                                      5612.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                  132.0
+instance_cpu                                   None
+instance_min_ram                              132.0
+instance_max_ram                              132.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                5784.196507
+min_cpu_time                            5599.107927
+max_cpu_time                            6086.345757
+Ciphertext_size                          189077.616
+Name: 1, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code               INTERSECTION_Paillier_1
+media_tiempo                              14.430636
+media_ram                               5530.272727
+min_ram                                      5527.0
+max_ram                                      5576.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                             131.909091
+instance_cpu                                   None
+instance_min_ram                              131.0
+instance_max_ram                              134.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                9821.020319
+min_cpu_time                            9459.787312
+max_cpu_time                            10927.97214
+Ciphertext_size                      1245918.545455
+Name: 2, dtype: object

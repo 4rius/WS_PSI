@@ -1,0 +1,101 @@
+Tiempo total: 0 days 00:29:20
+device_type         Desktop (Flask): macOS-14.4.1-arm64-arm-64bit ...
+activity_code                         INTERSECTION_FIRST_STEP_BFV_OPE
+media_tiempo                                                  0.54987
+media_ram                                                16651.478333
+min_ram                                                      16616.61
+max_ram                                                      16717.62
+media_cpu                                                   19.483333
+min_cpu                                                          13.4
+max_cpu                                                          30.9
+instance_ram                                               132.153333
+instance_cpu                                               100.183333
+instance_min_ram                                               132.11
+instance_max_ram                                               132.23
+instance_min_cpu                                                 96.4
+instance_max_cpu                                                101.3
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Ciphertext_size                                               11832.0
+Name: 0, dtype: object
+device_type         Desktop (Flask): macOS-14.4.1-arm64-arm-64bit ...
+activity_code            INTERSECTION_FIRST_STEP_Damgard-Jurik_DOMAIN
+media_tiempo                                                122.02669
+media_ram                                                  16320.6299
+min_ram                                                      16260.67
+max_ram                                                      16912.73
+media_cpu                                                     21.5484
+min_cpu                                                         20.88
+max_cpu                                                          51.3
+instance_ram                                                 196.0396
+instance_cpu                                                 101.7203
+instance_min_ram                                               132.74
+instance_max_ram                                               249.66
+instance_min_cpu                                               100.44
+instance_max_cpu                                                106.9
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Ciphertext_size                                               13996.0
+Name: 1, dtype: object
+device_type         Desktop (Flask): macOS-14.4.1-arm64-arm-64bit ...
+activity_code               INTERSECTION_FIRST_STEP_Damgard-Jurik_OPE
+media_tiempo                                                 12.47702
+media_ram                                                  16650.4378
+min_ram                                                      16611.51
+max_ram                                                      16754.86
+media_cpu                                                     19.2296
+min_cpu                                                         13.76
+max_cpu                                                          77.4
+instance_ram                                                 140.9744
+instance_cpu                                                 101.3793
+instance_min_ram                                               135.98
+instance_max_ram                                                145.5
+instance_min_cpu                                               100.25
+instance_max_cpu                                                103.4
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Ciphertext_size                                              96779.23
+Name: 2, dtype: object
+device_type         Desktop (Flask): macOS-14.4.1-arm64-arm-64bit ...
+activity_code                 INTERSECTION_FIRST_STEP_Paillier_DOMAIN
+media_tiempo                                                 35.50423
+media_ram                                                  16491.5871
+min_ram                                                      16379.67
+max_ram                                                      17136.25
+media_cpu                                                     21.6381
+min_cpu                                                         17.59
+max_cpu                                                          58.0
+instance_ram                                                 231.5468
+instance_cpu                                                 100.6451
+instance_min_ram                                                106.2
+instance_max_ram                                               294.98
+instance_min_cpu                                                99.87
+instance_max_cpu                                                103.2
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Ciphertext_size                                               13996.0
+Name: 3, dtype: object
+device_type         Desktop (Flask): macOS-14.4.1-arm64-arm-64bit ...
+activity_code                    INTERSECTION_FIRST_STEP_Paillier_OPE
+media_tiempo                                                  4.20265
+media_ram                                                  16379.0075
+min_ram                                                      16354.83
+max_ram                                                      16712.23
+media_cpu                                                     21.8686
+min_cpu                                                         20.61
+max_cpu                                                          29.6
+instance_ram                                                 247.1128
+instance_cpu                                                 101.0619
+instance_min_ram                                               130.88
+instance_max_ram                                               250.16
+instance_min_cpu                                               100.24
+instance_max_cpu                                                102.6
+cpu_time                                                         None
+min_cpu_time                                                     None
+max_cpu_time                                                     None
+Ciphertext_size                                               65362.7
+Name: 4, dtype: object

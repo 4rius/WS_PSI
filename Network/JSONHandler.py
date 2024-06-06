@@ -1,15 +1,15 @@
 import json
 import time
 
-from Crypto.helpers.BFVHelper import BFVHelper
-from Logs import Logs
-from Logs.Logs import ThreadData
 from Crypto.handlers.CAOPEHandler import CAOPEHandler
-from Crypto.helpers.DamgardJurikHandler import DamgardJurikHelper
 from Crypto.handlers.DomainPSIHandler import DomainPSIHandler
 from Crypto.handlers.OPEHandler import OPEHandler
-from Crypto.helpers.PaillierHandler import PaillierHelper
+from Crypto.helpers.BFVHelper import BFVHelper
 from Crypto.helpers.CryptoImplementation import CryptoImplementation
+from Crypto.helpers.DamgardJurikHandler import DamgardJurikHelper
+from Crypto.helpers.PaillierHandler import PaillierHelper
+from Logs import Logs
+from Logs.Logs import ThreadData
 from Network.PriorityExecutor import PriorityExecutor
 from Network.collections.DbConstants import VERSION, TEST_ROUNDS
 
@@ -47,15 +47,16 @@ class JSONHandler:
 
     def genkeys(self, cs, bit_length=None, domain=None):
         start_time = time.time()
-        Logs.start_logging(ThreadData())
+        thread_data = ThreadData()
+        Logs.start_logging(thread_data)
         if domain is not None:
             self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length, domain=domain)
         else:
             self.CSHandlers[CryptoImplementation.from_string(cs)].generate_keys(bit_length=bit_length)
         end_time = time.time()
-        Logs.stop_logging(ThreadData())
+        Logs.stop_logging(thread_data)
         print("Key generation - " + cs + " - Time: " + str(end_time - start_time) + "s")
-        Logs.log_activity(ThreadData(), "GENKEYS_" + cs + str(bit_length), end_time - start_time, VERSION, self.id)
+        Logs.log_activity(thread_data, "GENKEYS_" + cs + "-" + str(bit_length), end_time - start_time, VERSION, self.id)
 
     def start_intersection(self, device, scheme, type, rounds) -> str:
         crypto_impl = CryptoImplementation.from_string(scheme)

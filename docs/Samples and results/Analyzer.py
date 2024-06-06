@@ -62,12 +62,16 @@ def analyze_activities(ftba, fp):
     results = pd.DataFrame(
         columns=['device_type', 'activity_code', 'media_tiempo', 'media_ram', 'min_ram', 'max_ram', 'media_cpu',
                  'min_cpu', 'max_cpu', 'instance_ram', 'instance_cpu', 'instance_min_ram', 'instance_max_ram',
-                 'instance_min_cpu', 'instance_max_cpu', 'cpu_time', 'min_cpu_time', 'max_cpu_time'])
+                 'instance_min_cpu', 'instance_max_cpu', 'cpu_time', 'min_cpu_time', 'max_cpu_time', 'Ciphertext_size'])
 
     # Calcula las medias y los picos para cada grupo
     for name, group in grouped:
         # Comunes
         media_tiempo = group['time'].mean()
+        # Quitar bytes de la columna de tamaño de cifrado y comprobar si existe
+        if 'Ciphertext_size' in group:
+            group['Ciphertext_size'] = group['Ciphertext_size'].str.replace(' bytes', '').astype(float)
+            media_cipher = group['Ciphertext_size'].mean()
 
         # El valor device_type vendrá en Details o type porque no se unificó el nombre antes de algunas pruebas
         if 'Details' in group and group['Details'].iloc[0] is not nan:
@@ -131,11 +135,13 @@ def analyze_activities(ftba, fp):
                                          max_cpu,
                                          instance_ram, instance_cpu, instance_min_ram, instance_max_ram,
                                          instance_min_cpu,
-                                         instance_max_cpu, None, None, None]
+                                         instance_max_cpu, None, None, None, media_cipher if 'Ciphertext_size'
+                                                                                             in group else None]
         else:
             results.loc[len(results)] = [device_type, name, media_tiempo, media_ram, min_ram, max_ram, None, None, None,
                                          instance_ram, None, instance_min_ram, instance_max_ram, None,
-                                         None, cpu_time, min_cpu_time, max_cpu_time]
+                                         None, cpu_time, min_cpu_time, max_cpu_time, media_cipher if 'Ciphertext_size'
+                                                                                                     in group else None]
 
     # Para guardar los gráficos y los resultados
     if not os.path.exists(folder_path):
@@ -278,7 +284,7 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    # analyze_activities('domain-500.json', 'Data/Variable Keylengths/')
+    # analyze_activities('dj-domain-2048-mac-s21.json', 'Data/Variable Keylengths/')
     # Directorio base
     base_dir = 'Data'
 

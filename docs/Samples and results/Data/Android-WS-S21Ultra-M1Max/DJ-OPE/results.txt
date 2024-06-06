@@ -1,0 +1,61 @@
+Tiempo total: 0 days 00:00:48
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_1
+media_tiempo                               0.320173
+media_ram                                  5052.214
+min_ram                                      5007.0
+max_ram                                      5103.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                                  151.0
+instance_cpu                                   None
+instance_min_ram                              151.0
+instance_max_ram                              159.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                 163.012135
+min_cpu_time                               47.12434
+max_cpu_time                              2176.7286
+Ciphertext_size                                None
+Name: 0, dtype: object
+device_type         Android 14 - samsung - SM-G998B
+activity_code       INTERSECTION_DamgardJurik_OPE_F
+media_tiempo                                0.12274
+media_ram                               5012.538539
+min_ram                                         0.0
+max_ram                                      5101.0
+media_cpu                                      None
+min_cpu                                        None
+max_cpu                                        None
+instance_ram                             149.790791
+instance_cpu                                   None
+instance_min_ram                                0.0
+instance_max_ram                              151.0
+instance_min_cpu                               None
+instance_max_cpu                               None
+cpu_time                                  69.255846
+min_cpu_time                              24.801347
+max_cpu_time                            1246.758731
+Ciphertext_size                                None
+Name: 1, dtype: object
+device_type         Desktop (Flask): macOS-14.1.1-arm64-arm-64bit ...
+activity_code              INTERSECTION_SECOND_STEP_Damgard-Jurik_OPE
+media_tiempo                                                 0.074705
+media_ram                                                         NaN
+min_ram                                                           NaN
+max_ram                                                           NaN
+media_cpu                                                         NaN
+min_cpu                                                           NaN
+max_cpu                                                           NaN
+instance_ram                                                      NaN
+instance_cpu                                                      NaN
+instance_min_ram                                                  NaN
+instance_max_ram                                                  NaN
+instance_min_cpu                                                  NaN
+instance_max_cpu                                                  NaN
+cpu_time                                                          NaN
+min_cpu_time                                                      NaN
+max_cpu_time                                                      NaN
+Ciphertext_size                                                  None
+Name: 2, dtype: object

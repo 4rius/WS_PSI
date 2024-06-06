@@ -15,10 +15,13 @@ class DamgardJurikHelper(CSHelper):
         self.generate_keys()
 
     def generate_keys(self, bit_length=DEFL_KEYSIZE_DAMGARD):
-        # //2 because of the keygen on Android, to match the keygen on Paillier as well, the effective key size is half
-        # the one specified, f a keysize of 2048 is specified, the effective key size will be 1024, this is considered
-        # secure enough for the majority of applications
+        # //2 because of the keygen on Android, to match the keygen on Paillier as well, the effective key size is the
+        # product of p and q, but these are 2048 bits long, so the effective key size would be 4096 bits if this is not
+        # divided by 2.
+        print("Generating Damgard-Jurik keys - bit length: " + str(bit_length) + " - This operation uses safe primes,"
+                                                                                 " it could take up to a minute")
         self.public_key, self.private_key = keygen(n_bits=bit_length//2, s=DEFL_EXPANSIONFACTOR, threshold=1, n_shares=1)
+        print("Damgard-Jurik keys generated")
 
     def encrypt(self, number):
         return self.public_key.encrypt(number)

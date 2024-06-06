@@ -82,10 +82,13 @@ class BFVHelper(CSHelper):
         self.prime, self.min_degree = find_params(domain)
         self.params = BFVParameters(poly_degree=self.min_degree, plain_modulus=self.prime,
                                     ciph_modulus=0x3ffffffff000001)
+        print("Generating BFV keys - Prime: ", self.prime, " - Degree: ", self.min_degree, " - Ciphertext Modulus: ",
+              self.params.ciph_modulus)
         key_generator = BFVKeyGenerator(self.params)
         self.public_key = key_generator.public_key
         self.secret_key = key_generator.secret_key
         self.relin_key = key_generator.relin_key
+        print("BFV keys generated")
         self.encoder = BatchEncoder(self.params)
         self.encryptor = BFVEncryptor(self.params, self.public_key)
         self.decryptor = BFVDecryptor(self.params, self.secret_key)

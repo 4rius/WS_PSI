@@ -7,7 +7,7 @@ from flask.views import MethodView
 from Logs import Logs
 from Network.Node import Node
 from Network.collections import networking
-from Network.collections.DbConstants import DEFL_PORT
+from Network.collections.DbConstants import DEFL_PORT, print_banner
 from Network.collections.networking import is_valid_ipv4, is_valid_ipv6
 from Crypto.helpers.CryptoImplementation import CryptoImplementation
 
@@ -17,13 +17,15 @@ def node_wrapper(func):
     def wrapper(*args, **kwargs):
         node = Node.getinstance()
         if node is None:
-            return jsonify({'status': 'Node not connected'})
+            return jsonify({'status': 'The node is not running. Connect to the network first'})
         return func(node, *args, **kwargs)
 
     return wrapper
 
 
 def create_app(test_config=None):
+    print("The service is starting...")
+
     def create_node(port=DEFL_PORT):
         peers = ["192.168.1.135", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]"]
         local_ip = networking.get_local_ip()
@@ -33,6 +35,7 @@ def create_app(test_config=None):
         Logs.setup_logs(node.id, len(node.myData), node.domain)
 
     create_node()
+    print_banner()
 
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -91,7 +94,7 @@ def create_app(test_config=None):
         else:
             create_node(port)
         return jsonify({'status': 'Node connected using port ' + str(port) if port is not None else
-                        'Node connected using port ' + str(DEFL_PORT)})
+        'Node connected using port ' + str(DEFL_PORT)})
 
     @app.route('/api/mykeys', methods=['GET'])
     @node_wrapper
