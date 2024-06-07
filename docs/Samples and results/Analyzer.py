@@ -176,6 +176,8 @@ def analyze_activities(ftba, fp):
                     xlabel = 'Consumo de RAM - MB'
                 elif column.__contains__('cpu'):
                     xlabel = 'Uso de CPU - %'
+                elif column == 'Ciphertext_size':
+                    xlabel = 'Tamaño de cifrado - bytes'
                 if column == 'cpu_time' or column == 'min_cpu_time' or column == 'max_cpu_time':
                     xlabel = 'Tiempo medio de CPU - ms'
                 plt.xlabel(xlabel)
