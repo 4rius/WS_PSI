@@ -271,12 +271,12 @@ def analyze_activities(ftba, fp):
         ax.set_xlabel('Tiempo - Minutos')
         if 'RAM' in ax.get_title():
             ax.set_ylabel('RAM - MB')
+        elif 'Tiempo de CPU' in ax.get_title():
+            ax.set_ylabel('Tiempo - ms')
         elif 'CPU' in ax.get_title():
             ax.set_ylabel('CPU - %')
         elif 'Tiempo de Ejecución' in ax.get_title():
             ax.set_ylabel('Tiempo - Segundos')
-        elif 'Tiempo de CPU' in ax.get_title():
-            ax.set_ylabel('Tiempo - ms')
         ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 
     # Guardar la figura
