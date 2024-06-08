@@ -18,7 +18,7 @@ class DomainPSIHandler(IntersectionHandler):
                           encrypted_data.items()}
         self.send_message(device, encrypted_data, cs.imp_name, serialized_pubkey)
         my_data_size = sum(sys.getsizeof(element) for element in self.my_data)
-        ciphertext_size = sum(sys.getsizeof(element) for element in encrypted_data)
+        ciphertext_size = sum(sys.getsizeof(value) for element, value in encrypted_data.items())
         return my_data_size, ciphertext_size
 
     @log_activity("DOMAIN")
@@ -27,7 +27,7 @@ class DomainPSIHandler(IntersectionHandler):
         multiplied_set = cs.get_multiplied_set(cs.get_encrypted_set(peer_data, pubkey), self.my_data)
         serialized_multiplied_set = cs.serialize_result(multiplied_set)
         self.send_message(device, serialized_multiplied_set, cs.imp_name)
-        ciphertext_size = sum(sys.getsizeof(element) for element in serialized_multiplied_set)
+        ciphertext_size = sum(sys.getsizeof(value) for element, value in serialized_multiplied_set.items())
         return None, ciphertext_size
 
     @log_activity("DOMAIN")
