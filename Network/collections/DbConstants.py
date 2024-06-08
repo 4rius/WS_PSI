@@ -1,6 +1,6 @@
 import sys
 
-VERSION = '2.2'
+VERSION = '2.3'
 
 DEFL_DOMAIN = 500
 DEFL_SET_SIZE = 50
