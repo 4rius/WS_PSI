@@ -9,6 +9,60 @@ from matplotlib import ticker
 from numpy import nan
 
 
+def get_cs_label(name):
+    if 'Damgard-Jurik' in name or 'DamgardJurik' in name:
+        if 'OPE' in name:
+            return ' - Damgard-Jurik OPE'
+        return ' - Damgard-Jurik Dominio'
+    elif 'Paillier' in name:
+        if 'OPE' in name:
+            return ' - Paillier OPE'
+        return ' - Paillier Dominio'
+    elif 'BFV' in name:
+        if 'OPE' in name:
+            return ' - BFV OPE'
+        return ' - BFV Dominio'
+
+
+def get_label(name):
+    # KEYGEN_DamgardJurik-1024
+    if 'GENKEYS' in name or 'KEYGEN' in name:
+        match = re.match(r'(GENKEYS|KEYGEN)_(DamgardJurik|Damgard-Jurik|Paillier|BFV)-?(\d+)?', name)
+        if match:
+            # el grupo 1 es el tipo de actividad, el grupo 2 es el criptosistema y el grupo 3 son los bits
+            cryptosystem = match.group(2)
+            # Se coge el siguiente valor del grupor de regex si existe, si no se asigna 2048
+            bits = match.group(3) if match.group(3) else '2048'
+            platform = 'WS' if 'GENKEYS' in match.group(1) else 'Android'
+            return f'Generación de claves - {cryptosystem} - {bits} bits - {platform}'
+    else:
+        if '1' in name:
+            if 'CARDINALITY' in name:
+                return 'Cardinalidad - Cifrado - Android' + get_cs_label(name)
+            return 'Cifrado - Android' + get_cs_label(name)
+        elif '2' in name:
+            if 'CARDINALITY' in name:
+                return 'Cardinalidad - Evaluación - Android' + get_cs_label(name)
+            return 'Evaluación - Android' + get_cs_label(name)
+        elif '_F' in name and 'FIRST' not in name:
+            if 'CARDINALITY' in name:
+                return 'Cardinalidad - Descifrado - Android' + get_cs_label(name)
+            return 'Descifrado - Android' + get_cs_label(name)
+        else:
+            if 'FIRST' in name:
+                if 'CARDINALITY' in name:
+                    return 'Cardinalidad - Cifrado - WS' + get_cs_label(name)
+                return 'Cifrado - WS' + get_cs_label(name)
+            elif 'SECOND' in name:
+                if 'CARDINALITY' in name:
+                    return 'Cardinalidad - Evaluación - WS' + get_cs_label(name)
+                return 'Descifrado - WS' + get_cs_label(name)
+            else:
+                if 'CARDINALITY' in name:
+                    return 'Cardinalidad - Descifrado - WS' + get_cs_label(name)
+                return 'Evaluación - WS' + get_cs_label(name)
+
+
 def analyze_activities(ftba, fp):
     output_folder = ftba.split('.')[0].upper()
     folder_path = fp + output_folder
@@ -161,14 +215,16 @@ def analyze_activities(ftba, fp):
     for i, column in enumerate(results.columns):
         if column != 'activity_code' and column != 'device_type':
             # Filtrar NaN antes de nada, para poder seguir teniendo gráficas de los que tengamos datos
-            filtered_results = results.dropna(subset=[column])
+            filtered_results = results.dropna(subset=[column]).copy()
+            # Aplicar el get_label para que los gráficos tengan un título más descriptivo
+            filtered_results['activity_name'] = filtered_results['activity_code'].apply(get_label)
 
             if not filtered_results.empty:  # Verificar que haya datos después de filtrar NaN
                 # Crear el gráfico
                 plt.figure(figsize=(15, 5))  # Ajustar tamaño del gráfico
                 # Crear una lista de colores basada en los códigos de actividad
                 colors = [cmap(i) for i in np.linspace(0, 1, len(filtered_results['activity_code'].unique()))]
-                plt.barh(filtered_results['activity_code'], filtered_results[column], color=colors)
+                plt.barh(filtered_results['activity_name'], filtered_results[column], color=colors)
                 xlabel = ''
                 if column == 'media_tiempo':
                     xlabel = 'Tiempo medio - Segundos'
@@ -181,7 +237,7 @@ def analyze_activities(ftba, fp):
                 if column == 'cpu_time' or column == 'min_cpu_time' or column == 'max_cpu_time':
                     xlabel = 'Tiempo medio de CPU - ms'
                 plt.xlabel(xlabel)
-                plt.ylabel('Código de actividad')
+                plt.ylabel('Actividad')
                 # Concatenar en el título ambos tipos de dispositivos, cada uno representa una barra distinta
                 device_types = filtered_results['device_type'].unique()  # Get unique device types
                 plt.title(column.replace('_', ' ').upper() + ' - Dispositivos: ' + ' - '.join(device_types))
@@ -233,42 +289,45 @@ def analyze_activities(ftba, fp):
         app_avg_ram_values = app_avg_ram.apply(extract_numeric_value) if app_avg_ram is not None else None
         app_cpu_time_values = app_cpu_time.apply(extract_numeric_value) if app_cpu_time is not None else None
 
+        # Obtener la etiqueta de la leyenda
+        label = get_label(name)
+
         # Dibujar los gráficos como diagramas de puntos
-        axs[0].scatter(tiempo_en_minutos, time_taken_values, label=f'Activity {name}')
+        axs[0].scatter(tiempo_en_minutos, time_taken_values, label=label)
         axs[0].set_title('Tiempo de Ejecución - Unidades en segundos')
 
-        axs[1].scatter(tiempo_en_minutos, ram_usage_values, label=f'Activity {name}')
+        axs[1].scatter(tiempo_en_minutos, ram_usage_values, label=label)
         axs[1].set_title('Consumo de RAM (Promedio, Android y WS - Unidades en MB)')
         axs[1].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if cpu_usage_values is not None:
-            axs[2].scatter(tiempo_en_minutos, cpu_usage_values, label=f'Activity {name}')
+            axs[2].scatter(tiempo_en_minutos, cpu_usage_values, label=label)
             axs[2].set_title('Uso de CPU (Promedio, WS - Unidades en % de uso)')
             axs[2].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_cpu_time_values is not None:
-            axs[3].scatter(tiempo_en_minutos, app_cpu_time_values, label=f'Activity {name}')
+            axs[3].scatter(tiempo_en_minutos, app_cpu_time_values, label=label)
             axs[3].set_title('Tiempo de CPU de las actividades (Promedio, Android) - Unidades en ms')
             axs[3].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if app_avg_ram_values is not None:
-            axs[4].scatter(tiempo_en_minutos, app_avg_ram_values, label=f'Activity {name}')
+            axs[4].scatter(tiempo_en_minutos, app_avg_ram_values, label=label)
             axs[4].set_title('Consumo de RAM de la aplicación (Promedio, Android) - Unidades en MB')
             axs[4].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_cpu_usage_values is not None:
-            axs[5].scatter(tiempo_en_minutos, instance_cpu_usage_values, label=f'Activity {name}')
+            axs[5].scatter(tiempo_en_minutos, instance_cpu_usage_values, label=label)
             axs[5].set_title('Uso de CPU de la instancia (Promedio, WS) - Unidades en % de uso')
             axs[5].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
         if instance_ram_usage_values is not None:
-            axs[6].scatter(tiempo_en_minutos, instance_ram_usage_values, label=f'Activity {name}')
+            axs[6].scatter(tiempo_en_minutos, instance_ram_usage_values, label=label)
             axs[6].set_title('Consumo de RAM de la instancia (Promedio, WS) - Unidades en MB')
             axs[6].yaxis.set_major_locator(ticker.MaxNLocator(nbins=10))
 
     # Añadir etiquetas a los ejes y leyendas
     for ax in axs:
-        ax.set_xlabel('Tiempo - Minutos')
+        ax.set_xlabel('Marca de tiempo de la actividad desde el inicio de la prueba (Minutos)')
         if 'RAM' in ax.get_title():
             ax.set_ylabel('RAM - MB')
         elif 'Tiempo de CPU' in ax.get_title():
@@ -286,9 +345,9 @@ def analyze_activities(ftba, fp):
 
 
 if __name__ == '__main__':
-    # analyze_activities('dj-domain-2048-mac-s21.json', 'Data/Variable Keylengths/')
+    # analyze_activities('dj-domain-2048-mac-s21.json', 'Experiments/Variable Keylengths/')
     # Directorio base
-    base_dir = 'Data'
+    base_dir = 'Experiments'
 
     # Recorrer recursivamente el directorio base
     for root, dirs, files in os.walk(base_dir):
