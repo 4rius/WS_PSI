@@ -44,7 +44,7 @@ def get_label(name):
             if 'CARDINALITY' in name:
                 return 'Cardinalidad - Evaluación - Android' + get_cs_label(name)
             return 'Evaluación - Android' + get_cs_label(name)
-        elif '_F' in name and 'FIRST' not in name:
+        elif '_F' in name and 'FINAL' not in name and 'FIRST' not in name and 'SECOND' not in name:
             if 'CARDINALITY' in name:
                 return 'Cardinalidad - Descifrado - Android' + get_cs_label(name)
             return 'Descifrado - Android' + get_cs_label(name)
@@ -56,11 +56,11 @@ def get_label(name):
             elif 'SECOND' in name:
                 if 'CARDINALITY' in name:
                     return 'Cardinalidad - Evaluación - WS' + get_cs_label(name)
-                return 'Descifrado - WS' + get_cs_label(name)
+                return 'Evaluación - WS' + get_cs_label(name)
             else:
                 if 'CARDINALITY' in name:
                     return 'Cardinalidad - Descifrado - WS' + get_cs_label(name)
-                return 'Evaluación - WS' + get_cs_label(name)
+                return 'Descifrado - WS' + get_cs_label(name)
 
 
 def analyze_activities(ftba, fp):
