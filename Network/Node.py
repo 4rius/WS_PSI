@@ -19,8 +19,10 @@ class Node:
             return None
         return Node.__instance
 
-    def __init__(self, id, port, peers):
+    def __init__(self, id, port, peers=None):
         """ Virtually private constructor. """
+        if peers is None:
+            peers = []
         if Node.__instance is not None:
             raise Exception("This class is a singleton!")
         else:

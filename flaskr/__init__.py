@@ -27,10 +27,9 @@ def create_app(test_config=None):
     print("The service is starting...")
 
     def create_node(port=DEFL_PORT):
-        peers = ["192.168.1.135", "[2001:0db8:85a3:0000:0000:8a2e:0370:7334]"]
         local_ip = networking.get_local_ip()
 
-        node = Node(local_ip, port, peers)
+        node = Node(local_ip, port)
         node.start()
         Logs.setup_logs(node.id, len(node.myData), node.domain)
 
