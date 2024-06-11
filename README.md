@@ -70,3 +70,15 @@ Para importarla, se debe seguir los siguientes pasos:
 En el apartado de `Variables` se pueden modificar las variables de entorno para que se ajusten a la configuración del servidor. Por defecto traen la URL y el puerto del servidor de desarrollo de Flask, así como un dispositivo para probar las peticiones. \
 Cada petición tiene una descripción detallada de lo que hace y qué espera recibir para funcionar correctamente. \
 ![PostmanDocs.png](docs/PostmanDocs.png)
+
+## Despliegue Docker
+El código proporcionado contiene todo lo necesario para crear una imagen de Docker y levantar servicios independientes en la misma máquina utilizando Waitress.
+Para crear la imagen es necesario contar con el demonio de Docker que haya disponible para la máquina en que se esté trabajando.
+- Ir a la raíz del repositorio y ejecutar el comando `docker build -t ws-psi .`
+-  Una vez creada la imagen, en el mismo directorio, se puede ejecutar `docker compose up`
+El archivo `docker-compose.yml` está configurado para crear 4 servicios bajo la misma red de Docker, luego estos se podrán conectar entre ellos como si se tratase de una red de área local.
+Para parar el servicio se puede mandar el comando `docker compose down` o utilizar el atajo `CTRL + C`.
+Para eliminar los contenedores y que no consuman recursos, se puede utilizar el comando `docker rm $(docker ps -aq)`.
+
+## Licencia
+Este proyecto está distribuido bajo la licencia MIT. Para más información, consultar el archivo [LICENSE](LICENSE).
