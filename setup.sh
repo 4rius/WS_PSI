@@ -2,7 +2,7 @@
 
 ENV_NAME="WS-PSI-ENV"
 echo "### PSI Suite - Instalador de dependencias ###"
-echo "Por favor, asegúrate de que se está ejecutando en un entorno Linux con Python 3.9 o superior."
+echo "Por favor, asegúrate de que este instalador se esté ejecutando en un entorno Linux con Python 3.9"
 echo "ENV_NAME: $ENV_NAME"
 echo "PYTHON VERSION: $(python3.9 --version)"
 echo "#############################################"
