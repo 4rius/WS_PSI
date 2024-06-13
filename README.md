@@ -19,7 +19,6 @@ Para arrancar el servicio se pueden seguir estos pasos:
     2. Activar el entorno virtual: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows.
     3. Instalar las dependencias: `pip install -r requirements.txt`. Y las dependencias para BFV `py-fhe`: `cd Crypto/py-fhe && pip install .` \
 Por conveniencia, existe un archivo `setup.sh` que realiza todos estos pasos (para macOS y Linux). Para ejecutarlo, se debe dar permisos de ejecución: `chmod +x setup.sh` y ejecutarlo: `./setup.sh`.\
-Para Windows, existe un archivo `setup.bat`. Para ejecutarlo, simplemente se debe hacer doble click sobre el archivo.
 4. Si no estamos en el entorno virtual (al terminar el script), se debe activar: `source WS-PSI-ENV/bin/activate` en Linux o `WS-PSI-ENV\Scripts\activate` en Windows. Donde `WS-PSI-ENV` es el nombre del entorno virtual.
 5. Arrancar el servidor:
    1. Usando el servidor de desarrollo por defecto de Flask: `flask --app flaskr:create_app run`.\

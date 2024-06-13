@@ -26,7 +26,7 @@ def print_banner():
 #`--'     `-----' `--'    `-----'  `----' `--'  `--'   `----' #
 #                                                             #
 ###############################################################
-#           PSI Suite - Flask API and Interface               #
+#           PSI Suite - Web Service - Flask API and Interface #
 #           Author: Santiago Arias - github.com/4rius/WS_PSI  #
 #           VERSION: {VERSION}                                      #
 ###############################################################
