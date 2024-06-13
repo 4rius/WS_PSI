@@ -2,7 +2,7 @@
 Servicio web de Flask que levanata un nodo y expone una API REST y una interfaz gráfica con el objetivo de probar diferentes criptosistemas y protocolos para calcular PSI (Private Set Intersection) o conjuntos de intersecciones privados.
 
 ## Requisitos
-* **Python 3.9**
+* **Python 3.11**
 * git
 * pip
 
